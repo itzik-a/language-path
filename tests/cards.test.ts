@@ -84,3 +84,17 @@ describe("checking answers", () => {
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });
+
+import { dayTotals, streak } from "../src/lib/progress";
+import { addDays, today } from "../src/lib/dates";
+describe("progress", () => {
+  it("sums day logs over devices and counts the streak", () => {
+    const s = getState();
+    const mk = (date: string, device: string, reviews: number) => ({ id: `d_${date}_ja_${device}`, updatedAt: 1, date, lang: "ja" as const, device, reviews, newWords: 0, readSec: 0, talkSec: 0, turns: 0 });
+    const t = today();
+    replaceState({ ...s, days: [mk(t, "a", 3), mk(t, "b", 2), mk(addDays(t, -1), "a", 1), mk(addDays(t, -3), "a", 5)] });
+    expect(dayTotals(getState(), "ja", 2)[1].reviews).toBe(5);
+    expect(streak(getState(), "ja")).toBe(2);
+    expect(streak(getState(), "pl")).toBe(0);
+  });
+});

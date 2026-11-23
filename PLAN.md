@@ -66,7 +66,18 @@ Tabs: **Today · Read · Talk · Words**. The active language is a switch at the
 7. **Talk**: scenarios, chat with corrections, voice in and out, end-of-chat review → cards.
 8. **Today & progress**: the four-strand day, minutes and streak, progress charts.
 
-## 7. Decisions (2026-11-23)
+Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, light and dark, all three languages (furigana, right-to-left Arabic); 35 tests (starter data, furigana, romaji, queue and grading, merge, encryption with gzip, Claude jobs against a fake API). Not yet tried: real Claude calls (no key yet), sync against a real gist, voices / speech recognition / microphone on the iPhone.
+
+## 7. Follow-ups
+
+- FSRS parameter optimisation from my own review logs (once there are a few thousand).
+- Arabic dialect (Levantine / Egyptian) as a conversation setting.
+- Kanji cards (meaning + reading) for kanji met in words.
+- Polish declension tables on noun / adjective pages.
+- A phone-friendly "hands-free" talk mode (listen → reply → listen) and pronunciation feedback.
+- Import from feed-path (articles in Polish / Japanese / Arabic) into Read.
+
+## 8. Decisions (2026-11-23)
 
 - Three languages, all beginners; goals: listening, conversation, reading.
 - Arabic: MSA everywhere (matches the built-in voices); a spoken dialect can come later as a setting.
