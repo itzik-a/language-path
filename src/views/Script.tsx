@@ -1,8 +1,9 @@
-/* Scripts & sounds: kana tables, the Arabic alphabet and vowel marks, known kanji, Polish sounds, minimal pairs. */
+/* Scripts & sounds: kana tables, the Arabic alphabet and vowel marks, the Greek alphabet and letter pairs, known kanji,
+   Polish and Portuguese sounds, minimal pairs. */
 import { useMemo, useState } from "react";
 import { IconBack, IconCheck, IconNext, IconSpeaker } from "../components/Icons";
 import { Term, useDisplay } from "../components/Lx";
-import { letterForms, PAIRS, POLISH_SOUNDS, setsFor, SCRIPT_SETS, type ScriptChar, type ScriptSet } from "../data/scripts";
+import { letterForms, PAIRS, SOUNDS, setsFor, SCRIPT_SETS, type ScriptChar, type ScriptSet } from "../data/scripts";
 import { hasKanji, kanjiIn, LANG } from "../lib/langs";
 import { href } from "../lib/route";
 import { speak } from "../lib/speech";
@@ -15,7 +16,7 @@ export function Script({ lang, sub }: { lang: Lang; sub?: string }) {
   const set = SCRIPT_SETS.find((s) => s.id === sub && s.lang === lang);
   if (set) return <SetPage set={set} />;
   if (sub === "kanji" && lang === "ja") return <KanjiPage />;
-  if (sub === "sounds" && lang === "pl") return <SoundsPage />;
+  if (sub === "sounds" && SOUNDS[lang]) return <SoundsPage lang={lang} />;
   if (sub === "pairs") return <PairsPage lang={lang} />;
   return <Overview lang={lang} />;
 }
@@ -63,11 +64,11 @@ function Overview({ lang }: { lang: Lang }) {
             </a>
           </li>
         )}
-        {lang === "pl" && (
+        {SOUNDS[lang] && (
           <li>
             <a className="card link-card" href={href("script", "sounds")}>
-              <span className="set-mark">ł</span>
-              <span className="link-card-main"><b>Polish sounds</b><span className="muted small">ą ę ł, cz sz rz, ć ś ź, and the stress rule</span></span>
+              <span className="set-mark" lang={LANG[lang].bcp}>{SOUNDS[lang].mark}</span>
+              <span className="link-card-main"><b>{SOUNDS[lang].title}</b><span className="muted small">{SOUNDS[lang].blurb}</span></span>
               <IconNext className="chev" />
             </a>
           </li>
@@ -349,23 +350,26 @@ function KanjiPage() {
   );
 }
 
-// ── Polish sounds ─────────────────────────────────────────────
+// ── sounds (Polish, Portuguese) ───────────────────────────────
 
-function SoundsPage() {
+function SoundsPage({ lang }: { lang: Lang }) {
+  const page = SOUNDS[lang]!;
+  const bcp = LANG[lang].bcp;
   return (
     <>
       <Back />
       <div className="page-head">
-        <span className="eyebrow">Polish</span>
-        <h1 className="display">Polish sounds</h1>
-        <p className="muted">Polish is spelled the way it sounds once you know these. Stress is almost always on the second-to-last syllable: <i>dzię-KU-ję</i>, <i>prze-PRA-szam</i>.</p>
+        <span className="eyebrow">{LANG[lang].name}</span>
+        <h1 className="display">{page.title}</h1>
+        <p className="muted">{page.intro}</p>
       </div>
+      <p className="muted small">Tap a row to hear the example.</p>
       <ul className="card sound-list">
-        {POLISH_SOUNDS.map((x) => (
+        {page.list.map((x) => (
           <li key={x.g}>
-            <button type="button" className="sound-row" onClick={() => void speak(x.ex, "pl")}>
-              <span className="sound-g" lang="pl">{x.g}</span>
-              <span className="sound-main"><span>{x.how}</span><span className="muted small"><b lang="pl">{x.ex}</b> · {x.gloss}</span></span>
+            <button type="button" className="sound-row" onClick={() => void speak(x.ex, lang)}>
+              <span className="sound-g" lang={bcp}>{x.g}</span>
+              <span className="sound-main"><span>{x.how}</span><span className="muted small"><b lang={bcp}>{x.ex}</b> · {x.gloss}</span></span>
               <IconSpeaker className="chev" />
             </button>
           </li>

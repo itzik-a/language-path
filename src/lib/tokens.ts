@@ -1,8 +1,8 @@
 /* Sentences as tokens. */
 import type { Lang, Sentence, Token } from "../types";
-import { LANG } from "./langs";
+import { LANG, lowerIfCased } from "./langs";
 
-const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:…)\]»”、。！？」』）،؟؛]+$/;
+const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:;·…)\]»”、。！？」』）،؟؛]+$/;
 const OPEN_NO_SPACE_AFTER = /^[(\[«„“「『（]+$/;
 const ONLY_PUNCT = /^[\p{P}\p{S}]+$/u;
 
@@ -21,7 +21,7 @@ export function sentence(lang: Lang, spec: string, tr: string): Sentence {
     if (!p.includes("|")) { tokens.push({ t: p }); return; }
     const [t, l, g, r] = p.split("|");
     // "-" as lemma: a name (has a gloss, isn't a word to learn)
-    const lemma = l === "-" ? undefined : l === "=" ? (lang === "pl" ? t.toLowerCase() : t) : l;
+    const lemma = l === "-" ? undefined : l === "=" ? lowerIfCased(lang, t) : l;
     tokens.push({ t, ...(lemma ? { l: lemma } : {}), ...(g ? { g } : {}), ...(r && r !== t ? { r } : {}) });
   });
   return { tokens, tr };
@@ -38,7 +38,7 @@ export function speakText(s: Sentence, opts: { reading?: boolean } = {}) {
 /** Split plain text into rough tokens (no lemmas) when nothing better is available. */
 export function roughTokens(lang: Lang, text: string): Token[] {
   const seg = new Intl.Segmenter(LANG[lang].bcp, { granularity: "word" });
-  return [...seg.segment(text)].map((s) => (s.isWordLike ? { t: s.segment, l: lang === "pl" ? s.segment.toLowerCase() : s.segment } : { t: s.segment }));
+  return [...seg.segment(text)].map((s) => (s.isWordLike ? { t: s.segment, l: lowerIfCased(lang, s.segment) } : { t: s.segment }));
 }
 
 /** Split plain text into sentences. */

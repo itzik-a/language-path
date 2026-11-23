@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish and Arabic (MSA)**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern) and Portuguese (European)**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -27,6 +27,16 @@ Skipped on purpose: learning styles, translation drills of tiny sentences, heavy
 | Typing | Romaji is turned into kana as I type | Missing diacritics accepted as "almost" | Optional; cards are graded by saying the answer |
 | Extras | | Case endings shown in word notes | Root and Hebrew cognate on words (كتب ↔ כתב), right-to-left layout |
 | Voice | iPhone/Mac Japanese voice (single words read from their kana, so kanji aren't misread) | Polish voice | Arabic voice, fed vowelled text |
+
+Added 2026-11-24:
+
+| | Greek (modern) | Portuguese (European) |
+|---|---|---|
+| Where I start | From zero | Beginner-intermediate; I speak Spanish |
+| Script | Alphabet trainer with each letter's Hebrew counterpart (both come from Phoenician: α–א, β–ב…), and the letter pairs (ου, αι, μπ, ντ…) | Latin; a sounds page for what Portugal sounds like (swallowed vowels, ão, lh, nh, sh for s) |
+| Typing | Missing accents are "almost"; typing in Latin letters is checked by sound | Missing accents are "almost" |
+| Extras | Transliteration under every word, worked out on the device (stress marked); stress minimal pairs (πότε / ποτέ) | Starter words are Portugal's words (autocarro, comboio, telemóvel) and Spanish false friends (esquisito, polvo, embaraçado); Claude writes pt-PT only (tu, estar a + infinitive) |
+| Voice | Greek voice | Portugal voices first (Joana, Catarina); Brazilian ones are labelled |
 
 ## 3. Concepts
 
@@ -78,6 +88,8 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 - Import from feed-path (articles in Polish / Japanese / Arabic) into Read.
 
 ## 8. Decisions (2026-11-23)
+
+- 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
 
 - Three languages, all beginners; goals: listening, conversation, reading.
 - Arabic: MSA everywhere (matches the built-in voices); a spoken dialect can come later as a setting.

@@ -15,6 +15,15 @@ import { live, startNewWords } from "../state/actions";
 import { useAppState } from "../state/store";
 import { LANGS, type Lang } from "../types";
 
+/** The Scripts & sounds link: a mark and what's there. */
+const SCRIPT_LINK: Record<Lang, [string, string]> = {
+  ja: ["あ", "Kana, your kanji, long vowels"],
+  pl: ["ł", "ą ę ł, cz sz rz, and minimal pairs"],
+  ar: ["ب", "The alphabet, vowel marks, throat letters"],
+  el: ["α", "The alphabet, letter pairs, stress"],
+  pt: ["ã", "European sounds: ão, lh, nh, the swallowed vowels"],
+};
+
 const WEEKDAY = (date: string) => new Date(date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "narrow" });
 const LONGDAY = (date: string) => new Date(date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" });
 
@@ -142,8 +151,8 @@ export function Today({ lang }: { lang: Lang }) {
       </section>
 
       <a className="card link-card" href={href("script")}>
-        <span className={`set-mark lx-${lang}`}>{lang === "ja" ? "あ" : lang === "ar" ? "ب" : "ł"}</span>
-        <span className="link-card-main"><b>Scripts & sounds</b><span className="muted small">{lang === "ja" ? "Kana, your kanji, long vowels" : lang === "ar" ? "The alphabet, vowel marks, throat letters" : "ą ę ł, cz sz rz, and minimal pairs"}</span></span>
+        <span className={`set-mark lx-${lang}`} lang={LANG[lang].bcp}>{SCRIPT_LINK[lang][0]}</span>
+        <span className="link-card-main"><b>Scripts & sounds</b><span className="muted small">{SCRIPT_LINK[lang][1]}</span></span>
         <IconNext className="chev" />
       </a>
     </>

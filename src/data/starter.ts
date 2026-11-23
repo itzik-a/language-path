@@ -7,7 +7,8 @@ import type { Lang } from "../types";
 export interface StarterWord {
   lemma: string;
   reading?: string;
-  translit: string;
+  /** Greek: worked out from the lemma; Polish / Portuguese: the lemma */
+  translit?: string;
   gloss: string;
   pos: string;
   ex?: [spec: string, translation: string];
@@ -147,4 +148,97 @@ const ar: StarterWord[] = [
   { lemma: "سُوق", translit: "sūq", gloss: "market", pos: "noun (m/f)", hebrew: "שׁוּק" },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar };
+const el: StarterWord[] = [
+  { lemma: "γεια", gloss: "hi; bye (lit. health)", pos: "phrase", ex: ["Γεια|γεια|hi σου|εσύ|to you !", "Hi!"], note: "to several people or politely: γεια σας" },
+  { lemma: "καλημέρα", gloss: "good morning", pos: "phrase", ex: ["Καλημέρα|=|good morning , τι|=|what κάνεις|κάνω|you do ;", "Good morning, how are you?"], note: "evening: καλησπέρα; night: καληνύχτα" },
+  { lemma: "ευχαριστώ", gloss: "thank you", pos: "verb / phrase", ex: ["Ευχαριστώ|=|thank you πολύ|=|very much !", "Thank you very much!"] },
+  { lemma: "παρακαλώ", gloss: "please; you're welcome", pos: "verb / phrase", ex: ["Έναν|ένας|a (acc.) καφέ|καφές|coffee (acc.) , παρακαλώ|=|please .", "A coffee, please."] },
+  { lemma: "ναι", gloss: "yes", pos: "particle", ex: ["Ναι|=|yes , καταλαβαίνω|=|I understand .", "Yes, I understand."], note: "sounds like \"ne\", but means yes" },
+  { lemma: "όχι", gloss: "no", pos: "particle", ex: ["Όχι|=|no , ευχαριστώ|=|thank you .", "No, thank you."] },
+  { lemma: "συγγνώμη", gloss: "sorry; excuse me", pos: "phrase", ex: ["Συγγνώμη|=|excuse me , πού|=|where είναι|είμαι|is ο|ο|the σταθμός|=|station ;", "Excuse me, where is the station?"] },
+  { lemma: "είμαι", gloss: "to be (I am)", pos: "verb", ex: ["Είμαι|=|I am στο|σε|at the σπίτι|=|house .", "I'm at home."], note: "είμαι, είσαι, είναι, είμαστε, είστε, είναι" },
+  { lemma: "έχω", gloss: "to have", pos: "verb", ex: ["Έχω|=|I have μια|ένας|a γάτα|=|cat .", "I have a cat."], note: "έχω, έχεις, έχει, έχουμε, έχετε, έχουν" },
+  { lemma: "θέλω", gloss: "to want", pos: "verb", ex: ["Θέλω|=|I want νερό|=|water .", "I want water."], note: "θέλω, θέλεις, θέλει, θέλουμε, θέλετε, θέλουν" },
+  { lemma: "πάω", gloss: "to go", pos: "verb", ex: ["Πάω|=|I'm going στο|σε|to the σπίτι|=|house .", "I'm going home."], note: "πάω, πας, πάει, πάμε, πάτε, πάνε" },
+  { lemma: "τρώω", gloss: "to eat", pos: "verb", ex: ["Τρώω|=|I eat ψωμί|=|bread .", "I'm eating bread."], note: "τρώω, τρως, τρώει, τρώμε, τρώτε, τρώνε" },
+  { lemma: "πίνω", gloss: "to drink", pos: "verb", ex: ["Πίνω|=|I drink καφέ|καφές|coffee (acc.) .", "I drink coffee."] },
+  { lemma: "μιλάω", gloss: "to speak, to talk", pos: "verb", ex: ["Μιλάω|=|I speak λίγα|λίγος|a little ελληνικά|=|Greek .", "I speak a little Greek."], note: "also μιλώ; μιλάω, μιλάς, μιλάει, μιλάμε, μιλάτε, μιλάνε" },
+  { lemma: "καταλαβαίνω", gloss: "to understand", pos: "verb", ex: ["Δεν|=|not καταλαβαίνω|=|I understand .", "I don't understand."] },
+  { lemma: "ξέρω", gloss: "to know", pos: "verb", ex: ["Δεν|=|not ξέρω|=|I know .", "I don't know."] },
+  { lemma: "αρέσω", gloss: "to please (μου αρέσει = I like)", pos: "verb", ex: ["Μου|εγώ|to me αρέσει|αρέσω|pleases ο|ο|the καφές|=|coffee .", "I like coffee."], note: "the thing liked is the subject: μου αρέσουν οι γάτες (I like cats)" },
+  { lemma: "δεν", gloss: "not", pos: "particle", ex: ["Δεν|=|not θέλω|=|I want .", "I don't want to."], note: "goes before the verb" },
+  { lemma: "νερό", gloss: "water", pos: "noun (n)", ex: ["Το|ο|the νερό|=|water είναι|είμαι|is κρύο|κρύος|cold .", "The water is cold."] },
+  { lemma: "ψωμί", gloss: "bread", pos: "noun (n)" },
+  { lemma: "καφές", gloss: "coffee", pos: "noun (m)", note: "accusative: καφέ" },
+  { lemma: "σπίτι", gloss: "house, home", pos: "noun (n)", ex: ["Το|ο|the σπίτι|=|house μου|εγώ|my είναι|είμαι|is μικρό|μικρός|small .", "My house is small."] },
+  { lemma: "γάτα", gloss: "cat", pos: "noun (f)", ex: ["Η|ο|the γάτα|=|cat κοιμάται|κοιμάμαι|is sleeping .", "The cat is sleeping."] },
+  { lemma: "σκύλος", gloss: "dog", pos: "noun (m)", ex: ["Ο|ο|the σκύλος|=|dog είναι|είμαι|is μεγάλος|=|big .", "The dog is big."] },
+  { lemma: "άντρας", gloss: "man; husband", pos: "noun (m)", ex: ["Ο|ο|the άντρας|=|man πίνει|πίνω|drinks καφέ|καφές|coffee (acc.) .", "The man is drinking coffee."] },
+  { lemma: "γυναίκα", gloss: "woman; wife", pos: "noun (f)", ex: ["Η|ο|the γυναίκα|=|woman διαβάζει|διαβάζω|reads ένα|ένας|a βιβλίο|=|book .", "The woman is reading a book."] },
+  { lemma: "παιδί", gloss: "child", pos: "noun (n)", ex: ["Το|ο|the παιδί|=|child τρώει|τρώω|eats ένα|ένας|an μήλο|=|apple .", "The child is eating an apple."], note: "plural: παιδιά (also \"guys!\" to friends)" },
+  { lemma: "φίλος", gloss: "friend", pos: "noun (m)", ex: ["Ο|ο|the φίλος|=|friend μου|εγώ|my είναι|είμαι|is εδώ|=|here .", "My friend is here."], note: "a female friend: φίλη" },
+  { lemma: "σήμερα", gloss: "today", pos: "adverb", ex: ["Σήμερα|=|today κάνει|κάνω|it makes ζέστη|=|heat .", "It's hot today."] },
+  { lemma: "αύριο", gloss: "tomorrow", pos: "adverb", ex: ["Τα|αυτός|them λέμε|λέω|we say αύριο|=|tomorrow !", "See you tomorrow!"] },
+  { lemma: "τώρα", gloss: "now", pos: "adverb", ex: ["Τώρα|=|now τρώω|=|I'm eating .", "I'm eating now."] },
+  { lemma: "εδώ", gloss: "here", pos: "adverb", note: "there: εκεί" },
+  { lemma: "καλός", gloss: "good", pos: "adjective", note: "καλός, καλή, καλό; well: καλά" },
+  { lemma: "μεγάλος", gloss: "big; old (person)", pos: "adjective", note: "μεγάλος, μεγάλη, μεγάλο" },
+  { lemma: "μικρός", gloss: "small; young", pos: "adjective", note: "μικρός, μικρή, μικρό" },
+  { lemma: "τι", gloss: "what", pos: "pronoun", ex: ["Τι|=|what είναι|είμαι|is αυτό|αυτός|this ;", "What is this?"] },
+  { lemma: "πού", gloss: "where", pos: "adverb", ex: ["Πού|=|where είναι|είμαι|is η|ο|the γάτα|=|cat ;", "Where is the cat?"], note: "with the accent: where? Without (που): who, which, that" },
+  { lemma: "πολύ", gloss: "very; a lot", pos: "adverb" },
+  { lemma: "ένας", gloss: "one; a, an", pos: "number / article", note: "ένας (m), μία or μια (f), ένα (n)" },
+  { lemma: "βιβλίο", gloss: "book", pos: "noun (n)" },
+  { lemma: "μήλο", gloss: "apple", pos: "noun (n)" },
+  { lemma: "πόλη", gloss: "city, town", pos: "noun (f)", ex: ["Η|ο|the Αθήνα|-|Athens είναι|είμαι|is μεγάλη|μεγάλος|big πόλη|=|city .", "Athens is a big city."] },
+  { lemma: "λέω", gloss: "to say", pos: "verb", note: "λέω, λες, λέει, λέμε, λέτε, λένε" },
+  { lemma: "κάνω", gloss: "to do, to make", pos: "verb", note: "τι κάνεις; = how are you?" },
+];
+
+/* European Portuguese for a Spanish speaker who already has the basics: the words Portugal uses (not Brazil's),
+   false friends with Spanish, and the verbs and constructions that differ. */
+const pt: StarterWord[] = [
+  { lemma: "obrigado", gloss: "thank you", pos: "phrase", ex: ["Muito|=|very much obrigado|=|thank you !", "Thank you very much!"], note: "a woman says obrigada; the answer: de nada" },
+  { lemma: "se faz favor", gloss: "please; excuse me (to get attention)", pos: "phrase", note: "Portugal; por favor works too" },
+  { lemma: "tu", gloss: "you (informal)", pos: "pronoun", ex: ["Tu|=|you falas|falar|speak português|=|Portuguese ?", "Do you speak Portuguese?"], note: "Portugal uses tu with friends; formal: o senhor / a senhora + 3rd person. você can sound distant" },
+  { lemma: "estar", gloss: "to be (state, place); estar a = to be doing", pos: "verb", ex: ["Estou|estar|I am a|=|(to) ler|=|read um|um|a livro|=|book .", "I'm reading a book."], note: "Portugal: estou a ler; Brazil: estou lendo" },
+  { lemma: "ficar", gloss: "to stay; to be (located); to become", pos: "verb", ex: ["Onde|=|where fica|ficar|is (located) o|o|the museu|=|museum ?", "Where is the museum?"], note: "fiquei contente = I was (became) glad" },
+  { lemma: "gostar", gloss: "to like", pos: "verb", ex: ["Gosto|gostar|I like muito|=|a lot de|=|(of) café|=|coffee .", "I really like coffee."], note: "always with de, and I am the subject: gosto de café (ES: me gusta el café)" },
+  { lemma: "achar", gloss: "to think (an opinion); to find", pos: "verb", ex: ["Acho|achar|I think que|=|that sim|=|yes .", "I think so."], note: "ES: creer, pensar" },
+  { lemma: "ter", gloss: "to have; ter de = to have to", pos: "verb", ex: ["Tenho|ter|I have de|=|to ir|=|go embora|=|away .", "I have to go."], note: "tenho, tens, tem, temos, têm; ES: tener que" },
+  { lemma: "haver", gloss: "there is / are (há)", pos: "verb", ex: ["Há|haver|is there um|um|a café|=|café aqui|=|here perto|=|near ?", "Is there a café near here?"], note: "há duas horas = two hours ago (ES: hace)" },
+  { lemma: "conseguir", gloss: "to manage to, to be able to", pos: "verb", ex: ["Não|=|not consigo|conseguir|I can ouvir|=|hear .", "I can't hear."], note: "consigo, consegues, consegue, conseguimos, conseguem" },
+  { lemma: "perceber", gloss: "to understand", pos: "verb", ex: ["Não|=|not percebo|perceber|I understand .", "I don't understand."], note: "Portugal says perceber more than entender (ES percibir = to perceive)" },
+  { lemma: "apanhar", gloss: "to catch, to take (a bus, train)", pos: "verb", ex: ["Vou|ir|I'm going to apanhar|=|catch o|o|the autocarro|=|bus .", "I'm going to catch the bus."], note: "ES: coger, tomar" },
+  { lemma: "pequeno-almoço", gloss: "breakfast", pos: "noun (m)", ex: ["Tomo|tomar|I have o|o|the pequeno-almoço|=|breakfast às|a|at (the) oito|=|eight .", "I have breakfast at eight."], note: "Brazil: café da manhã; almoço = lunch, jantar = dinner" },
+  { lemma: "autocarro", gloss: "bus", pos: "noun (m)", ex: ["Vou|ir|I go de|=|by autocarro|=|bus para|=|to o|o|the trabalho|=|work .", "I go to work by bus."], note: "Brazil: ônibus" },
+  { lemma: "comboio", gloss: "train", pos: "noun (m)", ex: ["O|o|the comboio|=|train está|estar|is atrasado|=|late .", "The train is late."], note: "Brazil: trem" },
+  { lemma: "elétrico", gloss: "tram", pos: "noun (m)", note: "Lisbon's yellow trams; Brazil: bonde" },
+  { lemma: "telemóvel", gloss: "mobile phone", pos: "noun (m)", ex: ["Não|=|not encontro|encontrar|I find o|o|the meu|=|my telemóvel|=|phone .", "I can't find my phone."], note: "Brazil: celular" },
+  { lemma: "casa de banho", gloss: "bathroom, toilet", pos: "noun (f)", note: "Brazil: banheiro" },
+  { lemma: "frigorífico", gloss: "fridge", pos: "noun (m)", ex: ["O|o|the leite|=|milk está|estar|is no|em|in the frigorífico|=|fridge .", "The milk is in the fridge."], note: "Brazil: geladeira" },
+  { lemma: "sumo", gloss: "juice", pos: "noun (m)", ex: ["Um|um|a sumo|=|juice de|=|of laranja|=|orange , por|=|for favor|=|favour .", "An orange juice, please."], note: "Brazil: suco" },
+  { lemma: "bica", gloss: "espresso (Lisbon)", pos: "noun (f)", ex: ["Uma|um|an bica|=|espresso , se|=|if faz|fazer|you do favor|=|the favour .", "An espresso, please."], note: "in Porto: um cimbalino; anywhere: um café" },
+  { lemma: "pastelaria", gloss: "café-bakery, pastry shop", pos: "noun (f)", ex: ["Vamos|ir|let's go à|a|to the pastelaria|=|pastry shop .", "Let's go to the pastry shop."] },
+  { lemma: "ementa", gloss: "menu", pos: "noun (f)", ex: ["A|o|the ementa|=|menu , se|=|if faz|fazer|you do favor|=|the favour .", "The menu, please."], note: "Brazil: cardápio" },
+  { lemma: "chávena", gloss: "cup", pos: "noun (f)", ex: ["Uma|um|a chávena|=|cup de|=|of chá|=|tea .", "A cup of tea."], note: "Brazil: xícara" },
+  { lemma: "rapaz", gloss: "boy, young man", pos: "noun (m)", ex: ["O|o|the rapaz|=|boy joga|jogar|plays à|a|(at the) bola|=|ball .", "The boy is playing football."], note: "plural: rapazes" },
+  { lemma: "rapariga", gloss: "girl, young woman", pos: "noun (f)", ex: ["A|o|the rapariga|=|girl está|estar|is a|=|(to) estudar|=|study .", "The girl is studying."], note: "normal in Portugal, but rude in Brazil (say menina there)" },
+  { lemma: "cão", gloss: "dog", pos: "noun (m)", ex: ["Que|=|what a cão|=|dog tão|=|so giro|=|cute !", "What a cute dog!"], note: "plural: cães; Brazil: cachorro" },
+  { lemma: "giro", gloss: "cute, pretty, nice", pos: "adjective", note: "Portugal; giro, gira" },
+  { lemma: "fixe", gloss: "cool, great", pos: "adjective", ex: ["Que|=|how fixe|=|cool !", "How cool!"], note: "Portugal, informal" },
+  { lemma: "esquisito", gloss: "strange, weird", pos: "adjective", ex: ["Que|=|how esquisito|=|strange !", "How strange!"], note: "false friend: ES exquisito = delicious (PT delicioso)" },
+  { lemma: "embaraçado", gloss: "embarrassed", pos: "adjective", ex: ["Fiquei|ficar|I got muito|=|very embaraçado|=|embarrassed .", "I was very embarrassed."], note: "false friend: ES embarazada = pregnant (PT grávida)" },
+  { lemma: "apelido", gloss: "surname", pos: "noun (m)", ex: ["Qual|=|what é|ser|is o|o|the teu|=|your apelido|=|surname ?", "What's your surname?"], note: "Portugal: apelido = surname, as in Spanish; but in Brazil apelido is a nickname (Portugal: alcunha)" },
+  { lemma: "polvo", gloss: "octopus", pos: "noun (m)", ex: ["Gosto|gostar|I like de|=|(of) polvo|=|octopus .", "I like octopus."], note: "false friend: ES polvo = dust (PT pó)" },
+  { lemma: "borracha", gloss: "eraser; rubber", pos: "noun (f)", ex: ["Tens|ter|do you have uma|um|an borracha|=|eraser ?", "Do you have an eraser?"], note: "false friend: ES borracha = drunk (PT bêbada)" },
+  { lemma: "propina", gloss: "tuition fee", pos: "noun (f)", ex: ["As|o|the propinas|propina|tuition fees são|ser|are caras|caro|expensive .", "The tuition fees are expensive."], note: "false friend: ES propina = tip (PT gorjeta)" },
+  { lemma: "gorjeta", gloss: "tip (money)", pos: "noun (f)", ex: ["Deixei|deixar|I left uma|um|a gorjeta|=|tip .", "I left a tip."] },
+  { lemma: "saudade", gloss: "longing, missing someone", pos: "noun (f)", ex: ["Tenho|ter|I have saudades|saudade|longing de|=|for ti|tu|you .", "I miss you."], note: "ter saudades de = to miss" },
+  { lemma: "já", gloss: "already; right away", pos: "adverb", ex: ["Já|=|already comi|comer|I ate .", "I've already eaten."], note: "já vou! = I'm coming!" },
+  { lemma: "ainda", gloss: "still, yet", pos: "adverb", ex: ["Ainda|=|still não|=|not sei|saber|I know .", "I don't know yet."], note: "ES: todavía" },
+  { lemma: "então", gloss: "so, then; well", pos: "adverb", ex: ["Então|=|so , vamos|ir|shall we go ?", "So, shall we go?"] },
+  { lemma: "pois", gloss: "right, yes (agreeing); because", pos: "particle", ex: ["Pois|=|right , é|ser|it is verdade|=|true .", "Right, that's true."], note: "pois é = exactly; pois não? = can I help you?" },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt };

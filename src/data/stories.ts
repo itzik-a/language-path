@@ -42,6 +42,31 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["شُكْرًا|=|thank you !", "Thank you!"],
     ],
   },
+  {
+    id: "t_seed_el_gata", lang: "el", title: "Η γάτα της Μαρίας", titleTr: "Maria's cat", newWords: ["πρωί", "γάλα", "μετά", "δουλειά", "μόνος", "όλος", "μέρα", "βράδυ", "γυρίζω", "χαρούμενος"],
+    lines: [
+      ["Η|ο|the Μαρία|-|Maria έχει|έχω|has μια|ένας|a μικρή|μικρός|small γάτα|=|cat .", "Maria has a small cat."],
+      ["Το|ο|the πρωί|=|morning η|ο|the Μαρία|-|Maria πίνει|πίνω|drinks καφέ|καφές|coffee (acc.) και|=|and η|ο|the γάτα|=|cat πίνει|πίνω|drinks γάλα|=|milk .", "In the morning Maria drinks coffee, and the cat drinks milk."],
+      ["Μετά|=|then η|ο|the Μαρία|-|Maria πάει|πάω|goes στη|σε|to (the) δουλειά|=|work .", "Then Maria goes to work."],
+      ["Η|ο|the γάτα|=|cat είναι|είμαι|is μόνη|μόνος|alone στο|σε|in the σπίτι|=|house .", "The cat is alone at home."],
+      ["Κοιμάται|κοιμάμαι|it sleeps όλη|όλος|all τη|ο|the (acc.) μέρα|=|day .", "It sleeps all day."],
+      ["Το|ο|the βράδυ|=|evening η|ο|the Μαρία|-|Maria γυρίζει|γυρίζω|comes back σπίτι|=|home .", "In the evening Maria comes back home."],
+      ["Η|ο|the γάτα|=|cat είναι|είμαι|is πολύ|=|very χαρούμενη|χαρούμενος|happy !", "The cat is very happy!"],
+    ],
+  },
+  {
+    id: "t_seed_pt_bica", lang: "pt", title: "Uma manhã em Lisboa", titleTr: "A morning in Lisbon", newWords: ["morar", "manhã", "passar", "bairro", "pedir", "pastel", "nata", "fechado", "triste", "oferecer", "senhora", "sorte"],
+    lines: [
+      ["O|o|(the) João|-|João mora|morar|lives em|=|in Lisboa|-|Lisbon .", "João lives in Lisbon."],
+      ["Todas|todo|every as|o|the manhãs|manhã|mornings , apanha|apanhar|he catches o|o|the elétrico|=|tram para|=|to o|o|the trabalho|=|work .", "Every morning he takes the tram to work."],
+      ["Antes|=|before (that) , passa|passar|he stops pela|por|by the pastelaria|=|café do|de|of the bairro|=|neighbourhood .", "Before that, he stops at the neighbourhood café."],
+      ["Pede|pedir|he orders uma|um|an bica|=|espresso e|=|and um|um|a pastel|=|pastry de|=|of nata|=|cream .", "He orders an espresso and a custard tart."],
+      ["Hoje|=|today , a|o|the pastelaria|=|café está|estar|is fechada|fechado|closed !", "Today the café is closed!"],
+      ["O|o|(the) João|-|João fica|ficar|gets triste|=|sad , mas|=|but não|=|not tem|ter|he has tempo|=|time .", "João is sad, but he has no time."],
+      ["No|em|in the elétrico|=|tram , uma|um|a senhora|=|lady oferece-lhe|oferecer|offers him um|um|a pastel|=|pastry .", "On the tram, a lady offers him a pastry."],
+      ["Que|=|what sorte|=|luck !", "What luck!"],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

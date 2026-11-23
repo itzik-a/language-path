@@ -5,7 +5,7 @@ import { newWordsLeft } from "../lib/queue";
 import { newSrs, review, type Grade } from "../lib/srs";
 import { showToast } from "../lib/toast";
 import { lemmaReading } from "../lib/furigana";
-import { wordKey } from "../lib/langs";
+import { greekTranslit, wordKey } from "../lib/langs";
 import type { AppState, Card, CardKind, Chat, DayLog, Lang, LangSettings, Sentence, Text, Token, Turn, Word, WordStatus } from "../types";
 import { getState, update } from "./store";
 
@@ -209,7 +209,7 @@ export function wordFromToken(lang: Lang, tok: Token, sentence: Sentence, how: "
       const reading = lang === "ja" ? lemmaReading(tok.t, tok.r, lemma) : undefined;
       w = {
         id, updatedAt: now, lang, lemma, gloss: tok.g ?? "", status: "new", rank: minRank - 1, source,
-        ...(reading && reading !== lemma ? { reading } : {}), ...(tok.x && tok.t === lemma ? { translit: tok.x } : {}),
+        ...(reading && reading !== lemma ? { reading } : {}), ...(lang === "el" ? { translit: greekTranslit(lemma) } : tok.x && tok.t === lemma ? { translit: tok.x } : {}),
         example: sentence, ...extra,
       };
       s.words.push(w);
@@ -257,7 +257,7 @@ export function addSuggested(lang: Lang, words: Omit<Word, "id" | "updatedAt" | 
       const old = s.words.find((w) => w.id === id);
       if (old && !old.deletedAt) continue;
       if (old) s.words.splice(s.words.indexOf(old), 1);
-      s.words.push({ ...x, id, updatedAt: now, lang, status: "new", rank: rank++, source: "claude" });
+      s.words.push({ ...x, ...(lang === "el" ? { translit: greekTranslit(x.lemma) } : {}), id, updatedAt: now, lang, status: "new", rank: rank++, source: "claude" });
       n++;
     }
   });

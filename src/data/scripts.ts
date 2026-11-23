@@ -1,5 +1,5 @@
-/* Script data: kana, the Arabic alphabet and harakat, Polish sounds, minimal pairs.
-   A character's id ("hira:ka", "kata:ka", "abc:b", "har:fatha") is used for script cards and "known" marks:
+/* Script data: kana, the Arabic alphabet and harakat, the Greek alphabet and letter pairs, Polish and Portuguese sounds,
+   minimal pairs. A character's id ("hira:ka", "kata:ka", "abc:b", "har:fatha", "grk:alpha", "grx:ou") is used for script cards and "known" marks:
    never change one once shipped. */
 import type { Lang } from "../types";
 
@@ -17,6 +17,8 @@ export interface ScriptChar {
   name?: string;
   /** Arabic: joins to the next letter */
   joins?: boolean;
+  /** Greek: the capital letter */
+  upper?: string;
 }
 
 export interface ScriptRow { id: string; label: string; chars: ScriptChar[] }
@@ -159,16 +161,86 @@ const HARAKAT_SET: ScriptSet = {
   ],
 };
 
-export const SCRIPT_SETS: ScriptSet[] = [kanaSet("hira"), kanaSet("kata"), ABC_SET, HARAKAT_SET];
+// ── Greek ─────────────────────────────────────────────────────
+
+/** [key, lower, upper, name (Greek), name (Latin), sound, Hebrew counterpart (the same Phoenician letter), how it sounds] */
+const GREEK: [string, string, string, string, string, string, string, string][] = [
+  ["alpha", "α", "Α", "άλφα", "alfa", "a", "א", "a as in \"father\""],
+  ["beta", "β", "Β", "βήτα", "víta", "v", "ב", "v (like ב without a dagesh)"],
+  ["gamma", "γ", "Γ", "γάμμα", "gháma", "gh / y", "ג", "before a, o, u and consonants: a soft gh from the throat, like a French r (Arabic غ); before e, i: y"],
+  ["delta", "δ", "Δ", "δέλτα", "dhélta", "dh", "ד", "th as in \"this\" (Arabic ذ), never a hard d"],
+  ["epsilon", "ε", "Ε", "έψιλον", "épsilon", "e", "ה", "e as in \"bed\""],
+  ["zeta", "ζ", "Ζ", "ζήτα", "zíta", "z", "ז", "z"],
+  ["eta", "η", "Η", "ήτα", "íta", "i", "ח", "i as in \"machine\": the same sound as ι and υ"],
+  ["theta", "θ", "Θ", "θήτα", "thíta", "th", "ט", "th as in \"think\" (Arabic ث)"],
+  ["iota", "ι", "Ι", "γιώτα", "yióta", "i", "י", "i; before a vowel often a y (παιδιά: pedhyá)"],
+  ["kappa", "κ", "Κ", "κάπα", "kápa", "k", "כ", "k (a little softer before e, i)"],
+  ["lambda", "λ", "Λ", "λάμδα", "lámdha", "l", "ל", "l"],
+  ["mu", "μ", "Μ", "μι", "mi", "m", "מ", "m"],
+  ["nu", "ν", "Ν", "νι", "ni", "n", "נ", "n"],
+  ["xi", "ξ", "Ξ", "ξι", "xi", "x", "ס", "ks"],
+  ["omicron", "ο", "Ο", "όμικρον", "ómikron", "o", "ע", "o, between \"hot\" and \"go\""],
+  ["pi", "π", "Π", "πι", "pi", "p", "פ", "p, without a puff of air"],
+  ["rho", "ρ", "Ρ", "ρο", "ro", "r", "ר", "a tapped r, like Spanish \"pero\""],
+  ["sigma", "σ", "Σ", "σίγμα", "sígma", "s", "ש", "s (z before β γ δ μ ν λ ρ: κόσμος = kózmos). At the end of a word it's written ς"],
+  ["tau", "τ", "Τ", "ταυ", "taf", "t", "ת", "t, without a puff of air"],
+  ["upsilon", "υ", "Υ", "ύψιλον", "ípsilon", "i", "ו", "i, the same as ι and η (it came from ו)"],
+  ["phi", "φ", "Φ", "φι", "fi", "f", "", "f, like פ without a dagesh"],
+  ["chi", "χ", "Χ", "χι", "khi", "kh", "", "like ח or כ in לָכֵן; before e, i softer, like German \"ich\""],
+  ["psi", "ψ", "Ψ", "ψι", "psi", "ps", "", "ps, even at the start of a word (ψωμί = psomí)"],
+  ["omega", "ω", "Ω", "ωμέγα", "oméga", "o", "", "o: the same sound as ο"],
+];
+
+const grkChar = ([key, lo, up, nameGr, name, sound, he, how]: (typeof GREEK)[number]): ScriptChar => ({
+  id: `grk:${key}`, char: lo, upper: up, say: nameGr, sound, name: `${up} ${lo} · ${nameGr} · ${name}`, info: how, ...(he ? { hebrew: he } : {}),
+});
+const grkRow = (from: number, to: number): ScriptRow => ({
+  id: `grk:${from / 4 + 1}`, label: GREEK.slice(from, to).map((x) => `${x[2]} ${x[1]}`).join("  "), chars: GREEK.slice(from, to).map(grkChar),
+});
+
+const GREEK_SET: ScriptSet = {
+  id: "grk", lang: "el", title: "Alphabet",
+  blurb: "24 letters, most of them cousins of the Hebrew ones (α–א, β–ב, γ–ג, δ–ד…): both come from the Phoenician alphabet. Every word of two syllables or more carries an accent mark (ά) on the stressed syllable, and stress changes meaning: πότε (when) / ποτέ (never).",
+  rows: [grkRow(0, 4), grkRow(4, 8), grkRow(8, 12), grkRow(12, 16), grkRow(16, 20), grkRow(20, 24)],
+};
+
+/** [key, letters, sound, an example word the voice reads, what it is] */
+const GREEK_PAIRS: [string, string, string, string, string][] = [
+  ["ou", "ου", "ou", "πού", "u as in \"food\": πού (poú) = where"],
+  ["ai", "αι", "e", "και", "e, the same as ε: και (ke) = and"],
+  ["ei", "ει", "i", "είναι", "i: είναι (íne) = is"],
+  ["oi", "οι", "i", "οι", "i: οι (i) = the (plural)"],
+  ["av", "αυ", "av / af", "αύριο", "av before a vowel or β γ δ ζ λ μ ν ρ, af before the others: αύριο (ávrio) = tomorrow, αυτό (aftó) = this"],
+  ["ev", "ευ", "ev / ef", "ευχαριστώ", "ev or ef, like αυ: ευχαριστώ (efkharistó) = thank you"],
+  ["mp", "μπ", "b / mb", "μπύρα", "b at the start of a word, mb inside: μπύρα (bíra) = beer"],
+  ["nt", "ντ", "d / nd", "ντομάτα", "d at the start of a word, nd inside: ντομάτα (domáta) = tomato"],
+  ["gk", "γκ", "g / ng", "γκρι", "g at the start of a word, ng inside: γκρι (gri) = grey"],
+  ["gg", "γγ", "ng", "Αγγλία", "ng: Αγγλία (Anglía) = England"],
+  ["ts", "τσ", "ts", "τσάι", "ts: τσάι (tsái) = tea"],
+  ["tz", "τζ", "dz", "τζάμι", "dz: τζάμι (dzámi) = window pane"],
+];
+
+const GREEK_PAIRS_SET: ScriptSet = {
+  id: "grx", lang: "el", title: "Letter pairs",
+  blurb: "Two letters that make one sound. An accent on the first letter, or two dots on the second (ϊ, ϋ), splits a pair: τσάι is ts-á-i.",
+  rows: [
+    { id: "grx:vowels", label: "Vowel pairs", chars: GREEK_PAIRS.slice(0, 6).map(([k, c, sound, say, info]) => ({ id: `grx:${k}`, char: c, say, sound, info })) },
+    { id: "grx:consonants", label: "Consonant pairs", chars: GREEK_PAIRS.slice(6).map(([k, c, sound, say, info]) => ({ id: `grx:${k}`, char: c, say, sound, info })) },
+  ],
+};
+
+export const SCRIPT_SETS: ScriptSet[] = [kanaSet("hira"), kanaSet("kata"), ABC_SET, HARAKAT_SET, GREEK_SET, GREEK_PAIRS_SET];
 export const setsFor = (lang: Lang) => SCRIPT_SETS.filter((s) => s.lang === lang);
 export const allChars = () => SCRIPT_SETS.flatMap((s) => s.rows.flatMap((r) => r.chars));
 const CHAR_INDEX = new Map(allChars().map((c) => [c.id, c]));
 export const charById = (id: string) => CHAR_INDEX.get(id);
 export const setOfChar = (id: string) => SCRIPT_SETS.find((s) => s.rows.some((r) => r.chars.some((c) => c.id === id)));
 
-// ── Polish sounds ─────────────────────────────────────────────
+// ── sounds pages (Polish, Portuguese) ─────────────────────────
 
-export const POLISH_SOUNDS: { g: string; how: string; ex: string; gloss: string }[] = [
+export interface Sound { g: string; how: string; ex: string; gloss: string }
+
+const POLISH_SOUNDS: Sound[] = [
   { g: "ą", how: "a nasal o, like French \"on\"", ex: "są", gloss: "they are" },
   { g: "ę", how: "a nasal e; at the end of a word often a plain e", ex: "ręka", gloss: "hand" },
   { g: "ó", how: "the same as u", ex: "góra", gloss: "mountain" },
@@ -191,6 +263,39 @@ export const POLISH_SOUNDS: { g: string; how: string; ex: string; gloss: string 
   { g: "szcz", how: "sh + ch together", ex: "szczęście", gloss: "happiness, luck" },
 ];
 
+/** European Portuguese, for someone who speaks Spanish: what sounds different. */
+const PORTUGUESE_SOUNDS: Sound[] = [
+  { g: "e", how: "unstressed: almost swallowed, often silent: pequeno sounds like \"pkenu\"", ex: "pequeno", gloss: "small" },
+  { g: "o", how: "unstressed it's a u: obrigado sounds like \"ubrigadu\"", ex: "obrigado", gloss: "thank you" },
+  { g: "a", how: "unstressed: a short, weak \"uh\", as in \"about\"", ex: "casa", gloss: "house" },
+  { g: "-s", how: "sh at the end of a word or before a consonant; zh before a voiced one", ex: "dois", gloss: "two" },
+  { g: "ão", how: "a nasal \"ow\", through the nose", ex: "pão", gloss: "bread" },
+  { g: "ãe · em", how: "a nasal \"ay\"", ex: "mãe", gloss: "mother" },
+  { g: "õe", how: "a nasal \"oy\"", ex: "limões", gloss: "lemons" },
+  { g: "lh", how: "like Spanish ll said as l + y (lli)", ex: "filho", gloss: "son" },
+  { g: "nh", how: "like Spanish ñ", ex: "vinho", gloss: "wine" },
+  { g: "ch", how: "sh, never the Spanish ch", ex: "chave", gloss: "key" },
+  { g: "j · gi", how: "j, and g before e or i: zh, as the s in \"measure\" (not the Spanish jota)", ex: "gente", gloss: "people" },
+  { g: "r- · rr", how: "at the start of a word, and rr: from the throat, like a French r or Hebrew ר", ex: "rua", gloss: "street" },
+  { g: "-r-", how: "between vowels: a single tap, like Spanish \"pero\"", ex: "caro", gloss: "expensive" },
+  { g: "v", how: "a real v (lips on teeth): vaca and baca are different words", ex: "vinho", gloss: "wine" },
+  { g: "x", how: "usually sh; sometimes ks (táxi), z (exame) or s (próximo)", ex: "peixe", gloss: "fish" },
+  { g: "ç", how: "s", ex: "coração", gloss: "heart" },
+  { g: "ei", how: "in Lisbon closer to \"ay\"", ex: "leite", gloss: "milk" },
+  { g: "ou", how: "a closed o", ex: "sou", gloss: "I am" },
+];
+
+export const SOUNDS: Partial<Record<Lang, { title: string; mark: string; blurb: string; intro: string; list: Sound[] }>> = {
+  pl: {
+    title: "Polish sounds", mark: "ł", blurb: "ą ę ł, cz sz rz, ć ś ź, and the stress rule", list: POLISH_SOUNDS,
+    intro: "Polish is spelled the way it sounds once you know these. Stress is almost always on the second-to-last syllable: dzię-KU-ję, prze-PRA-szam.",
+  },
+  pt: {
+    title: "European Portuguese sounds", mark: "ã", blurb: "the swallowed vowels, ão õe ãe, lh nh, sh for s", list: PORTUGUESE_SOUNDS,
+    intro: "Written Portuguese is close to Spanish; spoken Portuguese from Portugal is not: unstressed vowels shrink or vanish, so words run together. These are the differences that matter most for listening. Stress falls on the second-to-last syllable, or the last when the word ends in r, l, z, i, u, im or um, unless an accent says otherwise.",
+  },
+};
+
 // ── minimal pairs ─────────────────────────────────────────────
 
 export interface Pair { a: [string, string]; b: [string, string]; what: string }
@@ -212,6 +317,24 @@ export const PAIRS: Record<Lang, Pair[]> = {
     { a: ["koza", "goat"], b: ["kosa", "scythe"], what: "z vs s" },
     { a: ["czy", "whether"], b: ["ci", "to you"], what: "cz + y vs ć + i" },
     { a: ["bal", "a ball (dance)"], b: ["bał", "he was afraid"], what: "l vs ł" },
+  ],
+  el: [
+    { a: ["πότε", "when?"], b: ["ποτέ", "never"], what: "stress: first or last syllable" },
+    { a: ["νόμος", "law"], b: ["νομός", "prefecture"], what: "stress: first or last syllable" },
+    { a: ["γέρος", "old man"], b: ["γερός", "strong"], what: "stress: first or last syllable" },
+    { a: ["θέμα", "subject"], b: ["δέμα", "parcel"], what: "th vs dh" },
+    { a: ["θήκη", "case"], b: ["δίκη", "trial"], what: "th vs dh" },
+    { a: ["χαλί", "carpet"], b: ["καλή", "good (f.)"], what: "kh vs k" },
+    { a: ["μπάρα", "barrier"], b: ["πάρα", "very (πάρα πολύ)"], what: "b vs p" },
+  ],
+  pt: [
+    { a: ["avó", "grandmother"], b: ["avô", "grandfather"], what: "open ó vs closed ô" },
+    { a: ["vela", "candle"], b: ["bela", "beautiful"], what: "v vs b" },
+    { a: ["caro", "expensive"], b: ["carro", "car"], what: "tapped r vs throat rr" },
+    { a: ["mau", "bad"], b: ["mão", "hand"], what: "plain vs nasal" },
+    { a: ["pais", "parents"], b: ["país", "country"], what: "one syllable vs two" },
+    { a: ["sono", "sleep"], b: ["sonho", "dream"], what: "n vs nh" },
+    { a: ["mala", "suitcase"], b: ["malha", "knitwear"], what: "l vs lh" },
   ],
   ar: [
     { a: ["سَيْف", "sword"], b: ["صَيْف", "summer"], what: "s vs heavy ṣ" },

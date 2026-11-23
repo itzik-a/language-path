@@ -18,7 +18,7 @@ function allVoices(): SpeechSynthesisVoice[] {
 export function voicesFor(lang: Lang): SpeechSynthesisVoice[] {
   const code = LANG[lang].bcp.slice(0, 2);
   const score = (v: SpeechSynthesisVoice) =>
-    (/premium/i.test(v.name) ? 4 : 0) + (/enhanced|siri/i.test(v.name + v.voiceURI) ? 2 : 0) + (v.localService ? 1 : 0) + (v.lang.replace("_", "-") === LANG[lang].bcp ? 1 : 0);
+    (/premium/i.test(v.name) ? 4 : 0) + (/enhanced|siri/i.test(v.name + v.voiceURI) ? 2 : 0) + (v.localService ? 1 : 0) + (v.lang.replace("_", "-") === LANG[lang].bcp ? (LANG[lang].strictRegion ? 10 : 1) : 0);
   return allVoices().filter((v) => v.lang.toLowerCase().startsWith(code)).sort((a, b) => score(b) - score(a));
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { furiganaParts, needsFurigana } from "../src/lib/furigana";
-import { fold, foldArabic, stripHarakat, wordKey } from "../src/lib/langs";
+import { fold, foldArabic, greekTranslit, stripHarakat, wordKey } from "../src/lib/langs";
 import { sentence, sentenceText } from "../src/lib/tokens";
 import { STARTER } from "../src/data/starter";
 import { LANGS } from "../src/types";
@@ -28,7 +28,7 @@ describe("starter markup", () => {
       const s = sentence(lang, w.ex[0], w.ex[1]);
       const text = sentenceText(s);
       expect(text, `${lang} ${w.lemma}`).not.toMatch(/\|/);
-      if (lang !== "pl") expect(text, `${lang} ${w.lemma}: ${text}`).not.toMatch(/[a-z]{2,}/);
+      if (lang === "ja" || lang === "ar" || lang === "el") expect(text, `${lang} ${w.lemma}: ${text}`).not.toMatch(/[a-z]{2,}/);
     }
   });
   it("starter lemmas are unique per language", () => {
@@ -81,5 +81,34 @@ describe("quotes", () => {
     const s = sentence("ja", "友達|=|friend|ともだち は|=|(topic)|は 「 かわいい|=|cute|かわいい ！ 」 と|=|(quote)|と 。", "");
     expect(sentenceText(s)).toBe("友達は「かわいい！」と。");
     expect(s.tokens[1].r).toBeUndefined();
+  });
+});
+
+describe("Greek", () => {
+  it("transliterates the way it sounds, with the stress", () => {
+    expect(greekTranslit("καλημέρα")).toBe("kaliméra");
+    expect(greekTranslit("ευχαριστώ")).toBe("efkharistó");
+    expect(greekTranslit("αύριο")).toBe("ávrio");
+    expect(greekTranslit("αυτό")).toBe("aftó");
+    expect(greekTranslit("είμαι")).toBe("íme");
+    expect(greekTranslit("μπύρα")).toBe("bíra");
+    expect(greekTranslit("ντομάτα")).toBe("domáta");
+    expect(greekTranslit("Αγγλία")).toBe("Anglía");
+    expect(greekTranslit("τσάι")).toBe("tsái");
+    expect(greekTranslit("κόσμος")).toBe("kózmos");
+    expect(greekTranslit("παιδί")).toBe("pedhí");
+    expect(greekTranslit("γάτα")).toBe("gháta");
+    expect(greekTranslit("οικογένεια")).toBe("ikoyénia");
+    expect(greekTranslit("Γεια σου!")).toBe("Yia sou!");
+    expect(greekTranslit("Τι κάνεις;")).toBe("Ti kánis;");
+  });
+  it("folds case and final sigma", () => {
+    expect(fold("el", "Σκύλος")).toBe(fold("el", "σκύλοσ"));
+    expect(wordKey("el", "Γάτα")).toBe(wordKey("el", "γάτα"));
+  });
+  it("lowercases '=' lemmas in Greek and Portuguese", () => {
+    expect(sentence("el", "Ναι|=|yes .", "").tokens[0].l).toBe("ναι");
+    expect(sentence("pt", "Obrigado|=|thanks !", "").tokens[0].l).toBe("obrigado");
+    expect(sentenceText(sentence("el", "Τι|=|what είναι|είμαι|is αυτό|αυτός|this ;", ""))).toBe("Τι είναι αυτό;");
   });
 });

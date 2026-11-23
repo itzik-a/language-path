@@ -1,4 +1,4 @@
-/* What differs between the three languages: names, codes, direction, script helpers. */
+/* What differs between the languages: names, codes, direction, script helpers. */
 import type { Lang } from "../types";
 
 export interface LangInfo {
@@ -12,12 +12,18 @@ export interface LangInfo {
   dir: "ltr" | "rtl";
   /** words are separated by spaces */
   spaces: boolean;
+  /** the script has upper and lower case (lemmas are stored lower-cased) */
+  cased: boolean;
+  /** only voices of this exact region will do (European, not Brazilian, Portuguese) */
+  strictRegion?: boolean;
 }
 
 export const LANG: Record<Lang, LangInfo> = {
-  ja: { id: "ja", name: "Japanese", native: "日本語", mark: "あ", bcp: "ja-JP", dir: "ltr", spaces: false },
-  pl: { id: "pl", name: "Polish", native: "polski", mark: "Pl", bcp: "pl-PL", dir: "ltr", spaces: true },
-  ar: { id: "ar", name: "Arabic", native: "العربية", mark: "ع", bcp: "ar-SA", dir: "rtl", spaces: true },
+  ja: { id: "ja", name: "Japanese", native: "日本語", mark: "あ", bcp: "ja-JP", dir: "ltr", spaces: false, cased: false },
+  pl: { id: "pl", name: "Polish", native: "polski", mark: "Pl", bcp: "pl-PL", dir: "ltr", spaces: true, cased: true },
+  ar: { id: "ar", name: "Arabic", native: "العربية", mark: "ع", bcp: "ar-SA", dir: "rtl", spaces: true, cased: false },
+  el: { id: "el", name: "Greek", native: "ελληνικά", mark: "Ελ", bcp: "el-GR", dir: "ltr", spaces: true, cased: true },
+  pt: { id: "pt", name: "Portuguese", native: "português", mark: "Pt", bcp: "pt-PT", dir: "ltr", spaces: true, cased: true, strictRegion: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */
@@ -39,14 +45,65 @@ export const isKanji = (c: string) => /\p{Script=Han}/u.test(c);
 export const hasKanji = (s: string) => /\p{Script=Han}/u.test(s);
 export const kanjiIn = (s: string) => [...new Set([...s].filter(isKanji))];
 
+/** Lemmas of cased languages are stored lower-cased ("Kot" → "kot"). */
+export const lowerIfCased = (lang: Lang, s: string) => (LANG[lang].cased ? s.toLowerCase() : s);
+
 /** The key a word is stored under: same word on two devices → same id. */
 export function wordKey(lang: Lang, lemma: string): string {
-  const base = lang === "ar" ? stripHarakat(lemma) : lang === "pl" ? lemma.toLowerCase() : lemma;
+  const base = lang === "ar" ? stripHarakat(lemma) : lowerIfCased(lang, lemma);
   return `w_${lang}_${base.normalize("NFC").trim()}`;
 }
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
-  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?;:。、！？「」…"'«»„”-]+/g, "");
-  return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : t;
+  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?;:;·。、！？「」…"'«»„”-]+/g, "");
+  return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : t;
+}
+
+// ── Greek → Latin letters ─────────────────────────────────────
+
+const GR_ONE: Record<string, string> = {
+  α: "a", β: "v", γ: "gh", δ: "dh", ε: "e", ζ: "z", η: "i", θ: "th", ι: "i", κ: "k", λ: "l", μ: "m", ν: "n", ξ: "x",
+  ο: "o", π: "p", ρ: "r", σ: "s", ς: "s", τ: "t", υ: "i", φ: "f", χ: "kh", ψ: "ps", ω: "o",
+};
+const ACUTE: Record<string, string> = { a: "á", e: "é", i: "í", o: "ó", u: "ú" };
+const GR_VOICELESS = new Set([..."θκξπστφχψ"]);
+const GR_VOICED_CONS = new Set([..."βγδζλμνρ"]);
+const GR_FRONT = new Set([..."ειηυ"]);
+
+/** Modern Greek in Latin letters, the way it sounds, with the stress marked: καλημέρα → kaliméra, ευχαριστώ → efkharistó,
+    μπύρα → bíra, τσάι → tsái. Same letters as the Arabic transliteration where the sound is the same (gh, dh, th, kh). */
+export function greekTranslit(text: string): string {
+  return text.normalize("NFC").replace(/[\u0370-\u03ff\u1f00-\u1fff]+/g, (word) => {
+    const chars = [...word.toLowerCase()].map((c) => { const d = c.normalize("NFD"); return { b: d[0], acc: /[\u0301\u0341]/.test(d), dia: d.includes("\u0308") }; });
+    const b = (k: number) => chars[k]?.b ?? "";
+    const accent = (lat: string, on: boolean) => (on ? lat.replace(/[aeiou]/, (v) => ACUTE[v]) : lat);
+    let out = "";
+    for (let i = 0; i < chars.length; i++) {
+      const c = chars[i], n = chars[i + 1], pair = c.b + b(i + 1);
+      // vowel pairs, unless the first vowel carries the accent or the second a diaeresis (τσάι, ρολόι, αϊτός)
+      if (n && !c.acc && !n.dia) {
+        if (pair === "ου") { out += n.acc ? "oú" : "ou"; i++; continue; }
+        if (pair === "αι") { out += n.acc ? "é" : "e"; i++; continue; }
+        if (pair === "ει" || pair === "οι" || pair === "υι") { out += n.acc ? "í" : "i"; i++; continue; }
+        if (pair === "αυ" || pair === "ευ" || pair === "ηυ") {
+          const after = b(i + 2);
+          out += accent(GR_ONE[c.b], n.acc) + (!after || GR_VOICELESS.has(after) ? "f" : "v"); i++; continue;
+        }
+      }
+      if (pair === "μπ") { out += i === 0 ? "b" : "mb"; i++; continue; }
+      if (pair === "ντ") { out += i === 0 ? "d" : "nd"; i++; continue; }
+      if (pair === "γκ") { out += i === 0 ? "g" : "ng"; i++; continue; }
+      if (pair === "γγ") { out += "ng"; i++; continue; }
+      if (pair === "γχ") { out += "nkh"; i++; continue; }
+      if (pair === "γξ") { out += "nx"; i++; continue; }
+      if (pair === "τσ") { out += "ts"; i++; continue; }
+      if (pair === "τζ") { out += "tz"; i++; continue; }
+      if (c.b === "γ") { out += GR_FRONT.has(b(i + 1)) || ((b(i + 1) === "α" || b(i + 1) === "ο") && b(i + 2) === "ι") ? "y" : "gh"; continue; }
+      if (c.b === "σ" && GR_VOICED_CONS.has(b(i + 1))) { out += "z"; continue; }
+      const lat = GR_ONE[c.b];
+      out += lat === undefined ? c.b : accent(lat, c.acc);
+    }
+    return word[0] !== word[0].toLowerCase() ? out.charAt(0).toUpperCase() + out.slice(1) : out;
+  });
 }

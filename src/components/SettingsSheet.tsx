@@ -14,7 +14,16 @@ const SAMPLE: Record<Lang, string> = {
   ja: "こんにちは。今日はいい天気ですね。",
   pl: "Dzień dobry! Jak się masz?",
   ar: "مَرْحَبًا، كَيْفَ حَالُكَ؟",
+  el: "Καλημέρα! Τι κάνεις;",
+  pt: "Bom dia! Tudo bem contigo?",
 };
+
+/** "pt-PT" → "Portugal", "pt-BR" → "Brazil". */
+function regionName(tag: string): string {
+  const r = tag.replace("_", "-").split("-")[1];
+  if (!r) return tag;
+  try { return new Intl.DisplayNames(["en"], { type: "region" }).of(r.toUpperCase()) ?? r; } catch { return r; }
+}
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { lang } = usePrefs();
@@ -49,7 +58,7 @@ function LangSection({ lang }: { lang: Lang }) {
       {lang === "ar" && (
         <label className="switch-row"><Switch on={s.harakat} onChange={(v) => setLangSettings(lang, { harakat: v })} label="Vowel marks" /> Vowel marks (harakat)</label>
       )}
-      {lang !== "pl" && (
+      {(lang === "ja" || lang === "ar" || lang === "el") && (
         <label className="switch-row"><Switch on={s.translit} onChange={(v) => setLangSettings(lang, { translit: v })} label="Transliteration" /> {lang === "ja" ? "Romaji on cards" : "Transliteration under words"}</label>
       )}
       <Stepper label="Practise saying a word after" value={s.sayAfterDays} min={0} max={30} step={1} unit=" days" onChange={(v) => setLangSettings(lang, { sayAfterDays: v })} />
@@ -72,9 +81,12 @@ function VoiceSection({ lang }: { lang: Lang }) {
           <>
             <div className="voice-row">
               <Select label="Voice" value={chosen} onChange={(v) => setPrefs({ voice: { ...prefs.voice, [lang]: v } })}
-                options={voices.map((v) => ({ id: v.voiceURI, label: `${v.name}${v.localService ? "" : " (online)"}` }))} />
+                options={voices.map((v) => ({ id: v.voiceURI, label: `${v.name}${LANG[lang].strictRegion ? ` (${regionName(v.lang)})` : ""}${v.localService ? "" : " (online)"}` }))} />
               <button type="button" className="icon-btn" aria-label="Play a sample" onClick={() => void speak(SAMPLE[lang], lang)}><IconSpeaker /></button>
             </div>
+            {LANG[lang].strictRegion && !voices.some((v) => v.lang.replace("_", "-") === LANG[lang].bcp) && (
+              <p className="small">These voices are from {regionName(voices[0].lang)}, not Portugal. Download a Portugal voice (Joana or Catarina): on iPhone, Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal).</p>
+            )}
             <Stepper label="Speed" value={prefs.rate[lang]} min={0.5} max={1.3} step={0.05} format={(v) => `${Math.round(v * 100)}%`}
               onChange={(v) => setPrefs({ rate: { ...prefs.rate, [lang]: v } })} />
             <p className="muted small">Better voices: on iPhone, Settings → Accessibility → Spoken Content → Voices; on Mac, System Settings → Accessibility → Spoken Content.</p>

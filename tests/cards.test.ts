@@ -81,6 +81,12 @@ describe("checking answers", () => {
   });
   it("ignores harakat in Arabic", () => {
     expect(check("ar", "كتاب", ["كِتَاب"])).toBe("right");
+    expect(check("pt", "pao", ["pão"])).toBe("almost");
+    expect(check("pt", "Pão", ["pão"])).toBe("right");
+    expect(check("el", "καλημερα", ["καλημέρα"])).toBe("almost");
+    expect(check("el", "kalimera", ["καλημέρα"])).toBe("right");
+    expect(check("el", "kalimeri", ["καλημέρα"])).toBe("almost");
+    expect(check("el", "nero", ["καλημέρα"])).toBe("wrong");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });

@@ -1,7 +1,7 @@
 /* Settings that belong to this device only (not synced): the active language, voices and speed (voices differ
    per device), the Claude key and model, and a random device id (for per-device day logs). */
 import { useSyncExternalStore } from "react";
-import type { Lang } from "../types";
+import { LANGS, type Lang } from "../types";
 
 export type Model = "claude-opus-5-5" | "claude-sonnet-5-5" | "claude-haiku-5-5";
 
@@ -24,9 +24,9 @@ function load(): Prefs {
   let x: Partial<Prefs> = {};
   try { x = JSON.parse(localStorage.getItem(LS) || "{}"); } catch { /* fresh */ }
   return {
-    lang: x.lang === "pl" || x.lang === "ar" ? x.lang : "ja",
+    lang: x.lang && LANGS.includes(x.lang) ? x.lang : "ja",
     voice: x.voice ?? {},
-    rate: { ja: 0.9, pl: 0.9, ar: 0.85, ...x.rate },
+    rate: { ja: 0.9, pl: 0.9, ar: 0.85, el: 0.9, pt: 0.9, ...x.rate },
     device: x.device || Math.random().toString(36).slice(2, 10),
     claudeKey: x.claudeKey,
     model: x.model ?? "claude-opus-5-5",

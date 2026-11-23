@@ -31,6 +31,8 @@ const SPECIAL: Record<Lang, string[]> = {
   ja: ["I'm paying at a konbini (convenience store); you're the clerk.", "You're a Japanese friend asking about my hobbies."],
   pl: ["I'm buying a train ticket from Warsaw to Kraków at the station.", "You're my Polish friend's grandmother, offering me food."],
   ar: ["I'm haggling over a scarf at your stall in the souq.", "You're a taxi driver; I tell you where to go."],
+  el: ["I'm ordering lunch at your taverna on an island; you're the waiter.", "You run a periptero (street kiosk) in Athens; I'm buying a few things and asking the way."],
+  pt: ["I'm ordering a bica and a pastel de nata at your pastelaria in Lisbon.", "You're my neighbour in Porto, asking how I'm settling in."],
 };
 
 export function Talk({ lang, sub }: { lang: Lang; sub?: string }) {

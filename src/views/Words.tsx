@@ -109,7 +109,7 @@ function WordRowBody({ w, d }: { w: Word; d: ReturnType<typeof useDisplay> }) {
     <span className="word-row-main">
       <span className="word-row-term"><Term lang={w.lang} text={w.lemma} d={d} />
         {w.lang === "ja" && w.reading && <span className="muted reading" lang="ja">{w.reading}</span>}
-        {w.lang === "ar" && w.translit && <span className="muted reading">{w.translit}</span>}
+        {(w.lang === "ar" || w.lang === "el") && w.translit && <span className="muted reading">{w.translit}</span>}
       </span>
       <span className="muted small word-row-gloss">{w.gloss}</span>
     </span>

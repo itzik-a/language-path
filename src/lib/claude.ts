@@ -96,6 +96,8 @@ export function cleanSentence(lang: Lang, s: RawSentence): Sentence {
 const LANG_RULES: Record<Lang, string> = {
   ja: "Japanese. Split into words the way a learner's dictionary would (particles, verbs with their endings as one token, e.g. 食べました). Lemma = dictionary form (食べる). Give hiragana readings in r for every token containing kanji. Use common kanji normally.",
   pl: "Polish. Lemma = dictionary form: infinitive for verbs, nominative singular for nouns, masculine nominative singular for adjectives. In g, mention the case or form when it isn't the dictionary form, e.g. \"coffee (acc.)\".",
+  el: "Modern Greek as spoken in Greece today, in standard monotonic spelling with the accent mark (τόνος) on every word of two or more syllables. Lemma = dictionary form: 1st person singular present for verbs (τρώω, μιλάω, κοιμάμαι), nominative singular for nouns, masculine nominative singular for adjectives (καλός). Articles are their own tokens (lemma ο). Contractions like στο, στη, στην are one token with lemma σε. Weak pronouns (μου, σου, τον) are their own tokens, lemma the strong form (εγώ, εσύ, αυτός). In g, mention the case or form when it isn't the dictionary form, e.g. \"coffee (acc.)\". The Greek question mark is ;.",
+  pt: "European Portuguese as spoken in Portugal (pt-PT), never Brazilian Portuguese: tu for an informal you (with its verb forms) and o senhor / a senhora for a formal one, estar a + infinitive for what is happening now (estou a ler), object pronouns after the verb where Portugal puts them (dá-me, chamo-me), and the words used in Portugal (autocarro, comboio, pequeno-almoço, telemóvel, casa de banho, sumo, rapariga, fixe). Spelling of the 1990 agreement (ação, ótimo, facto). Lemma = dictionary form: infinitive for verbs, singular for nouns, masculine singular for adjectives. Contractions (do, na, ao, à, pela, num) are one token whose lemma is the preposition (de, em, a, por). A verb with a hyphenated pronoun (dá-me) is one token whose lemma is the infinitive. In g, mention the tense or form when it isn't the dictionary form, e.g. \"I went (past)\".",
   ar: "Modern Standard Arabic (فصحى), not a dialect. Write every word fully vowelled with harakat (including case endings where natural). Lemma = vowelled dictionary form: past tense 3rd person masculine singular for verbs (كَتَبَ), singular indefinite without case ending for nouns (كِتَاب). Prefixes like وَ، الْ، بِ stay attached to their word as one token. Give a transliteration in x.",
 };
 
@@ -152,10 +154,10 @@ export async function annotate(lang: Lang, lines: string[], onProgress?: (done: 
 const ExplainZ = z.object({
   lemma: z.string(),
   reading: z.string().describe("Japanese: hiragana reading of the lemma; others \"\""),
-  translit: z.string().describe("romaji (Japanese) or transliteration (Arabic) of the lemma; Polish: \"\""),
+  translit: z.string().describe("romaji (Japanese) or transliteration (Arabic) of the lemma; Polish, Greek, Portuguese: \"\""),
   gloss: z.string().describe("English meaning(s), short"),
   pos: z.string().describe("part of speech, with gender for nouns or verb group for verbs"),
-  explanation: z.string().describe("2–4 short sentences: what the word does in this sentence and the form it's in, in plain English for a beginner"),
+  explanation: z.string().describe("2–4 short sentences: what the word does in this sentence and the form it's in, in plain English for a beginner. Portuguese: say how it compares with the Spanish word when that helps, especially false friends"),
   root: z.string().describe("Arabic: the root letters separated by spaces (ك ت ب); others \"\""),
   hebrew: z.string().describe("Arabic: a real Hebrew cognate with its meaning if there is one, e.g. כָּתַב (write); otherwise \"\""),
 });
@@ -181,7 +183,7 @@ const NextWordsZ = z.object({
 export async function suggestWords(lang: Lang, o: { level: string; have: string; count: number; topic?: string }) {
   const r = await ask(NextWordsZ, {
     system: `You pick vocabulary for a language learner. Language: ${LANG_RULES[lang]}\n${TOKEN_RULES} (for the example sentences)\nThe learner says about their level: "${o.level}". The learner reads Hebrew; for Arabic give a real Hebrew cognate when one exists (else ""), and the root.`,
-    user: `Words the learner already has: ${o.have || "(none)"}\nSuggest the ${o.count} most frequent, useful words they don't have yet${o.topic ? `, around the topic: ${o.topic}` : ""}, roughly in order of frequency. Japanese: reading in hiragana, translit in romaji. Arabic: lemma fully vowelled, translit in Latin letters. Polish: translit "".`,
+    user: `Words the learner already has: ${o.have || "(none)"}\nSuggest the ${o.count} most frequent, useful words they don't have yet${o.topic ? `, around the topic: ${o.topic}` : ""}, roughly in order of frequency. Japanese: reading in hiragana, translit in romaji. Arabic: lemma fully vowelled, translit in Latin letters. Polish, Greek and Portuguese: translit "". Portuguese: words as used in Portugal; in note, flag a Spanish false friend or a word that differs from Brazil, else "".`,
   });
   return r.words.map((w) => ({ ...w, example: cleanSentence(lang, w.example) }));
 }

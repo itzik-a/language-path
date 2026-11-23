@@ -1,6 +1,6 @@
-/* Checking a typed answer: right, almost (accents / harakat / one letter off), or wrong. */
+/* Checking a typed answer: right, almost (accents / one letter off), or wrong. Harakat and kana kind are ignored. */
 import type { Lang } from "../types";
-import { fold, foldArabic, foldLatin, kataToHira } from "./langs";
+import { fold, foldArabic, foldLatin, greekTranslit, kataToHira } from "./langs";
 import { toKana } from "./romaji";
 
 export type Verdict = "right" | "almost" | "wrong";
@@ -24,7 +24,15 @@ export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   const ft = fold(lang, t);
   const keys = answers.filter(Boolean).map((a) => fold(lang, a));
   if (keys.includes(ft)) return "right";
-  if (lang === "pl" && keys.some((k) => foldLatin(k) === foldLatin(ft))) return "almost";
+  // Greek typed in Latin letters: compared by sound (kalimera = καλημέρα)
+  if (lang === "el" && /[a-z]/i.test(ft) && !/\p{Script=Greek}/u.test(ft)) {
+    const lat = keys.map((k) => foldLatin(greekTranslit(k)));
+    if (lat.includes(foldLatin(ft))) return "right";
+    if (lat.some((k) => k.length >= 4 && lev(k, foldLatin(ft)) <= 1)) return "almost";
+    return "wrong";
+  }
+  // missing accents (Polish ł ś, Portuguese ã ç é, Greek τόνος): almost
+  if ((lang === "pl" || lang === "pt" || lang === "el") && keys.some((k) => foldLatin(k) === foldLatin(ft))) return "almost";
   if (lang === "ar" && keys.some((k) => foldArabic(k) === foldArabic(ft))) return "right";
   if (lang === "ja" && keys.some((k) => kataToHira(k) === kataToHira(ft))) return "right";
   if (keys.some((k) => k.length >= 4 && lev(k, ft) <= 1)) return "almost";
