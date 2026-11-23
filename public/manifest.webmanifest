@@ -1,0 +1,16 @@
+{
+  "name": "Language Path",
+  "short_name": "Languages",
+  "description": "Japanese, Polish and Arabic: reviews, stories at my level, and conversation practice.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F6F5F3",
+  "theme_color": "#0E7490",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
