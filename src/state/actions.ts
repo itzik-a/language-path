@@ -6,7 +6,7 @@ import { newSrs, review, type Grade } from "../lib/srs";
 import { showToast } from "../lib/toast";
 import { lemmaReading } from "../lib/furigana";
 import { wordKey } from "../lib/langs";
-import type { AppState, Card, CardKind, DayLog, Lang, LangSettings, Sentence, Text, Token, Word, WordStatus } from "../types";
+import type { AppState, Card, CardKind, Chat, DayLog, Lang, LangSettings, Sentence, Text, Token, Turn, Word, WordStatus } from "../types";
 import { getState, update } from "./store";
 
 export const live = <T extends { deletedAt?: number }>(xs: T[]) => xs.filter((x) => !x.deletedAt);
@@ -262,4 +262,32 @@ export function addSuggested(lang: Lang, words: Omit<Word, "id" | "updatedAt" | 
     }
   });
   return n;
+}
+
+// ── chats ─────────────────────────────────────────────────────
+
+export function newChat(lang: Lang, scenario: string): string {
+  const id = `ch_${Date.now().toString(36)}`;
+  update((s) => { s.chats.push({ id, updatedAt: Date.now(), lang, scenario, turns: [], createdOn: today() }); });
+  return id;
+}
+
+export function addTurn(chatId: string, turn: Turn, fixForLast?: Turn["fix"]) {
+  update((s) => {
+    const c = s.chats.find((x) => x.id === chatId);
+    if (!c) return;
+    if (fixForLast) for (let i = c.turns.length - 1; i >= 0; i--) if (c.turns[i].who === "me") { c.turns[i].fix = fixForLast; break; }
+    c.turns.push(turn);
+    c.updatedAt = Date.now();
+    if (turn.who === "me") bumpDay(s, c.lang, { turns: 1 });
+  });
+}
+
+export function setChatReview(chatId: string, review: NonNullable<Chat["review"]>) {
+  update((s) => { const c = s.chats.find((x) => x.id === chatId); if (c) { c.review = review; c.updatedAt = Date.now(); } });
+}
+
+export function removeChat(id: string) {
+  update((s) => { const c = s.chats.find((x) => x.id === id); if (c) { c.deletedAt = Date.now(); c.updatedAt = Date.now(); } });
+  showToast("Conversation removed", { label: "Undo", run: () => update((s) => { const c = s.chats.find((x) => x.id === id); if (c) { delete c.deletedAt; c.updatedAt = Date.now(); } }) });
 }

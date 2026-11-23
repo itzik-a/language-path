@@ -67,3 +67,24 @@ describe("Claude jobs", () => {
     await expect(annotate("pl", ["Tak."])).rejects.toThrow(/declined/);
   });
 });
+
+import { chatTurn } from "../src/lib/claude";
+describe("conversation", () => {
+  it("returns the reply and a correction of my line", async () => {
+    setPrefs({ claudeKey: "sk-ant-test", model: "claude-opus-5-5" });
+    const sent = fake({
+      fix: { needed: true, better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative." },
+      reply: { tokens: [tok("Proszę", "proszę", "here you are"), tok(" "), tok("bardzo", "bardzo", "very"), tok("!")], tr: "Here you are!" },
+    });
+    const r = await chatTurn("pl", { level: "beginner", known: "kawa", scenario: "café", lines: [{ who: "them", text: "Dzień dobry!" }, { who: "me", text: "Poproszę kawa." }] });
+    expect(r.fix).toEqual({ better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative." });
+    expect(sentenceText(r.reply)).toBe("Proszę bardzo!");
+    expect(JSON.stringify(sent[0].body.messages)).toContain("Learner: Poproszę kawa.");
+  });
+  it("leaves out a correction that isn't needed", async () => {
+    setPrefs({ claudeKey: "sk-ant-test" });
+    fake({ fix: { needed: false, better: "", why: "" }, reply: { tokens: [tok("Tak", "tak", "yes"), tok(".")], tr: "Yes." } });
+    const r = await chatTurn("pl", { level: "", known: "", scenario: "x", lines: [] });
+    expect(r.fix).toBeUndefined();
+  });
+});

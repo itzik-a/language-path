@@ -191,3 +191,55 @@ export async function testKey() {
   const r = await ask(z.object({ ok: z.string() }), { system: "Reply with ok = \"yes\".", user: "Test." , maxTokens: 2000 });
   return r.ok;
 }
+
+// ── conversation ──────────────────────────────────────────────
+
+const TurnZ = z.object({
+  fix: z.object({
+    needed: z.boolean().describe("true if the learner's last message had a mistake or sounded unnatural"),
+    better: z.string().describe("the corrected, natural version of the learner's last message in the target language; \"\" if not needed"),
+    why: z.string().describe("one short sentence in English on what was wrong; \"\" if not needed"),
+  }),
+  reply: SentenceZ.describe("your next line in the conversation, as one sentence entry (it may contain two short sentences)"),
+});
+
+export interface ChatLine { who: "me" | "them"; text: string }
+
+export async function chatTurn(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[] }) {
+  const transcript = o.lines.map((l) => `${l.who === "me" ? "Learner" : "You"}: ${l.text}`).join("\n");
+  const r = await ask(TurnZ, {
+    system: [
+      `You are a friendly conversation partner for a language learner, speaking ${LANG_RULES[lang]}`,
+      TOKEN_RULES,
+      `Role-play this scene, staying in character: ${o.scenario}`,
+      `The learner says about their level: "${o.level}". Words they know: ${o.known || "(very few)"}`,
+      "Speak at their level: one or two short sentences, mostly words they know, and end with a question or a prompt so they have something to answer. Never switch to English in your reply.",
+      "If the learner writes in English or Hebrew, they're stuck: reply in the target language with the phrase they need, simply.",
+      "Correct the learner's last message only for real mistakes or clearly unnatural phrasing; ignore missing accents or vowel marks.",
+    ].join("\n"),
+    user: transcript ? `Conversation so far:\n${transcript}\n\nYour turn.` : "Start the conversation with your first line.",
+  });
+  return {
+    reply: cleanSentence(lang, r.reply),
+    fix: r.fix.needed && r.fix.better.trim() ? { better: r.fix.better.trim(), why: r.fix.why.trim() } : undefined,
+  };
+}
+
+const ReviewZ = z.object({
+  summary: z.string().describe("2–3 encouraging sentences in English: what went well, one thing to work on"),
+  points: z.array(z.object({
+    said: z.string().describe("what the learner wrote"),
+    better: z.string().describe("the natural version in the target language"),
+    tr: z.string().describe("English meaning of the better version"),
+    why: z.string().describe("short English explanation"),
+  })).describe("the learner's most useful mistakes, at most 5"),
+  words: z.array(z.object({ lemma: z.string(), reading: z.string(), translit: z.string(), gloss: z.string(), pos: z.string() }))
+    .describe("up to 5 words from the conversation worth learning that aren't on the known list"),
+});
+
+export function reviewChat(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[] }) {
+  return ask(ReviewZ, {
+    system: `You coach a language learner after a practice conversation in ${LANG_RULES[lang]}\nThe learner says about their level: "${o.level}". Words they know: ${o.known || "(very few)"}`,
+    user: `Scene: ${o.scenario}\n\n${o.lines.map((l) => `${l.who === "me" ? "Learner" : "Partner"}: ${l.text}`).join("\n")}\n\nReview it.`,
+  });
+}
