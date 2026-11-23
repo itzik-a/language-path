@@ -1,4 +1,6 @@
 /* Every change to the saved state goes through here: stamps `updatedAt`, soft-deletes with Undo. */
+import { today } from "../lib/dates";
+import { newSrs } from "../lib/srs";
 import { showToast } from "../lib/toast";
 import type { Lang, LangSettings, Word, WordStatus } from "../types";
 import { getState, update } from "./store";
@@ -50,4 +52,21 @@ export function removeWord(id: string) {
       for (const c of s.cards) if (c.wordId === id && c.deletedAt === at) { delete c.deletedAt; c.updatedAt = now; }
     }),
   });
+}
+
+/** Script cards (kana, letters) for these characters; returns how many were new. */
+export function addScriptCards(lang: Lang, charIds: string[]): number {
+  const have = new Set(getState().cards.filter((c) => c.kind === "script" && !c.deletedAt).map((c) => c.charId));
+  const add = charIds.filter((id) => !have.has(id));
+  if (!add.length) return 0;
+  update((s) => {
+    const now = Date.now();
+    for (const charId of add) {
+      const id = `c_script_${charId}`;
+      const old = s.cards.find((c) => c.id === id);
+      if (old) { delete old.deletedAt; old.updatedAt = now; continue; }
+      s.cards.push({ id, updatedAt: now, lang, kind: "script", charId, srs: newSrs(now), log: [], addedOn: today() });
+    }
+  });
+  return add.length;
 }
