@@ -518,12 +518,6 @@ ruby.under rt { font-family: var(--font); font-size: .42em; }
 .mark-ar { font-family: "Geeza Pro", var(--font); font-size: 1.15rem; line-height: 1; }
 .sidebar .lang-switch { display: grid; border-radius: 14px; }
 .sidebar .lang-switch button { justify-content: flex-start; border-radius: 10px; min-height: 40px; }
-.side-settings {
-  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px;
-  border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-weight: 550;
-}
-.side-settings svg { color: var(--muted); }
-.side-settings:hover { background: var(--surface-2); }
 .shell.full .topbar { display: none; }
 .shell.full + .toast, .shell.full .toast { bottom: calc(16px + env(safe-area-inset-bottom)); }
 body:has(.shell.full) { padding-bottom: 0; }

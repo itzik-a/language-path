@@ -47,7 +47,6 @@ export function App() {
         </nav>
         <div className="side-foot">
           <DataPill onOpen={() => setSettings(true)} />
-          <button type="button" className="side-settings" onClick={() => setSettings(true)}><IconSettings /><span>Settings</span></button>
         </div>
       </aside>
 
