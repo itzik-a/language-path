@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { initStore } from "./state/store";
+import { startSync } from "./state/sync";
 import "./styles.css";
 
 // Offline launch from the Home Screen. Production only, so dev reloads stay fresh.
@@ -10,6 +11,7 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
 }
 
 void initStore().then(() => {
+  startSync();
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />

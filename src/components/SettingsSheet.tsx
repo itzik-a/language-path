@@ -1,4 +1,4 @@
-/* Settings: the active language's settings, this device's voice, and (later milestones) sync, Claude, backup. */
+/* Settings: sync, the active language's settings, this device's voice, Claude, backup. */
 import { LANG } from "../lib/langs";
 import { setPrefs, usePrefs } from "../lib/prefs";
 import { canSpeak, speak, useVoices } from "../lib/speech";
@@ -6,6 +6,7 @@ import { setLangSettings } from "../state/actions";
 import { useAppState } from "../state/store";
 import type { Lang } from "../types";
 import { IconSpeaker } from "./Icons";
+import { BackupSection, SyncSection } from "./SyncSection";
 import { Field, Seg, Select, Sheet, Stepper, Switch } from "./ui";
 
 const SAMPLE: Record<Lang, string> = {
@@ -18,8 +19,10 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { lang } = usePrefs();
   return (
     <Sheet title="Settings" onClose={onClose}>
+      <SyncSection />
       <LangSection lang={lang} />
       <VoiceSection lang={lang} />
+      <BackupSection />
     </Sheet>
   );
 }

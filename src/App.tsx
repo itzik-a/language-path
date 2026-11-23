@@ -2,6 +2,8 @@ import { useState, type ComponentType, type SVGProps } from "react";
 import { IconRead, IconSettings, IconTalk, IconToday, IconWords } from "./components/Icons";
 import { LangSwitch } from "./components/LangSwitch";
 import { SettingsSheet } from "./components/SettingsSheet";
+import { DataPill, dotClass } from "./components/SyncSection";
+import { useSyncStatus } from "./state/sync";
 import { Toast } from "./components/Toast";
 import { useLang } from "./lib/prefs";
 import { href, useRoute, type View } from "./lib/route";
@@ -26,6 +28,7 @@ export function App() {
   const { view, sub } = useRoute();
   const lang = useLang();
   const [settings, setSettings] = useState(false);
+  const sync = useSyncStatus();
   const tab = tabOf(view);
   const full = view === "review";
 
@@ -43,13 +46,16 @@ export function App() {
           ))}
         </nav>
         <div className="side-foot">
+          <DataPill onOpen={() => setSettings(true)} />
           <button type="button" className="side-settings" onClick={() => setSettings(true)}><IconSettings /><span>Settings</span></button>
         </div>
       </aside>
 
       <header className="topbar">
         <LangSwitch compact />
-        <button type="button" className="icon-btn subtle" aria-label="Settings" onClick={() => setSettings(true)}><IconSettings /></button>
+        <button type="button" className="icon-btn subtle gear" aria-label={`Settings · sync: ${sync.text}`} onClick={() => setSettings(true)}>
+          <IconSettings />{sync.kind !== "off" && <span className={`dot ${dotClass(sync)}`} />}
+        </button>
       </header>
 
       <main className={`main view-${view} lang-${lang}`} key={`${view}/${sub ?? ""}/${lang}`}>

@@ -732,3 +732,10 @@ button.back { border: 0; background: none; color: var(--accent); font: inherit; 
 .pop-sentence .lx-ar { font-size: 1.3rem; }
 .pop-status { display: grid; gap: 10px; }
 .nowrap { white-space: nowrap; }
+.sub-form { padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.sub-form .text-input { background: var(--surface); }
+.sync-state svg { flex: none; color: var(--muted); }
+.text-btn:disabled { opacity: .5; }
+.gear { position: relative; }
+.gear .dot { position: absolute; top: 9px; right: 9px; box-shadow: 0 0 0 2px var(--bg); }
+.side-foot { display: grid; gap: 4px; }
