@@ -7,6 +7,7 @@ import { useAppState } from "../state/store";
 import type { Lang } from "../types";
 import { IconSpeaker } from "./Icons";
 import { BackupSection, SyncSection } from "./SyncSection";
+import { ClaudeSection } from "./ClaudeSection";
 import { Field, Seg, Select, Sheet, Stepper, Switch } from "./ui";
 
 const SAMPLE: Record<Lang, string> = {
@@ -22,6 +23,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
       <SyncSection />
       <LangSection lang={lang} />
       <VoiceSection lang={lang} />
+      <ClaudeSection />
       <BackupSection />
     </Sheet>
   );

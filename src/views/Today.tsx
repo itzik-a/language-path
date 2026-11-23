@@ -6,6 +6,7 @@ import { forecast, newWordsLeft, queue } from "../lib/queue";
 import { go, href } from "../lib/route";
 import { live, startNewWords } from "../state/actions";
 import { useAppState } from "../state/store";
+import { SuggestWords } from "../components/SuggestWords";
 import type { Lang } from "../types";
 
 export function Today({ lang }: { lang: Lang }) {
@@ -41,7 +42,8 @@ export function Today({ lang }: { lang: Lang }) {
         ) : (
           <p className="muted">All done for today. {fc[1] ? `${fc[1]} card${fc[1] === 1 ? "" : "s"} tomorrow.` : ""}</p>
         )}
-        {queued === 0 && <p className="muted small">The queue is empty: add words from texts, or (with Claude connected) ask for the next most useful ones.</p>}
+        {queued < 5 && <p className="muted small">{queued ? `Only ${queued} words left in the queue.` : "The queue is empty."} Add words from texts, or ask Claude for the next most useful ones.</p>}
+        {queued < 5 && <SuggestWords lang={lang} />}
       </section>
 
       <a className="card link-card" href={href("script")}>

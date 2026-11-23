@@ -198,7 +198,7 @@ export function logTime(lang: Lang, field: "readSec" | "talkSec", sec: number) {
 // ── texts ─────────────────────────────────────────────────────
 
 /** A word met in a text: learn it now, put it next in the queue, or mark it known. Returns its id. */
-export function wordFromToken(lang: Lang, tok: Token, sentence: Sentence, how: "learn" | "queue" | "known", source: Word["source"] = "text"): string {
+export function wordFromToken(lang: Lang, tok: Token, sentence: Sentence, how: "learn" | "queue" | "known", source: Word["source"] = "text", extra: Partial<Word> = {}): string {
   const lemma = tok.l!;
   const id = wordKey(lang, lemma);
   update((s) => {
@@ -210,7 +210,7 @@ export function wordFromToken(lang: Lang, tok: Token, sentence: Sentence, how: "
       w = {
         id, updatedAt: now, lang, lemma, gloss: tok.g ?? "", status: "new", rank: minRank - 1, source,
         ...(reading && reading !== lemma ? { reading } : {}), ...(tok.x && tok.t === lemma ? { translit: tok.x } : {}),
-        example: sentence,
+        example: sentence, ...extra,
       };
       s.words.push(w);
     } else {
@@ -243,4 +243,23 @@ export function removeText(id: string) {
   if (!t) return;
   update((s) => { const x = s.texts.find((y) => y.id === id)!; x.deletedAt = Date.now(); x.updatedAt = Date.now(); });
   showToast(`Removed "${t.title}"`, { label: "Undo", run: () => update((s) => { const x = s.texts.find((y) => y.id === id)!; delete x.deletedAt; x.updatedAt = Date.now(); }) });
+}
+
+/** Words suggested by Claude go to the end of the queue (or the front with `first`). Returns how many were new. */
+export function addSuggested(lang: Lang, words: Omit<Word, "id" | "updatedAt" | "lang" | "status" | "rank" | "source">[], first = false): number {
+  let n = 0;
+  update((s) => {
+    const now = Date.now();
+    const ranks = s.words.filter((w) => w.lang === lang).map((w) => w.rank);
+    let rank = first ? Math.min(0, ...ranks) - words.length : Math.max(0, ...ranks) + 1;
+    for (const x of words) {
+      const id = wordKey(lang, x.lemma);
+      const old = s.words.find((w) => w.id === id);
+      if (old && !old.deletedAt) continue;
+      if (old) s.words.splice(s.words.indexOf(old), 1);
+      s.words.push({ ...x, id, updatedAt: now, lang, status: "new", rank: rank++, source: "claude" });
+      n++;
+    }
+  });
+  return n;
 }

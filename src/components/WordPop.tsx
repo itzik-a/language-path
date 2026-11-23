@@ -1,5 +1,7 @@
 /* A word tapped in a text or a chat: meaning, reading, and what to do with it. */
+import { useState } from "react";
 import { Line, Term, useDisplay } from "./Lx";
+import type { Explanation } from "../lib/claude";
 import { lemmaReading } from "../lib/furigana";
 import { wordKey } from "../lib/langs";
 import { href } from "../lib/route";
@@ -19,7 +21,12 @@ export function WordPop({ lang, tok, sentence, onClose, source = "text" }: { lan
   const lemma = tok.l!;
   const w = s.words.find((x) => x.id === wordKey(lang, lemma) && !x.deletedAt);
   const reading = lang === "ja" ? (w?.reading ?? lemmaReading(tok.t, tok.r, lemma)) : undefined;
-  const act = (how: "learn" | "queue" | "known") => { wordFromToken(lang, tok, sentence, how, source); onClose(); };
+  const [ex, setEx] = useState<Explanation | null>(null);
+  const extra = ex ? {
+    gloss: ex.gloss || tok.g || "", ...(ex.pos ? { pos: ex.pos } : {}), ...(ex.translit ? { translit: ex.translit } : {}),
+    ...(ex.reading && lang === "ja" ? { reading: ex.reading } : {}), ...(ex.root ? { root: ex.root } : {}), ...(ex.hebrew ? { hebrew: ex.hebrew } : {}),
+  } : {};
+  const act = (how: "learn" | "queue" | "known") => { wordFromToken(lang, tok, sentence, how, source, extra); onClose(); };
 
   return (
     <Sheet title="Word" onClose={onClose}>
@@ -38,7 +45,7 @@ export function WordPop({ lang, tok, sentence, onClose, source = "text" }: { lan
         <button type="button" className="icon-btn subtle" aria-label="Hear the sentence" onClick={() => void speak(sentenceText(sentence), lang)}><IconSpeaker width={18} height={18} /></button>
         <div><Line lang={lang} s={sentence} d={d} mark={(t) => (t === tok ? "hit" : undefined)} />{sentence.tr && <span className="muted small">{sentence.tr}</span>}</div>
       </div>
-      <Explain lang={lang} tok={tok} sentence={sentence} />
+      <Explain lang={lang} tok={tok} sentence={sentence} onResult={setEx} />
       {w ? (
         <div className="pop-status">
           <span className="tag">{STATUS_LABEL[w.status]}</span>

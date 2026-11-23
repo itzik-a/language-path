@@ -11,6 +11,7 @@ import { editWord, live, removeWord, setStatus } from "../state/actions";
 import { useAppState } from "../state/store";
 import type { Lang, Word, WordStatus } from "../types";
 import { WordCards } from "./WordCards";
+import { SuggestWords } from "../components/SuggestWords";
 
 type Filter = WordStatus | "all";
 
@@ -63,6 +64,7 @@ function WordList({ lang }: { lang: Lang }) {
       {filter === "new" && !picking && words.some((w) => w.status === "new") && (
         <p className="muted small">The queue: new words start, a few a day, in this order. Already know some? Tap <b>Select</b> and mark them known.</p>
       )}
+      {filter === "new" && !picking && <SuggestWords lang={lang} />}
 
       {shown.length === 0 ? (
         <div className="card empty"><p className="muted">{q ? "No word matches." : filter === "learning" ? "No words being learned yet. They start from the queue, a few each day." : "Nothing here yet."}</p></div>

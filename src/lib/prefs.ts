@@ -48,3 +48,11 @@ export const usePrefs = () => useSyncExternalStore((l) => { listeners.add(l); re
 export const useLang = () => usePrefs().lang;
 
 window.addEventListener("storage", (e) => { if (e.key === LS) { prefs = load(); listeners.forEach((l) => l()); } });
+
+export const hasClaude = () => !!prefs.claudeKey;
+
+export const MODELS: { id: Model; label: string; note: string }[] = [
+  { id: "claude-opus-5-5", label: "Claude Opus 5.5", note: "best quality (default)" },
+  { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5", note: "faster, cheaper" },
+  { id: "claude-haiku-5-5", label: "Claude Haiku 5.5", note: "fastest, cheapest" },
+];
