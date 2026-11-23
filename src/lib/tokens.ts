@@ -2,16 +2,17 @@
 import type { Lang, Sentence, Token } from "../types";
 import { LANG } from "./langs";
 
-const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:…)\]»”、。！？،؟؛]+$/;
-const OPEN_NO_SPACE_AFTER = /^[(\[«„“]+$/;
+const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:…)\]»”、。！？」』）،؟؛]+$/;
+const OPEN_NO_SPACE_AFTER = /^[(\[«„“「『（]+$/;
+const ONLY_PUNCT = /^[\p{P}\p{S}]+$/u;
 
-/** Parse the starter markup: "surface|lemma|gloss|reading …", "=" lemma = surface, bare tokens are punctuation.
+/** Parse the starter markup: "surface|lemma|gloss|reading …", "=" lemma = surface, "-" = a name, bare tokens are punctuation.
     Glosses may contain spaces: a chunk with fewer than two "|" continues the previous token. */
 export function sentence(lang: Lang, spec: string, tr: string): Sentence {
   const raw: string[] = [];
   for (const chunk of spec.trim().split(/\s+/)) {
     const pipes = chunk.split("|").length - 1;
-    if (pipes >= 2 || !raw.length || PUNCT_BEFORE_NO_SPACE.test(chunk) || OPEN_NO_SPACE_AFTER.test(chunk) || !raw[raw.length - 1].includes("|")) raw.push(chunk);
+    if (pipes >= 2 || !raw.length || ONLY_PUNCT.test(chunk) || !raw[raw.length - 1].includes("|")) raw.push(chunk);
     else raw[raw.length - 1] += " " + chunk;
   }
   const tokens: Token[] = [];
@@ -19,8 +20,9 @@ export function sentence(lang: Lang, spec: string, tr: string): Sentence {
     if (i > 0 && LANG[lang].spaces && !PUNCT_BEFORE_NO_SPACE.test(p) && !OPEN_NO_SPACE_AFTER.test(raw[i - 1])) tokens.push({ t: " " });
     if (!p.includes("|")) { tokens.push({ t: p }); return; }
     const [t, l, g, r] = p.split("|");
-    const lemma = l === "=" ? (lang === "pl" ? t.toLowerCase() : t) : l;
-    tokens.push({ t, l: lemma, ...(g ? { g } : {}), ...(r && r !== t ? { r } : {}) });
+    // "-" as lemma: a name (has a gloss, isn't a word to learn)
+    const lemma = l === "-" ? undefined : l === "=" ? (lang === "pl" ? t.toLowerCase() : t) : l;
+    tokens.push({ t, ...(lemma ? { l: lemma } : {}), ...(g ? { g } : {}), ...(r && r !== t ? { r } : {}) });
   });
   return { tokens, tr };
 }

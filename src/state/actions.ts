@@ -4,7 +4,9 @@ import { getPrefs } from "../lib/prefs";
 import { newWordsLeft } from "../lib/queue";
 import { newSrs, review, type Grade } from "../lib/srs";
 import { showToast } from "../lib/toast";
-import type { AppState, Card, CardKind, DayLog, Lang, LangSettings, Word, WordStatus } from "../types";
+import { lemmaReading } from "../lib/furigana";
+import { wordKey } from "../lib/langs";
+import type { AppState, Card, CardKind, DayLog, Lang, LangSettings, Sentence, Text, Token, Word, WordStatus } from "../types";
 import { getState, update } from "./store";
 
 export const live = <T extends { deletedAt?: number }>(xs: T[]) => xs.filter((x) => !x.deletedAt);
@@ -191,4 +193,54 @@ export function bumpDay(s: AppState, lang: Lang, d: Partial<Pick<DayLog, "review
 export function logTime(lang: Lang, field: "readSec" | "talkSec", sec: number) {
   if (sec < 3) return;
   update((s) => bumpDay(s, lang, { [field]: Math.round(sec) }));
+}
+
+// ── texts ─────────────────────────────────────────────────────
+
+/** A word met in a text: learn it now, put it next in the queue, or mark it known. Returns its id. */
+export function wordFromToken(lang: Lang, tok: Token, sentence: Sentence, how: "learn" | "queue" | "known", source: Word["source"] = "text"): string {
+  const lemma = tok.l!;
+  const id = wordKey(lang, lemma);
+  update((s) => {
+    const now = Date.now();
+    let w = s.words.find((x) => x.id === id);
+    if (!w) {
+      const minRank = Math.min(0, ...s.words.filter((x) => x.lang === lang).map((x) => x.rank));
+      const reading = lang === "ja" ? lemmaReading(tok.t, tok.r, lemma) : undefined;
+      w = {
+        id, updatedAt: now, lang, lemma, gloss: tok.g ?? "", status: "new", rank: minRank - 1, source,
+        ...(reading && reading !== lemma ? { reading } : {}), ...(tok.x && tok.t === lemma ? { translit: tok.x } : {}),
+        example: sentence,
+      };
+      s.words.push(w);
+    } else {
+      if (w.deletedAt) delete w.deletedAt;
+      if (!w.example) w.example = sentence;
+      if (!w.gloss && tok.g) w.gloss = tok.g;
+      if (how === "queue" && w.status === "new") w.rank = Math.min(0, ...s.words.filter((x) => x.lang === lang).map((x) => x.rank)) - 1;
+    }
+    w.status = how === "learn" ? "learning" : how === "known" ? "known" : w.status === "learning" ? "learning" : "new";
+    w.updatedAt = now;
+    syncWordCards(s, w, now);
+  });
+  return id;
+}
+
+export function addText(t: Text) {
+  update((s) => { s.texts.push(t); });
+}
+
+export function markRead(id: string, on = true) {
+  update((s) => { const t = s.texts.find((x) => x.id === id); if (t) { if (on) t.readAt = Date.now(); else delete t.readAt; t.updatedAt = Date.now(); } });
+}
+
+export function countListen(id: string) {
+  update((s) => { const t = s.texts.find((x) => x.id === id); if (t) { t.listens = (t.listens ?? 0) + 1; t.updatedAt = Date.now(); } });
+}
+
+export function removeText(id: string) {
+  const t = getState().texts.find((x) => x.id === id);
+  if (!t) return;
+  update((s) => { const x = s.texts.find((y) => y.id === id)!; x.deletedAt = Date.now(); x.updatedAt = Date.now(); });
+  showToast(`Removed "${t.title}"`, { label: "Undo", run: () => update((s) => { const x = s.texts.find((y) => y.id === id)!; delete x.deletedAt; x.updatedAt = Date.now(); }) });
 }

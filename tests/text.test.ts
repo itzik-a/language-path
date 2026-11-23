@@ -63,3 +63,23 @@ describe("folding", () => {
     expect(wordKey("ar", "كِتَاب")).toBe(wordKey("ar", "كتاب"));
   });
 });
+
+import { lemmaReading } from "../src/lib/furigana";
+describe("lemma readings", () => {
+  it("rebuilds the dictionary form's reading", () => {
+    expect(lemmaReading("飲みます", "のみます", "飲む")).toBe("のむ");
+    expect(lemmaReading("見ました", "みました", "見る")).toBe("みる");
+    expect(lemmaReading("勉強します", "べんきょうします", "勉強する")).toBe("べんきょうする");
+    expect(lemmaReading("会いたい", "あいたい", "会う")).toBe("あう");
+    expect(lemmaReading("かわいい", undefined, "かわいい")).toBe("かわいい");
+    expect(lemmaReading("猫", "ねこ", "猫")).toBe("ねこ");
+  });
+});
+
+describe("quotes", () => {
+  it("keeps Japanese brackets as tokens", () => {
+    const s = sentence("ja", "友達|=|friend|ともだち は|=|(topic)|は 「 かわいい|=|cute|かわいい ！ 」 と|=|(quote)|と 。", "");
+    expect(sentenceText(s)).toBe("友達は「かわいい！」と。");
+    expect(s.tokens[1].r).toBeUndefined();
+  });
+});

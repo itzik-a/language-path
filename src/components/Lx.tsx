@@ -53,21 +53,39 @@ export function TokenText({ lang, tok, d }: { lang: Lang; tok: Token; d: Display
   return <>{tok.t}</>;
 }
 
+const CLOSING = /^[\p{Pe}\p{Pf}\p{Po}]+$/u;
+const OPENING = /^[\p{Ps}\p{Pi}]+$/u;
+
+/** Tokens grouped so punctuation never starts a line: "見ました" + "。" stay together, "「" sticks to the next word. */
+function groups(tokens: Token[]): number[][] {
+  const out: number[][] = [];
+  let pendingOpen: number[] = [];
+  tokens.forEach((tok, i) => {
+    if (!tok.l && CLOSING.test(tok.t) && out.length && !pendingOpen.length) { out[out.length - 1].push(i); return; }
+    if (!tok.l && OPENING.test(tok.t)) { pendingOpen.push(i); return; }
+    out.push([...pendingOpen, i]);
+    pendingOpen = [];
+  });
+  if (pendingOpen.length) out.push(pendingOpen);
+  return out;
+}
+
 /** A sentence; word tokens are buttons when onWord is given. `hide` blanks one token (cloze). */
 export function Line({ lang, s, d, onWord, hide, mark, className }: {
   lang: Lang; s: Sentence; d: Display; onWord?: (tok: Token, i: number) => void; hide?: number; mark?: (tok: Token) => string | undefined; className?: string;
 }) {
+  const one = (tok: Token, i: number) => {
+    if (i === hide) return <span key={i} className="cloze-gap" aria-label="missing word">{"\u2003\u2003"}</span>;
+    if (!tok.l || !onWord) return <span key={i} className={tok.l ? mark?.(tok) : undefined}><TokenText lang={lang} tok={tok} d={d} /></span>;
+    return (
+      <button key={i} type="button" className={`tok ${mark?.(tok) ?? ""}`} onClick={() => onWord(tok, i)}>
+        <TokenText lang={lang} tok={tok} d={d} />
+      </button>
+    );
+  };
   return (
     <span className={`lx lx-${lang} line ${className ?? ""}`} lang={LANG[lang].bcp} dir={LANG[lang].dir}>
-      {s.tokens.map((tok, i) => {
-        if (i === hide) return <span key={i} className="cloze-gap" aria-label="missing word">{"  "}</span>;
-        if (!tok.l || !onWord) return <span key={i} className={tok.l ? mark?.(tok) : undefined}><TokenText lang={lang} tok={tok} d={d} /></span>;
-        return (
-          <button key={i} type="button" className={`tok ${mark?.(tok) ?? ""}`} onClick={() => onWord(tok, i)}>
-            <TokenText lang={lang} tok={tok} d={d} />
-          </button>
-        );
-      })}
+      {groups(s.tokens).map((g) => (g.length === 1 ? one(s.tokens[g[0]], g[0]) : <span key={g[0]} className="nowrap">{g.map((i) => one(s.tokens[i], i))}</span>))}
     </span>
   );
 }

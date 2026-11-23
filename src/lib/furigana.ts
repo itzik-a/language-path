@@ -27,3 +27,16 @@ export function needsFurigana(surface: string, mode: "unknown" | "all" | "none",
   if (mode === "all") return true;
   return [...surface].some((c) => hasKanji(c) && !known.has(c));
 }
+
+/** The reading of a lemma, from a conjugated surface and its reading: 飲みます (のみます) → 飲む → のむ. */
+export function lemmaReading(surface: string, reading: string | undefined, lemma: string): string | undefined {
+  if (!hasKanji(lemma)) return lemma;
+  if (!reading) return undefined;
+  if (surface === lemma) return reading;
+  const m = /^([^\p{Script=Han}]*)(\p{Script=Han}+)(.*)$/u.exec(lemma);
+  if (!m) return undefined;
+  const [, pre, kanji, rest] = m;
+  if (hasKanji(rest)) return undefined;
+  const part = furiganaParts(surface, reading).find((p) => p.text === kanji && p.rt);
+  return part ? pre + part.rt + rest : undefined;
+}

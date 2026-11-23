@@ -27,15 +27,22 @@ function normSettings(v: unknown): Settings {
   };
 }
 
+/** Starter items shipped after this copy was made are added (removed ones stay removed: they're still there, soft-deleted). */
+function withSeeds<T extends { id: string }>(have: T[], seeds: T[]): T[] {
+  const ids = new Set(have.map((x) => x.id));
+  const missing = seeds.filter((x) => !ids.has(x.id));
+  return missing.length ? [...have, ...missing] : have;
+}
+
 export function normalize(s: unknown): AppState {
   const d = defaults();
   if (!s || typeof s !== "object") return d;
   const x = s as Partial<AppState>;
   return {
     v: 1,
-    words: arr(x.words, d.words),
+    words: withSeeds(arr(x.words, d.words), d.words),
     cards: arr(x.cards, d.cards).map((c) => ({ ...c, log: Array.isArray(c.log) ? c.log : [] })),
-    texts: arr(x.texts, d.texts),
+    texts: withSeeds(arr(x.texts, d.texts), d.texts),
     chats: arr(x.chats, d.chats),
     days: arr(x.days, d.days),
     settings: normSettings(x.settings),
