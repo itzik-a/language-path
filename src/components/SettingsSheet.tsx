@@ -6,6 +6,7 @@ import { setLangSettings } from "../state/actions";
 import { useAppState } from "../state/store";
 import type { Lang } from "../types";
 import { IconSpeaker } from "./Icons";
+import { ThemePicker } from "./ThemePicker";
 import { BackupSection, SyncSection } from "./SyncSection";
 import { ClaudeSection } from "./ClaudeSection";
 import { Field, Seg, Select, Sheet, Stepper, Switch } from "./ui";
@@ -33,6 +34,11 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
       <LangSection lang={lang} />
       <VoiceSection lang={lang} />
       <ClaudeSection />
+      <section className="dlg-section" aria-labelledby="theme-title">
+        <h3 id="theme-title">Appearance</h3>
+        <ThemePicker />
+        <p className="muted small">System follows this device's light or dark setting. Each device keeps its own choice.</p>
+      </section>
       <BackupSection />
     </Sheet>
   );

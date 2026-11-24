@@ -45,39 +45,38 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0C0B0A;
-    --surface: #171513;
-    --surface-2: #211F1C;
-    --ink: #F1EEEA;
-    --muted: #A39C94;
-    --line: rgba(255, 255, 255, .08);
-    --track: rgba(255, 255, 255, .09);
-    --accent: #5BC8E0;
-    --accent-2: #8ADCEC;
-    --accent-soft: #0B2A33;
-    --on-accent: #04222B;
-    --good: #4ADE9A;
-    --good-soft: #10301F;
-    --danger: #FF7676;
-    --raised: #312D29;
-    --toast-bg: #F1EEEA;
-    --toast-ink: #15120F;
-    --toast-action: #0E7490;
-    --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 40px rgba(0, 0, 0, .55);
-    --glass: rgba(23, 21, 19, .74);
-    --glass-line: rgba(255, 255, 255, .07);
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3);
-    --shadow-chip: 0 1px 3px rgba(0, 0, 0, .4);
-    --pos: #4ADE9A;
-    --neg: #FF7676;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-    --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
-    --grid: #2A2724;
-    --axis: #3A3733;
-    color-scheme: dark;
-  }
+/* Dark: <html data-theme="dark">, set from the choice in settings or the system's (src/lib/theme.ts) */
+:root[data-theme="dark"] {
+  --bg: #0C0B0A;
+  --surface: #171513;
+  --surface-2: #211F1C;
+  --ink: #F1EEEA;
+  --muted: #A39C94;
+  --line: rgba(255, 255, 255, .08);
+  --track: rgba(255, 255, 255, .09);
+  --accent: #5BC8E0;
+  --accent-2: #8ADCEC;
+  --accent-soft: #0B2A33;
+  --on-accent: #04222B;
+  --good: #4ADE9A;
+  --good-soft: #10301F;
+  --danger: #FF7676;
+  --raised: #312D29;
+  --toast-bg: #F1EEEA;
+  --toast-ink: #15120F;
+  --toast-action: #0E7490;
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 40px rgba(0, 0, 0, .55);
+  --glass: rgba(23, 21, 19, .74);
+  --glass-line: rgba(255, 255, 255, .07);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-chip: 0 1px 3px rgba(0, 0, 0, .4);
+  --pos: #4ADE9A;
+  --neg: #FF7676;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+  --grid: #2A2724;
+  --axis: #3A3733;
+  color-scheme: dark;
 }
 
 /* ---------- Base ---------- */
@@ -132,7 +131,7 @@ kbd {
   gap: 12px;
   min-width: 0;
 }
-@media (prefers-color-scheme: dark) { .card { box-shadow: inset 0 0 0 1px var(--line); } }
+:where(:root[data-theme="dark"]) .card { box-shadow: inset 0 0 0 1px var(--line); }
 
 .tag {
   display: inline-flex; align-items: center; gap: 4px; justify-self: start;
@@ -793,3 +792,6 @@ button.back { border: 0; background: none; color: var(--accent); font: inherit; 
 .chart-tick.strong { fill: var(--ink); font-weight: 650; }
 .chart-end { fill: var(--ink); font-size: 12px; font-weight: 650; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
 .minibars figcaption { min-height: 1.4em; }
+
+/* Theme picker in settings (components/ThemePicker.tsx) */
+.theme-seg { justify-self: start; }
