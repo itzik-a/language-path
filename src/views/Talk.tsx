@@ -33,6 +33,8 @@ const SPECIAL: Record<Lang, string[]> = {
   ar: ["I'm haggling over a scarf at your stall in the souq.", "You're a taxi driver; I tell you where to go."],
   el: ["I'm ordering lunch at your taverna on an island; you're the waiter.", "You run a periptero (street kiosk) in Athens; I'm buying a few things and asking the way."],
   es: ["Argue with me about whether working from home is better; take the other side and push back.", "I'm telling you about the last book I read; you're a friend who asks follow-up questions and gives your own opinion.", "You're interviewing me for a job at a company in Madrid.", "We're catching up over coffee after a year without seeing each other; talk like old friends."],
+  fr: ["Argue with me about whether Paris is still worth living in; take the other side and push back.", "We've just seen a film together; you're a friend who loved it and I didn't.", "You're my landlord in Lyon and I'm complaining about the heating that still doesn't work.", "We're catching up over an apéro after a year without seeing each other; talk like old friends."],
+  it: ["Argue with me about which region of Italy has the best food; defend yours.", "I'm telling you about the last book I read; you're a friend who asks follow-up questions and gives your own opinion.", "You're interviewing me for a job at a design studio in Milan.", "We're catching up over an aperitivo after a year without seeing each other; talk like old friends."],
   ru: ["I'm buying a ticket for the metro in Moscow; you're at the ticket window.", "You're my Russian friend's mother; I've come for tea and you ask about me."],
   pt: ["I'm ordering a bica and a pastel de nata at your pastelaria in Lisbon.", "You're my neighbour in Porto, asking how I'm settling in."],
 };

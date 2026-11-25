@@ -10,6 +10,8 @@ const GRAMMAR: Record<Lang, string[]> = {
   pt: ["o", "a", "os", "as", "um", "uma", "de", "do", "da", "dos", "das", "em", "no", "na", "nos", "nas", "ao", "à", "aos", "às", "por", "pelo", "pela", "para", "com", "e", "ou", "mas", "que", "se", "não", "me", "te", "lhe"],
   ru: ["и", "а", "но", "в", "во", "на", "с", "со", "к", "ко", "по", "о", "об", "у", "за", "из", "от", "до", "для", "не", "ни", "что", "как", "это", "да", "нет", "же", "ли", "бы", "вот", "тоже", "или"],
   es: ["el", "la", "los", "las", "un", "una", "unos", "unas", "de", "del", "a", "al", "en", "por", "para", "con", "sin", "y", "e", "o", "u", "pero", "que", "se", "no", "me", "te", "le", "lo", "les", "nos", "su", "sus", "mi", "tu", "es", "muy"],
+  fr: ["le", "la", "les", "l", "un", "une", "des", "de", "d", "du", "au", "aux", "à", "en", "dans", "sur", "pour", "par", "avec", "sans", "et", "ou", "mais", "que", "qu", "qui", "ne", "n", "pas", "se", "s", "me", "m", "te", "t", "ce", "c", "je", "j", "il", "elle", "on", "y"],
+  it: ["il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una", "di", "del", "della", "a", "al", "alla", "da", "in", "nel", "nella", "con", "su", "per", "tra", "fra", "e", "o", "ma", "che", "non", "si", "mi", "ti", "ci", "vi", "ne"],
   ar: ["فِي", "فى", "وَ", "و", "مِنْ", "من", "إِلَى", "الى", "عَلَى", "على", "مَعَ", "مع", "هٰذَا", "هذا", "هٰذِهِ", "هذه", "أَنْ", "ان", "لَا", "لا", "مَا", "ما"],
 };
 

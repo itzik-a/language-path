@@ -1,6 +1,6 @@
 /* Sentences as tokens. */
 import type { Lang, Sentence, Token } from "../types";
-import { LANG, lowerIfCased } from "./langs";
+import { isElided, LANG, lowerIfCased } from "./langs";
 
 const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:;·…)\]»”、。！？」』）،؟؛]+$/;
 const OPEN_NO_SPACE_AFTER = /^[(\[«„“「『（¿¡]+$/;
@@ -17,7 +17,7 @@ export function sentence(lang: Lang, spec: string, tr: string): Sentence {
   }
   const tokens: Token[] = [];
   raw.forEach((p, i) => {
-    if (i > 0 && LANG[lang].spaces && !PUNCT_BEFORE_NO_SPACE.test(p) && !OPEN_NO_SPACE_AFTER.test(raw[i - 1])) tokens.push({ t: " " });
+    if (i > 0 && LANG[lang].spaces && !PUNCT_BEFORE_NO_SPACE.test(p) && !OPEN_NO_SPACE_AFTER.test(raw[i - 1]) && !isElided(raw[i - 1].split("|")[0])) tokens.push({ t: " " });
     if (!p.includes("|")) { tokens.push({ t: p }); return; }
     const [t, l, g, r] = p.split("|");
     // "-" as lemma: a name (has a gloss, isn't a word to learn)

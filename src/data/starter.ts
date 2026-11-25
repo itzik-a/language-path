@@ -332,4 +332,70 @@ const es: StarterWord[] = [
   { lemma: "menudo", gloss: "what a… (ironic, before a noun)", pos: "adjective", ex: ["¡ Menuda|menudo|what a (f.) suerte|=|luck !", "What luck!"], note: "Spain; can be sincere or ironic, the tone tells" },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es };
+/** French, for an advanced speaker: spoken French (fillers, colloquial words, a little verlan). Pronominal verbs are
+    stored without se (se débrouiller → débrouiller); the note says so. */
+const fr: StarterWord[] = [
+  { lemma: "bah", gloss: "well… (filler)", pos: "discourse marker", ex: ["Bah|=|well , je|=|I sais|savoir|know pas|=|not .", "Well, I don't know."], note: "spoken French drops the ne: je sais pas" },
+  { lemma: "bref", gloss: "anyway, in short", pos: "discourse marker", ex: ["Bref|=|anyway , on|=|we est|être|are rentrés|rentrer|went home tard|=|late .", "Anyway, we got home late."] },
+  { lemma: "genre", gloss: "like (filler); kind, type", pos: "discourse marker", ex: ["C'|ce|it est|être|is genre|=|like super|=|really loin|=|far .", "It's like really far."] },
+  { lemma: "franchement", gloss: "honestly, frankly", pos: "adverb", ex: ["Franchement|=|honestly , c'|ce|it était|être|was nul|=|rubbish .", "Honestly, it was rubbish."] },
+  { lemma: "carrément", gloss: "totally; flat out", pos: "adverb", ex: ["Il|=|he m'|me|me a|avoir|has carrément|=|flat out dit|dire|said non|=|no .", "He flat out said no."], note: "on its own: «Carrément !» = absolutely!" },
+  { lemma: "vachement", gloss: "really, very (colloquial)", pos: "adverb", ex: ["C'|ce|it est|être|is vachement|=|really bien|=|good .", "It's really good."] },
+  { lemma: "enfin", gloss: "well, I mean; finally", pos: "discourse marker", ex: ["Il|=|he est|être|is sympa|=|nice , enfin|=|well , parfois|=|sometimes .", "He's nice, well, sometimes."] },
+  { lemma: "coup", gloss: "blow, hit; du coup: so, as a result", pos: "noun (m.)", ex: ["Du|de|(as a) coup|=|result , on|=|we est|être|are partis|partir|left .", "So we left."], note: "du coup is everywhere in spoken French" },
+  { lemma: "truc", gloss: "thing, thingy", pos: "noun (m.)", ex: ["Passe-moi|passer|pass me le|=|the truc|=|thing , là|=|there .", "Pass me that thing there."] },
+  { lemma: "boulot", gloss: "job, work (colloquial)", pos: "noun (m.)", ex: ["J'|je|I ai|avoir|have trouvé|trouver|found un|=|a nouveau|=|new boulot|=|job .", "I've found a new job."] },
+  { lemma: "bouquin", gloss: "book (colloquial)", pos: "noun (m.)", ex: ["Tu|=|you as|avoir|have lu|lire|read ce|=|this bouquin|=|book ?", "Have you read this book?"] },
+  { lemma: "pote", gloss: "mate, buddy", pos: "noun (m./f.)", ex: ["C'|ce|it est|être|is un|=|a pote|=|mate de|=|from la|le|the fac|=|uni .", "He's a mate from uni."] },
+  { lemma: "flemme", gloss: "laziness; can't be bothered", pos: "noun (f.)", ex: ["J'|je|I ai|avoir|have la|le|the flemme|=|laziness .", "I can't be bothered."], note: "avoir la flemme de + infinitive" },
+  { lemma: "galère", gloss: "a hassle, a nightmare", pos: "noun (f.)", ex: ["Trouver|=|finding un|=|a appart|=|flat à|=|in Paris|-|Paris , c'|ce|it est|être|is la|le|the galère|=|nightmare .", "Finding a flat in Paris is a nightmare."], note: "galérer = to struggle" },
+  { lemma: "bosser", gloss: "to work (colloquial)", pos: "verb", ex: ["Je|=|I bosse|bosser|work demain|=|tomorrow .", "I'm working tomorrow."] },
+  { lemma: "débrouiller", gloss: "se débrouiller: to manage, to get by", pos: "verb (se)", ex: ["Je|=|I me|=|myself débrouille|débrouiller|manage .", "I manage."], note: "«Débrouille-toi !» = sort it out yourself!" },
+  { lemma: "râler", gloss: "to grumble, to moan", pos: "verb", ex: ["Arrête|arrêter|stop de|=|(of) râler|=|moaning !", "Stop moaning!"] },
+  { lemma: "piger", gloss: "to get it, to understand (colloquial)", pos: "verb", ex: ["J'|je|I ai|avoir|have pas|=|not pigé|piger|got it .", "I didn't get it."] },
+  { lemma: "planter", gloss: "se planter: to get it wrong; planter: to plant, to crash (computer)", pos: "verb", ex: ["Je|=|I me|=|myself suis|être|am planté|planter|got it wrong .", "I got it wrong."] },
+  { lemma: "louper", gloss: "to miss (a train, a chance)", pos: "verb", ex: ["J'|je|I ai|avoir|have loupé|louper|missed le|=|the train|=|train .", "I missed the train."] },
+  { lemma: "traîner", gloss: "to hang around; to drag on", pos: "verb", ex: ["On|=|we a|avoir|have traîné|traîner|hung around en|=|in ville|=|town .", "We hung around town."] },
+  { lemma: "bouffer", gloss: "to eat (colloquial)", pos: "verb", ex: ["On|=|we va|aller|go bouffer|=|eat où|=|where ?", "Where are we eating?"] },
+  { lemma: "kiffer", gloss: "to love, to be into (slang)", pos: "verb", ex: ["Je|=|I kiffe|kiffer|love cette|ce|this chanson|=|song .", "I love this song."] },
+  { lemma: "crevé", gloss: "exhausted, knackered", pos: "adjective", ex: ["Je|=|I suis|être|am crevé|=|knackered .", "I'm knackered."] },
+  { lemma: "sympa", gloss: "nice, friendly", pos: "adjective", ex: ["Elle|=|she est|être|is super|=|really sympa|=|nice .", "She's really nice."] },
+  { lemma: "nul", gloss: "rubbish, useless", pos: "adjective", ex: ["Le|=|the film|=|film était|être|was nul|=|rubbish .", "The film was rubbish."] },
+  { lemma: "marrant", gloss: "funny", pos: "adjective", ex: ["C'|ce|it est|être|is marrant|=|funny .", "That's funny."] },
+  { lemma: "relou", gloss: "annoying, a pain (verlan of lourd)", pos: "adjective", ex: ["Il|=|he est|être|is relou|=|annoying , lui|=|him .", "He's a pain, that one."], note: "verlan: syllables swapped" },
+  { lemma: "ouf", gloss: "crazy, amazing (verlan of fou)", pos: "adjective", ex: ["C'|ce|it était|être|was ouf|=|amazing !", "It was amazing!"] },
+];
+
+/** Italian, for an advanced speaker: conversation glue and colloquial words. Pronominal verbs keep -si / -sene. */
+const it: StarterWord[] = [
+  { lemma: "allora", gloss: "so, well then", pos: "discourse marker", ex: ["Allora|=|so , che|=|what facciamo|fare|shall we do ?", "So, what shall we do?"] },
+  { lemma: "cioè", gloss: "I mean, that is", pos: "discourse marker", ex: ["È|essere|it's lontano|=|far , cioè|=|I mean , abbastanza|=|fairly .", "It's far, I mean, fairly far."] },
+  { lemma: "comunque", gloss: "anyway; however", pos: "discourse marker", ex: ["Comunque|=|anyway , ci|=|(each other) vediamo|vedere|we see domani|=|tomorrow .", "Anyway, see you tomorrow."] },
+  { lemma: "magari", gloss: "maybe; if only", pos: "adverb", ex: ["Magari|=|maybe vengo|venire|I come anche|=|too io|=|I .", "Maybe I'll come too."], note: "on its own: «Magari!» = I wish!" },
+  { lemma: "mica", gloss: "not at all (adds weight to non)", pos: "adverb", ex: ["Non|=|not è|essere|it's mica|=|at all facile|=|easy .", "It's not easy at all."] },
+  { lemma: "insomma", gloss: "in short; well…, so-so", pos: "discourse marker", ex: ["Insomma|=|in short , è|essere|it has andata|andare|gone bene|=|well .", "All in all, it went well."], note: "«Com'era?» «Insomma…» = so-so" },
+  { lemma: "praticamente", gloss: "basically, practically", pos: "adverb", ex: ["Praticamente|=|basically ho|avere|I have finito|finire|finished .", "I've basically finished."] },
+  { lemma: "tipo", gloss: "like (filler); type, guy", pos: "discourse marker", ex: ["C'|ci|there erano|essere|were tipo|=|like cento|=|a hundred persone|persona|people .", "There were like a hundred people."] },
+  { lemma: "dai", gloss: "come on!", pos: "interjection", ex: ["Dai|=|come on , andiamo|andare|let's go !", "Come on, let's go!"] },
+  { lemma: "boh", gloss: "dunno (with a shrug)", pos: "interjection", ex: ["Boh|=|dunno , non|=|not lo|=|it so|sapere|I know .", "Dunno, no idea."] },
+  { lemma: "figurati", gloss: "don't mention it; you bet; come off it", pos: "phrase", ex: ["Grazie|=|thanks ! Figurati|=|don't mention it !", "Thanks! Don't mention it!"], note: "formal: si figuri" },
+  { lemma: "ormai", gloss: "by now, at this point", pos: "adverb", ex: ["Ormai|=|by now è|essere|it's tardi|=|late .", "It's too late now."] },
+  { lemma: "addirittura", gloss: "even, no less", pos: "adverb", ex: ["Ha|avere|he has addirittura|=|even pianto|piangere|cried .", "He even cried."], note: "on its own: «Addirittura!» = really? that much?" },
+  { lemma: "beccare", gloss: "to catch; to bump into", pos: "verb", ex: ["Ti|=|you ho|avere|I have beccato|beccare|caught !", "Caught you!"] },
+  { lemma: "sbrigarsi", gloss: "to hurry up", pos: "verb", ex: ["Sbrigati|sbrigarsi|hurry up , è|essere|it's tardi|=|late !", "Hurry up, it's late!"] },
+  { lemma: "arrangiarsi", gloss: "to manage, to make do", pos: "verb", ex: ["Mi|=|myself arrangio|arrangiarsi|I manage .", "I'll make do."] },
+  { lemma: "fregarsene", gloss: "to not care, to not give a damn", pos: "verb", ex: ["Me|=|(to me) ne|=|(of it) frego|fregarsene|I don't care .", "I couldn't care less."], note: "a bit rude; politer: non m'importa" },
+  { lemma: "scocciare", gloss: "to bother, to annoy", pos: "verb", ex: ["Mi|=|me scoccia|scocciare|it bothers uscire|=|going out con|=|in questo|=|this freddo|=|cold .", "I can't be bothered to go out in this cold."] },
+  { lemma: "accorgersi", gloss: "to notice, to realise", pos: "verb", ex: ["Non|=|not me|=|(myself) ne|=|(of it) sono|essere|(aux.) accorto|accorgersi|noticed .", "I didn't notice."] },
+  { lemma: "combinare", gloss: "to get up to; to manage, to do", pos: "verb", ex: ["Che|=|what hai|avere|have combinato|combinare|you been up to ?", "What have you been up to?"] },
+  { lemma: "azzeccare", gloss: "to get right, to guess right", pos: "verb", ex: ["Hai|avere|you have azzeccato|azzeccare|guessed right !", "You got it right!"] },
+  { lemma: "mollare", gloss: "to give up; to let go; to dump", pos: "verb", ex: ["Non|=|don't mollare|=|give up !", "Don't give up!"] },
+  { lemma: "sbagliarsi", gloss: "to be wrong, to make a mistake", pos: "verb", ex: ["Mi|=|myself sono|essere|(aux.) sbagliato|sbagliarsi|got it wrong .", "I was wrong."] },
+  { lemma: "casino", gloss: "mess, chaos; a racket", pos: "noun (m.)", ex: ["Che|=|what a casino|=|mess !", "What a mess!"], note: "un casino di = loads of; the gambling casino is casinò" },
+  { lemma: "roba", gloss: "stuff, things", pos: "noun (f.)", ex: ["Prendi|prendere|take la|il|the tua|tuo|your roba|=|stuff .", "Take your stuff."] },
+  { lemma: "figata", gloss: "something great (colloquial)", pos: "noun (f.)", ex: ["Che|=|what a figata|=|great thing !", "How cool!"] },
+  { lemma: "stufo", gloss: "fed up", pos: "adjective", ex: ["Sono|essere|I am stufo|=|fed up di|=|of aspettare|=|waiting .", "I'm fed up with waiting."] },
+  { lemma: "pazzesco", gloss: "crazy, incredible", pos: "adjective", ex: ["È|essere|it's pazzesco|=|incredible !", "That's incredible!"] },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es, fr, it };

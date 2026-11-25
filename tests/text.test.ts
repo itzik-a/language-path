@@ -152,3 +152,12 @@ describe("Spanish", () => {
     expect(wordKey("es", "Lío")).toBe(wordKey("es", "lío"));
   });
 });
+
+describe("French and Italian elision", () => {
+  it("puts no space after an elided word", () => {
+    expect(sentenceText(sentence("fr", "J'|je|I ai|avoir|have pas|=|not pigé|piger|got it .", ""))).toBe("J'ai pas pigé.");
+    expect(sentenceText(sentence("fr", "C'|ce|it est|être|is marrant|=|funny .", ""))).toBe("C'est marrant.");
+    expect(sentenceText(sentence("it", "ho|avere|I have perso|perdere|missed l'|il|the ultimo|=|last treno|=|train .", ""))).toBe("ho perso l'ultimo treno.");
+    expect(sentence("fr", "J'|je|I ai|avoir|have", "").tokens[0].l).toBe("je");
+  });
+});

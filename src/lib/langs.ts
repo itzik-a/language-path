@@ -26,6 +26,8 @@ export const LANG: Record<Lang, LangInfo> = {
   pt: { id: "pt", name: "Portuguese", native: "português", mark: "Pt", bcp: "pt-PT", dir: "ltr", spaces: true, cased: true, strictRegion: true },
   ru: { id: "ru", name: "Russian", native: "русский", mark: "Ру", bcp: "ru-RU", dir: "ltr", spaces: true, cased: true },
   es: { id: "es", name: "Spanish", native: "español", mark: "Es", bcp: "es-ES", dir: "ltr", spaces: true, cased: true },
+  fr: { id: "fr", name: "French", native: "français", mark: "Fr", bcp: "fr-FR", dir: "ltr", spaces: true, cased: true },
+  it: { id: "it", name: "Italian", native: "italiano", mark: "It", bcp: "it-IT", dir: "ltr", spaces: true, cased: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */
@@ -47,6 +49,9 @@ export const isKanji = (c: string) => /\p{Script=Han}/u.test(c);
 export const hasKanji = (s: string) => /\p{Script=Han}/u.test(s);
 export const kanjiIn = (s: string) => [...new Set([...s].filter(isKanji))];
 
+/** An elided word (French j', l', qu'; Italian l', un', dell'): the next word follows with no space. */
+export const isElided = (t: string) => /\p{L}['’]$/u.test(t);
+
 /** Lemmas of cased languages are stored lower-cased ("Kot" → "kot"). */
 export const lowerIfCased = (lang: Lang, s: string) => (LANG[lang].cased ? s.toLowerCase() : s);
 
@@ -63,7 +68,7 @@ export function wordKey(lang: Lang, lemma: string): string {
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
-  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?¿¡;:;·。、！？「」…"'«»„”-]+/g, "");
+  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?¿¡;:;·。、！？「」…"'’«»„”-]+/g, "");
   return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : lang === "ru" ? foldRussian(t) : t;
 }
 

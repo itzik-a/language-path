@@ -92,6 +92,28 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["Total|=|so , que|=|that no|=|not me|=|(myself) atreví|atreverse|I dared a|=|to irme|irse|leave hasta|=|until que|=|that mi|=|my abuela|=|grandmother sacó|sacar|brought out el|=|the café|=|coffee .", "So I didn't dare leave until my grandmother brought out the coffee."],
     ],
   },
+  {
+    id: "t_seed_fr_dimanche", lang: "fr", title: "Un dimanche raté", titleTr: "A Sunday that went wrong", newWords: ["prévoir", "rester", "pleuvoir", "corde", "série"],
+    lines: [
+      ["Dimanche|=|Sunday dernier|=|last , j'|je|I avais|avoir|had prévu|prévoir|planned de|=|to bosser|=|work un|=|a peu|=|little .", "Last Sunday I'd planned to get a bit of work done."],
+      ["Bref|=|anyway , j'|je|I ai|avoir|have eu|avoir|had la|le|the flemme|=|laziness et|=|and je|=|I suis|être|am resté|rester|stayed au|à|in the lit|=|bed .", "Anyway, I couldn't be bothered and stayed in bed."],
+      ["Vers|=|around midi|=|noon , mon|=|my pote|=|mate Karim|-|Karim m'|me|me a|avoir|has appelé|appeler|called .", "Around noon my mate Karim called me."],
+      ["Il|=|he voulait|vouloir|wanted qu'|que|that on|=|we aille|aller|go (subj.) voir|=|see un|=|a film|=|film , mais|=|but franchement|=|honestly , il|=|it pleuvait|pleuvoir|was raining des|=|(some) cordes|corde|ropes .", "He wanted us to go and see a film, but honestly, it was pouring down."],
+      ["Du|de|(as a) coup|=|result , il|=|he est|être|is venu|venir|came chez|=|to the home of moi|=|me avec|=|with des|=|some pizzas|pizza|pizzas .", "So he came over to mine with some pizzas."],
+      ["On|=|we a|avoir|have regardé|regarder|watched une|un|a série|=|series nulle|nul|rubbish (f.) , mais|=|but c'|ce|it était|être|was vachement|=|really sympa|=|nice .", "We watched a rubbish series, but it was really nice."],
+    ],
+  },
+  {
+    id: "t_seed_it_bologna", lang: "it", title: "Un sabato a Bologna", titleTr: "A Saturday in Bologna", newWords: ["trovare", "ritardo", "prenotare", "tagliatella", "ritorno", "ultimo"],
+    lines: [
+      ["Sabato|=|Saturday scorso|=|last sono|essere|I (aux.) andato|andare|went a|=|to Bologna|-|Bologna a|=|to trovare|=|visit mia|mio|my (f.) cugina|cugino|cousin (f.) .", "Last Saturday I went to Bologna to visit my cousin."],
+      ["Allora|=|so , il|=|the treno|=|train era|essere|was in|=|in ritardo|=|delay , come|=|as al|a|at the solito|=|usual .", "So, the train was late, as usual."],
+      ["Quando|=|when sono|essere|I (aux.) arrivato|arrivare|arrived , lei|=|she mi|=|to me ha|avere|has detto|dire|said : « Dai|=|come on , sbrigati|sbrigarsi|hurry up , che|=|because abbiamo|avere|we have prenotato|prenotare|booked ! »", "When I arrived, she said: \"Come on, hurry up, we've booked a table!\""],
+      ["Abbiamo|avere|we have mangiato|mangiare|eaten le|il|the tagliatelle|tagliatella|tagliatelle più|=|most buone|buono|good (f. pl.) della|di|of the mia|mio|my vita|=|life .", "We ate the best tagliatelle of my life."],
+      ["Insomma|=|in short , una|un|a figata|=|great thing .", "In short, brilliant."],
+      ["Però|=|but al|a|on the ritorno|=|return ho|avere|I have perso|perdere|missed l'|il|the ultimo|=|last treno|=|train , e|=|and mi|=|myself sono|essere|(aux.) dovuto|dovere|had to arrangiare|arrangiarsi|manage .", "But on the way back I missed the last train and had to make do."],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

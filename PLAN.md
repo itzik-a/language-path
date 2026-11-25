@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian and Spanish**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, Spanish, French and Italian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -56,6 +56,14 @@ Added 2026-11-26:
 | Extras | Starter words are conversation glue and colloquial verbs (pues, encima, total, enterarse, liarse, apetecer), 5 new a day; Talk scenes for arguing, discussing a book, a job interview, catching up; Claude speaks at native level in the variety my level text names |
 | Voice | Spain first; the voice picker names each voice's region |
 
+| | French | Italian |
+|---|---|---|
+| Where I start | Advanced: whole books, understand what I hear; I need conversation | The same |
+| Script | Minimal pairs: u / ou, the nasals (vin / vent, bon / banc), eu / é | Minimal pairs: double consonants (pala / palla, nono / nonno), stress, open / closed e |
+| Typing | Missing accents are "almost" | Missing accents are "almost" |
+| Extras | Spoken French starter words (bah, du coup, carrément, la flemme, bosser, piger, a little verlan: relou, ouf); Claude drops ne and uses on like natives; elided words are their own tokens | Conversation glue (allora, cioè, magari, mica, insomma, boh) and colloquial verbs (arrangiarsi, fregarsene, sbrigarsi); elision handled the same way |
+| Voice | France first; regions named | Italy |
+
 ## 3. Concepts
 
 | Thing | What it is |
@@ -108,6 +116,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: French and Italian added (both advanced; conversation practice first; 5 new words a day).
 - 2026-11-26: Spanish added (advanced; conversation practice first). The phone's language switch became a picker: seven buttons don't fit.
 - 2026-11-26: Russian added (beginner, still learning to read Cyrillic). Stress is written with U+0301 in starter words and asked of Claude; ids drop it.
 
