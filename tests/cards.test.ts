@@ -87,6 +87,12 @@ describe("checking answers", () => {
     expect(check("el", "kalimera", ["καλημέρα"])).toBe("right");
     expect(check("el", "kalimeri", ["καλημέρα"])).toBe("almost");
     expect(check("el", "nero", ["καλημέρα"])).toBe("wrong");
+    expect(check("ru", "привет", ["приве́т"])).toBe("right");
+    expect(check("ru", "Еще", ["ещё"])).toBe("right");
+    expect(check("ru", "privet", ["приве́т"])).toBe("right");
+    expect(check("ru", "mat", ["мать"])).toBe("right");
+    expect(check("ru", "privit", ["приве́т"])).toBe("almost");
+    expect(check("ru", "spasibo", ["приве́т"])).toBe("wrong");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });

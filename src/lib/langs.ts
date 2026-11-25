@@ -24,6 +24,7 @@ export const LANG: Record<Lang, LangInfo> = {
   ar: { id: "ar", name: "Arabic", native: "العربية", mark: "ع", bcp: "ar-SA", dir: "rtl", spaces: true, cased: false },
   el: { id: "el", name: "Greek", native: "ελληνικά", mark: "Ελ", bcp: "el-GR", dir: "ltr", spaces: true, cased: true },
   pt: { id: "pt", name: "Portuguese", native: "português", mark: "Pt", bcp: "pt-PT", dir: "ltr", spaces: true, cased: true, strictRegion: true },
+  ru: { id: "ru", name: "Russian", native: "русский", mark: "Ру", bcp: "ru-RU", dir: "ltr", spaces: true, cased: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */
@@ -48,16 +49,58 @@ export const kanjiIn = (s: string) => [...new Set([...s].filter(isKanji))];
 /** Lemmas of cased languages are stored lower-cased ("Kot" → "kot"). */
 export const lowerIfCased = (lang: Lang, s: string) => (LANG[lang].cased ? s.toLowerCase() : s);
 
+/** Russian stress marks (a combining acute on the stressed vowel: молоко́), as learner texts write them. */
+export const stripStress = (s: string) => s.normalize("NFC").replace(/\u0301/g, "");
+/** Russian folded the way a learner types it: no stress marks, ё → е. */
+export const foldRussian = (s: string) => stripStress(s).replace(/ё/g, "е").replace(/Ё/g, "Е");
+
 /** The key a word is stored under: same word on two devices → same id. */
 export function wordKey(lang: Lang, lemma: string): string {
-  const base = lang === "ar" ? stripHarakat(lemma) : lowerIfCased(lang, lemma);
+  const base = lang === "ar" ? stripHarakat(lemma) : lang === "ru" ? foldRussian(lemma.toLowerCase()) : lowerIfCased(lang, lemma);
   return `w_${lang}_${base.normalize("NFC").trim()}`;
 }
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
   const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?;:;·。、！？「」…"'«»„”-]+/g, "");
-  return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : t;
+  return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : lang === "ru" ? foldRussian(t) : t;
+}
+
+/** Transliteration worked out on the device (Greek, Russian); undefined for the others. */
+export const autoTranslit = (lang: Lang, s: string): string | undefined =>
+  lang === "el" ? greekTranslit(s) : lang === "ru" ? russianTranslit(s) : undefined;
+
+// ── Russian → Latin letters ───────────────────────────────────
+
+const RU_ONE: Record<string, string> = {
+  а: "a", б: "b", в: "v", г: "g", д: "d", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o",
+  п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "'",
+  э: "e", е: "e", ё: "yo", ю: "yu", я: "ya",
+};
+const RU_VOWEL_OR_SIGN = new Set([..."аеёиоуыэюяъь"]);
+const RU_HUSHING = new Set([..."жшчщц"]);
+
+/** Russian in Latin letters, letter by letter, with the stress marked: молоко́ → molokó, ёж → yózh, здра́вствуйте →
+    zdrávstvuyte, мать → mat'. е is ye at the start of a word and after a vowel or a sign. Unstressed о sounds like a
+    (see the sounds page); the spelling is kept so it teaches the letters. */
+export function russianTranslit(text: string): string {
+  return text.normalize("NFC").replace(/[\u0400-\u04ff\u0301]+/g, (word) => {
+    const cs = [...word];
+    let out = "", prev = "";
+    for (let i = 0; i < cs.length; i++) {
+      const raw = cs[i];
+      if (raw === "\u0301") continue;
+      const c = raw.toLowerCase();
+      let lat = RU_ONE[c];
+      if (lat === undefined) { out += raw; prev = c; continue; }
+      if (c === "е" && (!prev || RU_VOWEL_OR_SIGN.has(prev))) lat = "ye";
+      if (c === "ё" && RU_HUSHING.has(prev)) lat = "o";
+      if (cs[i + 1] === "\u0301" || c === "ё") lat = lat.replace(/[aeiouy](?!.*[aeiouy])/, (v) => ({ a: "á", e: "é", i: "í", o: "ó", u: "ú", y: "ý" })[v]!);
+      out += raw !== c && lat ? lat.charAt(0).toUpperCase() + lat.slice(1) : lat;
+      prev = c;
+    }
+    return out;
+  });
 }
 
 // ── Greek → Latin letters ─────────────────────────────────────

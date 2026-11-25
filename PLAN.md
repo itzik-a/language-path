@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern) and Portuguese (European)**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European) and Russian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -37,6 +37,16 @@ Added 2026-11-24:
 | Typing | Missing accents are "almost"; typing in Latin letters is checked by sound | Missing accents are "almost" |
 | Extras | Transliteration under every word, worked out on the device (stress marked); stress minimal pairs (πότε / ποτέ) | Starter words are Portugal's words (autocarro, comboio, telemóvel) and Spanish false friends (esquisito, polvo, embaraçado); Claude writes pt-PT only (tu, estar a + infinitive) |
 | Voice | Greek voice | Portugal voices first (Joana, Catarina); Brazilian ones are labelled |
+
+Added 2026-11-26:
+
+| | Russian |
+|---|---|
+| Where I start | Beginner: a few words, can barely read Cyrillic yet |
+| Script | Alphabet trainer in learning order: the letters that look and sound like English (А К М О Т), the false friends (В Н Р С У Х), the cousins of Greek letters (Г Д Л П Ф), the new consonants (Б З Ж Й Ц Ч Ш Щ), the vowels (И Ы Э Е Ё Ю Я) and the two signs; Hebrew counterparts by sound (ш–ש, ц–צ, х–ח). A sounds page: stress, the reduced о (молоко́ = malakó), soft and hard, ы, final devoicing |
+| Typing | Stress marks and ё are ignored; typing in Latin letters is checked by transliteration (privet = приве́т) |
+| Extras | Stress marked on every word (setting "Stress marks"), as learner books do; transliteration under words, worked out on the device; stress minimal pairs (за́мок / замо́к) |
+| Voice | Russian voice (Milena on Apple devices), fed text without stress marks |
 
 ## 3. Concepts
 
@@ -90,6 +100,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: Russian added (beginner, still learning to read Cyrillic). Stress is written with U+0301 in starter words and asked of Claude; ids drop it.
 
 - Three languages, all beginners; goals: listening, conversation, reading.
 - Arabic: MSA everywhere (matches the built-in voices); a spoken dialect can come later as a setting.

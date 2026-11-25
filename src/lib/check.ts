@@ -1,6 +1,6 @@
 /* Checking a typed answer: right, almost (accents / one letter off), or wrong. Harakat and kana kind are ignored. */
 import type { Lang } from "../types";
-import { fold, foldArabic, foldLatin, greekTranslit, kataToHira } from "./langs";
+import { autoTranslit, fold, foldArabic, foldLatin, kataToHira } from "./langs";
 import { toKana } from "./romaji";
 
 export type Verdict = "right" | "almost" | "wrong";
@@ -24,9 +24,9 @@ export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   const ft = fold(lang, t);
   const keys = answers.filter(Boolean).map((a) => fold(lang, a));
   if (keys.includes(ft)) return "right";
-  // Greek typed in Latin letters: compared by sound (kalimera = καλημέρα)
-  if (lang === "el" && /[a-z]/i.test(ft) && !/\p{Script=Greek}/u.test(ft)) {
-    const lat = keys.map((k) => foldLatin(greekTranslit(k)));
+  // Greek and Russian typed in Latin letters: compared by transliteration (kalimera = καλημέρα, privet = привет)
+  if ((lang === "el" || lang === "ru") && /[a-z]/i.test(ft) && !/[\p{Script=Greek}\p{Script=Cyrillic}]/u.test(ft)) {
+    const lat = keys.map((k) => foldLatin(autoTranslit(lang, k)!).replace(/'/g, ""));
     if (lat.includes(foldLatin(ft))) return "right";
     if (lat.some((k) => k.length >= 4 && lev(k, foldLatin(ft)) <= 1)) return "almost";
     return "wrong";

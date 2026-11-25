@@ -5,7 +5,7 @@
    - iOS only allows speech after a tap, so every call here starts from a user action. */
 import { useEffect, useState } from "react";
 import type { Lang } from "../types";
-import { LANG } from "./langs";
+import { LANG, stripStress } from "./langs";
 import { getPrefs } from "./prefs";
 
 export const canSpeak = () => typeof speechSynthesis !== "undefined";
@@ -57,7 +57,8 @@ export function speak(text: string, lang: Lang, opts: { rate?: number } = {}): P
 
 function say(text: string, lang: Lang, mine: number, rate?: number): Promise<boolean> {
   return new Promise((resolve) => {
-    const u = new SpeechSynthesisUtterance(text);
+    // Russian stress marks are for the eye; some voices pause on them
+    const u = new SpeechSynthesisUtterance(lang === "ru" ? stripStress(text) : text);
     u.lang = LANG[lang].bcp;
     const v = voiceFor(lang);
     if (v) u.voice = v;

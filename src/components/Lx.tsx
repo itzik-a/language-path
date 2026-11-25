@@ -1,8 +1,8 @@
-/* Text in the target language: lang/dir attributes, furigana (Japanese), harakat on/off (Arabic) and transliteration
-   under the words (Arabic: from the word or token; Greek: worked out on the device). */
+/* Text in the target language: lang/dir attributes, furigana (Japanese), harakat on/off (Arabic), stress marks on/off
+   (Russian) and transliteration under the words (Arabic: from the word or token; Greek, Russian: worked out on the device). */
 import { useMemo, type ReactNode } from "react";
 import { furiganaParts, needsFurigana } from "../lib/furigana";
-import { greekTranslit, LANG, stripHarakat } from "../lib/langs";
+import { autoTranslit, LANG, stripHarakat, stripStress } from "../lib/langs";
 import { useAppState } from "../state/store";
 import type { Lang, Sentence, Token } from "../types";
 
@@ -34,8 +34,10 @@ export function Term({ lang, text, reading, translit, d, forceReading, className
     body = furiganaParts(text, reading).map((p, i) => <Ruby key={i} text={p.text} rt={p.rt} />);
   } else if (lang === "ar" && !d.harakat) {
     body = stripHarakat(text);
+  } else if (lang === "ru" && !d.harakat) {
+    body = stripStress(text);
   }
-  const under = lang === "ar" ? translit : lang === "el" ? greekTranslit(text) : undefined;
+  const under = lang === "ar" ? translit : autoTranslit(lang, text);
   return (
     <span className={`lx lx-${lang} ${className ?? ""}`} lang={LANG[lang].bcp} dir={LANG[lang].dir}>
       {d.translit && under ? <Ruby text={typeof body === "string" ? body : text} rt={under} under /> : body}
@@ -52,7 +54,11 @@ export function TokenText({ lang, tok, d }: { lang: Lang; tok: Token; d: Display
     const t = d.harakat ? tok.t : stripHarakat(tok.t);
     return d.translit && tok.x ? <Ruby text={t} rt={tok.x} under /> : <>{t}</>;
   }
-  if (lang === "el" && d.translit && /\p{Script=Greek}/u.test(tok.t)) return <Ruby text={tok.t} rt={greekTranslit(tok.t)} under />;
+  if (lang === "el" && d.translit && /\p{Script=Greek}/u.test(tok.t)) return <Ruby text={tok.t} rt={autoTranslit(lang, tok.t)} under />;
+  if (lang === "ru") {
+    const t = d.harakat ? tok.t : stripStress(tok.t);
+    return d.translit && /\p{Script=Cyrillic}/u.test(tok.t) ? <Ruby text={t} rt={autoTranslit(lang, tok.t)} under /> : <>{t}</>;
+  }
   return <>{tok.t}</>;
 }
 

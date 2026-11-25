@@ -511,7 +511,7 @@ ruby.under rt { font-family: var(--font); font-size: .42em; }
   transition: background .15s, color .15s, box-shadow .15s;
 }
 .lang-switch button[aria-pressed="true"] { background: var(--raised); color: var(--ink); box-shadow: var(--shadow-chip); }
-.lang-switch.compact button { min-width: 48px; justify-content: center; }
+.lang-switch.compact button { min-width: 44px; padding: 4px 8px; justify-content: center; }
 .mark { font-weight: 700; font-size: 1rem; min-width: 1.2em; text-align: center; }
 .mark-ja { font-family: "Hiragino Sans", var(--font); }
 .mark-ar { font-family: "Geeza Pro", var(--font); font-size: 1.15rem; line-height: 1; }

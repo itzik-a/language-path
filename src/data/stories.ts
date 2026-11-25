@@ -67,6 +67,19 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["Que|=|what sorte|=|luck !", "What luck!"],
     ],
   },
+  {
+    id: "t_seed_ru_vasya", lang: "ru", title: "Кот Ва́ся", titleTr: "Vasya the cat", newWords: ["кот", "у́тро", "пото́м", "спать", "ве́чер", "приходи́ть", "рад"],
+    lines: [
+      ["Э́то|=|this is Ва́ся|-|Vasya .", "This is Vasya."],
+      ["Ва́ся|-|Vasya — кот|=|a tomcat .", "Vasya is a cat."],
+      ["Он|=|he живёт|жить|lives в|=|in большо́м|большо́й|big (prep.) до́ме|дом|house (prep.) .", "He lives in a big house."],
+      ["У́тром|у́тро|in the morning Ва́ся|-|Vasya пьёт|пить|drinks молоко́|=|milk .", "In the morning Vasya drinks milk."],
+      ["Пото́м|=|then он|=|he спит|спать|sleeps .", "Then he sleeps."],
+      ["Ве́чером|ве́чер|in the evening прихо́дит|приходи́ть|comes па́па|=|dad .", "In the evening dad comes home."],
+      ["Па́па|=|dad говори́т|говори́ть|says : « Приве́т|=|hi , Ва́ся|-|Vasya ! »", "Dad says: \"Hi, Vasya!\""],
+      ["Ва́ся|-|Vasya о́чень|=|very рад|=|glad .", "Vasya is very glad."],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

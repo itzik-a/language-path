@@ -28,6 +28,8 @@ describe("script data", () => {
     expect(ids).toContain("har:shadda");
     expect(ids).toContain("grk:omega");
     expect(ids).toContain("grx:mp");
+    expect(ids).toContain("cyr:zh");
+    expect(ids).toContain("cyr:soft");
   });
   it("has the full kana and alphabet", () => {
     const n = (id: string) => SCRIPT_SETS.find((s) => s.id === id)!.rows.reduce((a, r) => a + r.chars.length, 0);
@@ -35,6 +37,7 @@ describe("script data", () => {
     expect(n("kata")).toBe(104);
     expect(n("abc")).toBe(31);
     expect(n("grk")).toBe(24);
+    expect(n("cyr")).toBe(33);
   });
   it("joins Arabic letters with ZWJ", () => {
     expect(letterForms("ب", true).mid).toBe("‍ب‍");

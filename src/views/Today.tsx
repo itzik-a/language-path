@@ -22,6 +22,7 @@ const SCRIPT_LINK: Record<Lang, [string, string]> = {
   ar: ["ب", "The alphabet, vowel marks, throat letters"],
   el: ["α", "The alphabet, letter pairs, stress"],
   pt: ["ã", "European sounds: ão, lh, nh, the swallowed vowels"],
+  ru: ["Я", "Cyrillic, step by step; stress, soft and hard"],
 };
 
 const WEEKDAY = (date: string) => new Date(date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "narrow" });

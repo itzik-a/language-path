@@ -1,5 +1,5 @@
-/* Scripts & sounds: kana tables, the Arabic alphabet and vowel marks, the Greek alphabet and letter pairs, known kanji,
-   Polish and Portuguese sounds, minimal pairs. */
+/* Scripts & sounds: kana tables, the Arabic alphabet and vowel marks, the Greek alphabet and letter pairs, the Russian
+   alphabet, known kanji, Polish, Portuguese and Russian sounds, minimal pairs. */
 import { useMemo, useState } from "react";
 import { IconBack, IconCheck, IconNext, IconSpeaker } from "../components/Icons";
 import { Term, useDisplay } from "../components/Lx";

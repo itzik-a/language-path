@@ -1,5 +1,6 @@
-/* Script data: kana, the Arabic alphabet and harakat, the Greek alphabet and letter pairs, Polish and Portuguese sounds,
-   minimal pairs. A character's id ("hira:ka", "kata:ka", "abc:b", "har:fatha", "grk:alpha", "grx:ou") is used for script cards and "known" marks:
+/* Script data: kana, the Arabic alphabet and harakat, the Greek alphabet and letter pairs, the Russian alphabet, Polish,
+   Portuguese and Russian sounds, minimal pairs. A character's id ("hira:ka", "kata:ka", "abc:b", "har:fatha", "grk:alpha",
+   "grx:ou", "cyr:zh") is used for script cards and "known" marks:
    never change one once shipped. */
 import type { Lang } from "../types";
 
@@ -17,7 +18,7 @@ export interface ScriptChar {
   name?: string;
   /** Arabic: joins to the next letter */
   joins?: boolean;
-  /** Greek: the capital letter */
+  /** Greek, Russian: the capital letter */
   upper?: string;
 }
 
@@ -229,14 +230,77 @@ const GREEK_PAIRS_SET: ScriptSet = {
   ],
 };
 
-export const SCRIPT_SETS: ScriptSet[] = [kanaSet("hira"), kanaSet("kata"), ABC_SET, HARAKAT_SET, GREEK_SET, GREEK_PAIRS_SET];
+// ── Russian (Cyrillic) ────────────────────────────────────────
+
+/** [key, lower, upper, the letter's name (what the voice reads), sound, Hebrew counterpart (by sound), how it sounds, example] */
+type Cyr = [string, string, string, string, string, string, string, string];
+const CYR_ROWS: [string, string, Cyr[]][] = [
+  ["easy", "Look and sound like English", [
+    ["a", "а", "А", "а", "a", "", "a as in \"father\"; unstressed a short \"uh\"", "ма́ма (máma) = mum"],
+    ["k", "к", "К", "ка", "k", "כּ", "k", "кот (kot) = tomcat"],
+    ["m", "м", "М", "эм", "m", "מ", "m (the small м is a small capital M, never an m-shape)", "мы (my) = we"],
+    ["o", "о", "О", "о", "o", "", "o when stressed; unstressed it sounds like a (молоко́ = malakó)", "дом (dom) = house"],
+    ["t", "т", "Т", "тэ", "t", "ת", "t (handwritten it looks like m!)", "там (tam) = there"],
+  ]],
+  ["false", "False friends: look English, sound different", [
+    ["v", "в", "В", "вэ", "v", "ו", "v, not b", "вода́ (vodá) = water"],
+    ["n", "н", "Н", "эн", "n", "נ", "n, not h", "нет (nyet) = no"],
+    ["r", "р", "Р", "эр", "r", "ר", "a rolled r, not p", "рот (rot) = mouth"],
+    ["s", "с", "С", "эс", "s", "ס", "s, never k", "сок (sok) = juice"],
+    ["u", "у", "У", "у", "u", "", "u as in \"food\", not y", "суп (sup) = soup"],
+    ["kh", "х", "Х", "ха", "kh", "ח", "like ח or German \"ach\", not x", "хлеб (khleb) = bread"],
+  ]],
+  ["greek", "Cousins of Greek letters", [
+    ["g", "г", "Г", "гэ", "g", "ג", "a hard g, like Greek Γ in shape; in -ого / -его it is v (сего́дня = sivódnya)", "газ (gaz) = gas"],
+    ["d", "д", "Д", "дэ", "d", "ד", "d, like Greek Δ in shape (but a hard d, not dh)", "да (da) = yes"],
+    ["l", "л", "Л", "эль", "l", "ל", "l, like Greek Λ in shape; a dark l before a, o, u", "ла́мпа (lámpa) = lamp"],
+    ["p", "п", "П", "пэ", "p", "פּ", "p, like Greek Π", "па́па (pápa) = dad"],
+    ["f", "ф", "Ф", "эф", "f", "פ", "f, like Greek Φ", "фо́то (fóto) = photo"],
+  ]],
+  ["new", "New consonants", [
+    ["b", "б", "Б", "бэ", "b", "בּ", "b (in shape a 6; в is v)", "банк (bank) = bank"],
+    ["z", "з", "З", "зэ", "z", "ז", "z (looks like a 3)", "зуб (zub) = tooth"],
+    ["zh", "ж", "Ж", "жэ", "zh", "ז׳", "zh, the s in \"measure\" (ז׳ as in ז׳ורנל)", "жена́ (zhená) = wife"],
+    ["y", "й", "Й", "и кра́ткое", "y", "י", "a short y, as in \"boy\": only next to a vowel", "чай (chay) = tea"],
+    ["ts", "ц", "Ц", "цэ", "ts", "צ", "ts, like צ", "центр (tsentr) = centre"],
+    ["ch", "ч", "Ч", "че", "ch", "צ׳", "ch as in \"church\", always soft (צ׳ as in צ׳יפס)", "час (chas) = hour"],
+    ["sh", "ш", "Ш", "ша", "sh", "ש", "a hard sh; the letter came from ש", "шко́ла (shkóla) = school"],
+    ["shch", "щ", "Щ", "ща", "shch", "", "a long soft sh, as in \"fresh sheep\" said fast", "борщ (borshch) = borscht"],
+  ]],
+  ["vowels", "Vowels: ы э and the y-vowels", [
+    ["i", "и", "И", "и", "i", "", "i as in \"machine\"; softens the consonant before it", "и (i) = and"],
+    ["y_", "ы", "Ы", "ы", "y", "", "a sound between i and u, tongue pulled back: say i with your lips spread and tongue low", "мы (my) = we"],
+    ["e_", "э", "Э", "э", "e", "", "e as in \"bed\", in a few words: э́то (éto) = this", "э́то (éto) = this"],
+    ["ye", "е", "Е", "е", "ye / e", "", "ye at the start of a word or after a vowel; after a consonant, e and that consonant turns soft", "нет (nyet) = no"],
+    ["yo", "ё", "Ё", "ё", "yo", "", "yo, always stressed. Most texts drop the dots and write е", "ёж (yozh) = hedgehog"],
+    ["yu", "ю", "Ю", "ю", "yu", "", "yu as in \"you\"; after a consonant it turns it soft", "юг (yug) = south"],
+    ["ya", "я", "Я", "я", "ya", "", "ya; also the word for I: я (ya)", "я (ya) = I"],
+  ]],
+  ["signs", "Signs (no sound of their own)", [
+    ["soft", "ь", "Ь", "мя́гкий знак", "'", "", "the soft sign: makes the consonant before it soft (the tongue rises toward the palate, a tiny y)", "мать (mat') = mother"],
+    ["hard", "ъ", "Ъ", "твёрдый знак", "–", "", "the hard sign: a small break before е ё ю я; rare", "подъе́зд (podyézd) = entrance"],
+  ]],
+];
+
+const CYR_SET: ScriptSet = {
+  id: "cyr", lang: "ru", title: "Alphabet",
+  blurb: "33 letters, built mostly from Greek ones (Г Д Л П Ф are Γ Δ Λ Π Φ), and Ш from Hebrew ש. Learn them in this order: the familiar ones first, then the false friends (В Н Р С У Х), and the new ones last. Stress isn't written in normal texts; learner texts mark it (молоко́), and so does this app.",
+  rows: CYR_ROWS.map(([key, label, cs]) => ({
+    id: `cyr:${key}`, label,
+    chars: cs.map(([k, lo, up, name, sound, he, how, ex]) => ({
+      id: `cyr:${k}`, char: lo, upper: up, say: name, sound, name: `${up} ${lo} · ${name}`, info: `${how}. ${ex}`, ...(he ? { hebrew: he } : {}),
+    })),
+  })),
+};
+
+export const SCRIPT_SETS: ScriptSet[] = [kanaSet("hira"), kanaSet("kata"), ABC_SET, HARAKAT_SET, GREEK_SET, GREEK_PAIRS_SET, CYR_SET];
 export const setsFor = (lang: Lang) => SCRIPT_SETS.filter((s) => s.lang === lang);
 export const allChars = () => SCRIPT_SETS.flatMap((s) => s.rows.flatMap((r) => r.chars));
 const CHAR_INDEX = new Map(allChars().map((c) => [c.id, c]));
 export const charById = (id: string) => CHAR_INDEX.get(id);
 export const setOfChar = (id: string) => SCRIPT_SETS.find((s) => s.rows.some((r) => r.chars.some((c) => c.id === id)));
 
-// ── sounds pages (Polish, Portuguese) ─────────────────────────
+// ── sounds pages (Polish, Portuguese, Russian) ─────────────────────────
 
 export interface Sound { g: string; how: string; ex: string; gloss: string }
 
@@ -285,6 +349,23 @@ const PORTUGUESE_SOUNDS: Sound[] = [
   { g: "ou", how: "a closed o", ex: "sou", gloss: "I am" },
 ];
 
+/** Russian: what isn't read the way it's written. */
+const RUSSIAN_SOUNDS: Sound[] = [
+  { g: "stress", how: "one syllable per word is stressed, and it can be any one: learn it with the word. Learner texts mark it (молоко́)", ex: "молоко́", gloss: "milk" },
+  { g: "о → a", how: "unstressed о sounds like a short a: молоко́ is \"malakó\", хорошо́ is \"kharashó\"", ex: "хорошо́", gloss: "good, well" },
+  { g: "е я → i", how: "unstressed е and я after a consonant sound close to i: сестра́ is \"sistrá\"", ex: "сестра́", gloss: "sister" },
+  { g: "soft · hard", how: "most consonants come in two kinds: hard, and soft (tongue raised to the palate, a tiny y). A consonant is soft before е ё и ю я ь: мат / мать", ex: "мать", gloss: "mother" },
+  { g: "ы", how: "a back i, made with the tongue pulled back and the lips spread: мы (we) vs ми (the note mi)", ex: "мы", gloss: "we" },
+  { g: "final b d g z v zh", how: "turn voiceless at the end of a word: хлеб is \"khlep\", друг is \"druk\", раз is \"ras\"", ex: "хлеб", gloss: "bread" },
+  { g: "-ого -его", how: "the г is a v: сего́дня \"sivódnya\", его́ \"yivó\"", ex: "сего́дня", gloss: "today" },
+  { g: "ч", how: "always a soft ch; in что and коне́чно it's sh", ex: "что", gloss: "what" },
+  { g: "щ", how: "a long soft sh, not sh + ch", ex: "борщ", gloss: "borscht" },
+  { g: "ж ш ц", how: "always hard, even before е and и: жизнь sounds like \"zhyzn'\"", ex: "жизнь", gloss: "life" },
+  { g: "р", how: "a rolled (trilled) r, like Spanish rr", ex: "ры́ба", gloss: "fish" },
+  { g: "-тся -ться", how: "read as \"tsa\": учи́ться \"uchítsa\"", ex: "учи́ться", gloss: "to study" },
+  { g: "здравствуйте", how: "the first в is silent: \"zdrástvuyte\"", ex: "здра́вствуйте", gloss: "hello (formal)" },
+];
+
 export const SOUNDS: Partial<Record<Lang, { title: string; mark: string; blurb: string; intro: string; list: Sound[] }>> = {
   pl: {
     title: "Polish sounds", mark: "ł", blurb: "ą ę ł, cz sz rz, ć ś ź, and the stress rule", list: POLISH_SOUNDS,
@@ -293,6 +374,10 @@ export const SOUNDS: Partial<Record<Lang, { title: string; mark: string; blurb: 
   pt: {
     title: "European Portuguese sounds", mark: "ã", blurb: "the swallowed vowels, ão õe ãe, lh nh, sh for s", list: PORTUGUESE_SOUNDS,
     intro: "Written Portuguese is close to Spanish; spoken Portuguese from Portugal is not: unstressed vowels shrink or vanish, so words run together. These are the differences that matter most for listening. Stress falls on the second-to-last syllable, or the last when the word ends in r, l, z, i, u, im or um, unless an accent says otherwise.",
+  },
+  ru: {
+    title: "Russian sounds", mark: "ы", blurb: "stress and the reduced о, soft and hard, ы, final devoicing", list: RUSSIAN_SOUNDS,
+    intro: "Russian spelling is close to the sound, with a few rules that change how a word is read. The biggest one: vowels shrink when they aren't stressed, so молоко́ is said \"malakó\". Learn every word with its stress.",
   },
 };
 
@@ -335,6 +420,16 @@ export const PAIRS: Record<Lang, Pair[]> = {
     { a: ["pais", "parents"], b: ["país", "country"], what: "one syllable vs two" },
     { a: ["sono", "sleep"], b: ["sonho", "dream"], what: "n vs nh" },
     { a: ["mala", "suitcase"], b: ["malha", "knitwear"], what: "l vs lh" },
+  ],
+  ru: [
+    { a: ["мат", "checkmate"], b: ["мать", "mother"], what: "hard vs soft t" },
+    { a: ["брат", "brother"], b: ["брать", "to take"], what: "hard vs soft t" },
+    { a: ["был", "he was"], b: ["бил", "he hit"], what: "ы vs и" },
+    { a: ["мы́ло", "soap"], b: ["ми́ло", "sweetly"], what: "ы vs и" },
+    { a: ["за́мок", "castle"], b: ["замо́к", "lock"], what: "stress: first or last syllable" },
+    { a: ["мука́", "flour"], b: ["му́ка", "torment"], what: "stress: first or last syllable" },
+    { a: ["пла́чу", "I cry"], b: ["плачу́", "I pay"], what: "stress: first or last syllable" },
+    { a: ["дом", "house"], b: ["том", "volume (book)"], what: "d vs t" },
   ],
   ar: [
     { a: ["سَيْف", "sword"], b: ["صَيْف", "summer"], what: "s vs heavy ṣ" },

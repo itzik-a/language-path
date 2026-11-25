@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { furiganaParts, needsFurigana } from "../src/lib/furigana";
-import { fold, foldArabic, greekTranslit, stripHarakat, wordKey } from "../src/lib/langs";
+import { fold, foldArabic, greekTranslit, russianTranslit, stripHarakat, stripStress, wordKey } from "../src/lib/langs";
 import { sentence, sentenceText } from "../src/lib/tokens";
 import { STARTER } from "../src/data/starter";
 import { LANGS } from "../src/types";
@@ -28,7 +28,7 @@ describe("starter markup", () => {
       const s = sentence(lang, w.ex[0], w.ex[1]);
       const text = sentenceText(s);
       expect(text, `${lang} ${w.lemma}`).not.toMatch(/\|/);
-      if (lang === "ja" || lang === "ar" || lang === "el") expect(text, `${lang} ${w.lemma}: ${text}`).not.toMatch(/[a-z]{2,}/);
+      if (lang === "ja" || lang === "ar" || lang === "el" || lang === "ru") expect(text, `${lang} ${w.lemma}: ${text}`).not.toMatch(/[a-z]{2,}/);
     }
   });
   it("starter lemmas are unique per language", () => {
@@ -110,5 +110,34 @@ describe("Greek", () => {
     expect(sentence("el", "Ναι|=|yes .", "").tokens[0].l).toBe("ναι");
     expect(sentence("pt", "Obrigado|=|thanks !", "").tokens[0].l).toBe("obrigado");
     expect(sentenceText(sentence("el", "Τι|=|what είναι|είμαι|is αυτό|αυτός|this ;", ""))).toBe("Τι είναι αυτό;");
+  });
+});
+
+describe("Russian", () => {
+  it("transliterates letter by letter with the stress marked", () => {
+    expect(russianTranslit("приве́т")).toBe("privét");
+    expect(russianTranslit("молоко́")).toBe("molokó");
+    expect(russianTranslit("здра́вствуйте")).toBe("zdrávstvuyte");
+    expect(russianTranslit("ёж")).toBe("yózh");
+    expect(russianTranslit("мать")).toBe("mat'");
+    expect(russianTranslit("е́сли")).toBe("yésli");
+    expect(russianTranslit("моё")).toBe("moyó");
+    expect(russianTranslit("щи")).toBe("shchi");
+    expect(russianTranslit("мы")).toBe("my");
+    expect(russianTranslit("Как дела́?")).toBe("Kak delá?");
+    expect(russianTranslit("Я")).toBe("Ya");
+    expect(russianTranslit("подъе́зд")).toBe("podyézd");
+  });
+  it("ids and folding ignore stress marks, case and ё", () => {
+    expect(wordKey("ru", "Молоко́")).toBe(wordKey("ru", "молоко"));
+    expect(wordKey("ru", "ещё")).toBe(wordKey("ru", "еще"));
+    expect(fold("ru", "Приве́т!")).toBe(fold("ru", "привет"));
+    expect(stripStress("вода́")).toBe("вода");
+  });
+  it("starter examples keep their stress marks in tokens and lemmas", () => {
+    const s = sentence("ru", "Я|=|I пью|пить|drink во́ду|вода́|water (acc.) .", "I drink water.");
+    expect(sentenceText(s)).toBe("Я пью во́ду.");
+    expect(s.tokens[0].l).toBe("я");
+    expect(s.tokens[4]).toMatchObject({ t: "во́ду", l: "вода́" });
   });
 });

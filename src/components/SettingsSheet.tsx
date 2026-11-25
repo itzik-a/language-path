@@ -17,6 +17,7 @@ const SAMPLE: Record<Lang, string> = {
   ar: "مَرْحَبًا، كَيْفَ حَالُكَ؟",
   el: "Καλημέρα! Τι κάνεις;",
   pt: "Bom dia! Tudo bem contigo?",
+  ru: "Приве́т! Как дела́?",
 };
 
 /** "pt-PT" → "Portugal", "pt-BR" → "Brazil". */
@@ -64,7 +65,10 @@ function LangSection({ lang }: { lang: Lang }) {
       {lang === "ar" && (
         <label className="switch-row"><Switch on={s.harakat} onChange={(v) => setLangSettings(lang, { harakat: v })} label="Vowel marks" /> Vowel marks (harakat)</label>
       )}
-      {(lang === "ja" || lang === "ar" || lang === "el") && (
+      {lang === "ru" && (
+        <label className="switch-row"><Switch on={s.harakat} onChange={(v) => setLangSettings(lang, { harakat: v })} label="Stress marks" /> Stress marks (молоко́)</label>
+      )}
+      {(lang === "ja" || lang === "ar" || lang === "el" || lang === "ru") && (
         <label className="switch-row"><Switch on={s.translit} onChange={(v) => setLangSettings(lang, { translit: v })} label="Transliteration" /> {lang === "ja" ? "Romaji on cards" : "Transliteration under words"}</label>
       )}
       <Stepper label="Practise saying a word after" value={s.sayAfterDays} min={0} max={30} step={1} unit=" days" onChange={(v) => setLangSettings(lang, { sayAfterDays: v })} />

@@ -7,7 +7,7 @@ import type { Lang } from "../types";
 export interface StarterWord {
   lemma: string;
   reading?: string;
-  /** Greek: worked out from the lemma; Polish / Portuguese: the lemma */
+  /** Greek, Russian: worked out from the lemma; Polish / Portuguese: the lemma */
   translit?: string;
   gloss: string;
   pos: string;
@@ -241,4 +241,60 @@ const pt: StarterWord[] = [
   { lemma: "pois", gloss: "right, yes (agreeing); because", pos: "particle", ex: ["Pois|=|right , é|ser|it is verdade|=|true .", "Right, that's true."], note: "pois é = exactly; pois não? = can I help you?" },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt };
+/** Russian: stress is marked with a combining acute (U+0301), as learner books do; ids are taken without it. */
+const ru: StarterWord[] = [
+  { lemma: "приве́т", gloss: "hi", pos: "phrase", ex: ["Приве́т|=|hi , А́нна|-|Anna !", "Hi, Anna!"], note: "informal; to a stranger: здра́вствуйте" },
+  { lemma: "здра́вствуйте", gloss: "hello (formal, or to several people)", pos: "phrase", ex: ["Здра́вствуйте|=|hello !", "Hello!"], note: "the first в is silent: \"zdrástvuyte\"; to a friend: здра́вствуй" },
+  { lemma: "спаси́бо", gloss: "thank you", pos: "phrase", ex: ["Спаси́бо|=|thank you большо́е|большо́й|big !", "Thank you very much!"] },
+  { lemma: "пожа́луйста", gloss: "please; you're welcome", pos: "phrase", ex: ["Чай|=|tea , пожа́луйста|=|please .", "Tea, please."], note: "said quickly: \"pazhálsta\"" },
+  { lemma: "да", gloss: "yes", pos: "particle", ex: ["Да|=|yes , я|=|I понима́ю|понима́ть|understand .", "Yes, I understand."] },
+  { lemma: "нет", gloss: "no; there isn't", pos: "particle", ex: ["Нет|=|no , спаси́бо|=|thank you .", "No, thank you."] },
+  { lemma: "извини́те", gloss: "excuse me; sorry", pos: "phrase", ex: ["Извини́те|=|excuse me , где|=|where метро́|=|the metro ?", "Excuse me, where is the metro?"], note: "to a friend: извини́" },
+  { lemma: "пока́", gloss: "bye (informal)", pos: "phrase", ex: ["Пока́|=|bye , до|=|until за́втра|=|tomorrow !", "Bye, see you tomorrow!"], note: "formal: до свида́ния" },
+  { lemma: "я", gloss: "I", pos: "pronoun", ex: ["Я|=|I студе́нт|=|a student .", "I'm a student."], note: "no \"am / is / are\" in the present: я студе́нт = I (am) a student" },
+  { lemma: "ты", gloss: "you (one person, informal)", pos: "pronoun", ex: ["Ты|=|you до́ма|=|at home ?", "Are you at home?"] },
+  { lemma: "вы", gloss: "you (formal, or several people)", pos: "pronoun", ex: ["Вы|=|you говори́те|говори́ть|speak по-англи́йски|=|English ?", "Do you speak English?"] },
+  { lemma: "он", gloss: "he; it (masc.)", pos: "pronoun", ex: ["Он|=|he мой|=|my друг|=|friend .", "He's my friend."] },
+  { lemma: "она́", gloss: "she; it (fem.)", pos: "pronoun", ex: ["Она́|=|she до́ма|=|at home .", "She's at home."] },
+  { lemma: "мы", gloss: "we", pos: "pronoun", ex: ["Мы|=|we до́ма|=|at home .", "We're at home."] },
+  { lemma: "э́то", gloss: "this (is), it (is)", pos: "pronoun", ex: ["Э́то|=|this is мой|=|my дом|=|house .", "This is my house."] },
+  { lemma: "кто", gloss: "who", pos: "pronoun", ex: ["Кто|=|who э́то|=|is this ?", "Who is this?"] },
+  { lemma: "что", gloss: "what; that", pos: "pronoun", ex: ["Что|=|what э́то|=|is this ?", "What is this?"], note: "said \"shto\"" },
+  { lemma: "где", gloss: "where", pos: "adverb", ex: ["Где|=|where ты|=|are you ?", "Where are you?"] },
+  { lemma: "как", gloss: "how", pos: "adverb", ex: ["Как|=|how дела́|де́ло|things (are) ?", "How are you? (lit. how are things)"] },
+  { lemma: "хорошо́", gloss: "well; good, OK", pos: "adverb", ex: ["Всё|весь|everything хорошо́|=|is good .", "Everything's fine."], note: "unstressed о is a: \"kharashó\"" },
+  { lemma: "пло́хо", gloss: "badly; bad", pos: "adverb", ex: ["Мне|я|to me пло́хо|=|bad .", "I feel bad."] },
+  { lemma: "о́чень", gloss: "very", pos: "adverb", ex: ["О́чень|=|very прия́тно|=|pleasant !", "Nice to meet you!"] },
+  { lemma: "мой", gloss: "my", pos: "pronoun", ex: ["Э́то|=|this is моя́|мой|my (f.) ма́ма|=|mum .", "This is my mum."], note: "мой (m.), моя́ (f.), моё (n.), мои́ (pl.)" },
+  { lemma: "дом", gloss: "house; home", pos: "noun (m.)", ex: ["Мой|=|my дом|=|house ма́ленький|=|small .", "My house is small."], note: "at home: до́ма; (to) home: домо́й" },
+  { lemma: "вода́", gloss: "water", pos: "noun (f.)", ex: ["Я|=|I пью|пить|drink во́ду|вода́|water (acc.) .", "I drink water."], note: "the stress moves: вода́, but во́ду" },
+  { lemma: "чай", gloss: "tea", pos: "noun (m.)", ex: ["Я|=|I пью|пить|drink чай|=|tea .", "I drink tea."] },
+  { lemma: "ко́фе", gloss: "coffee", pos: "noun (m.)", ex: ["Я|=|I хочу́|хоте́ть|want ко́фе|=|coffee .", "I want coffee."], note: "never changes its ending; masculine: мой ко́фе" },
+  { lemma: "молоко́", gloss: "milk", pos: "noun (n.)", ex: ["Ко́шка|=|the cat пьёт|пить|drinks молоко́|=|milk .", "The cat drinks milk."], note: "said \"malakó\"" },
+  { lemma: "хлеб", gloss: "bread", pos: "noun (m.)", ex: ["Где|=|where хлеб|=|the bread ?", "Where's the bread?"], note: "the final б is a p: \"khlep\"" },
+  { lemma: "ма́ма", gloss: "mum", pos: "noun (f.)", ex: ["Ма́ма|=|mum до́ма|=|at home .", "Mum is at home."] },
+  { lemma: "па́па", gloss: "dad", pos: "noun (m.)", ex: ["Где|=|where па́па|=|dad ?", "Where's dad?"], note: "masculine, though it ends in -a" },
+  { lemma: "друг", gloss: "friend", pos: "noun (m.)", ex: ["Он|=|he мой|=|my друг|=|friend .", "He's my friend."], note: "plural: друзья́; a female friend: подру́га" },
+  { lemma: "ко́шка", gloss: "cat", pos: "noun (f.)", ex: ["У|=|(by) меня́|я|me есть|=|there is ко́шка|=|a cat .", "I have a cat."], note: "a tomcat: кот. \"I have\" is у меня́ есть (by me there is)" },
+  { lemma: "соба́ка", gloss: "dog", pos: "noun (f.)", ex: ["Э́то|=|this is моя́|мой|my (f.) соба́ка|=|dog .", "This is my dog."] },
+  { lemma: "кни́га", gloss: "book", pos: "noun (f.)", ex: ["Кни́га|=|the book на|=|on столе́|стол|table (prep.) .", "The book is on the table."] },
+  { lemma: "говори́ть", gloss: "to speak, to say", pos: "verb", ex: ["Я|=|I говорю́|говори́ть|speak по-ру́сски|=|Russian .", "I speak Russian."], note: "говорю́, говори́шь, говори́т, говори́м, говори́те, говоря́т" },
+  { lemma: "понима́ть", gloss: "to understand", pos: "verb", ex: ["Я|=|I не|=|don't понима́ю|понима́ть|understand .", "I don't understand."], note: "понима́ю, понима́ешь, понима́ет…" },
+  { lemma: "знать", gloss: "to know", pos: "verb", ex: ["Я|=|I не|=|don't зна́ю|знать|know .", "I don't know."] },
+  { lemma: "хоте́ть", gloss: "to want", pos: "verb", ex: ["Ты|=|you хо́чешь|хоте́ть|want чай|=|tea ?", "Do you want tea?"], note: "irregular: хочу́, хо́чешь, хо́чет, хоти́м, хоти́те, хотя́т" },
+  { lemma: "люби́ть", gloss: "to love, to like", pos: "verb", ex: ["Я|=|I люблю́|люби́ть|love ко́фе|=|coffee .", "I love coffee."], note: "люблю́ (an л slips in), лю́бишь, лю́бит…" },
+  { lemma: "жить", gloss: "to live", pos: "verb", ex: ["Я|=|I живу́|жить|live в|=|in Москве́|-|Moscow .", "I live in Moscow."], note: "живу́, живёшь, живёт…" },
+  { lemma: "идти́", gloss: "to go (on foot), to be walking", pos: "verb", ex: ["Я|=|I иду́|идти́|am going домо́й|=|home .", "I'm going home."], note: "иду́, идёшь, идёт…" },
+  { lemma: "пить", gloss: "to drink", pos: "verb", ex: ["Мы|=|we пьём|пить|drink чай|=|tea .", "We drink tea."], note: "пью, пьёшь, пьёт, пьём, пьёте, пьют" },
+  { lemma: "сего́дня", gloss: "today", pos: "adverb", ex: ["Сего́дня|=|today хоро́шая|хоро́ший|good пого́да|=|weather .", "The weather's good today."], note: "the г is a v: \"sivódnya\"" },
+  { lemma: "за́втра", gloss: "tomorrow", pos: "adverb", ex: ["До|=|until за́втра|=|tomorrow !", "See you tomorrow!"] },
+  { lemma: "сейча́с", gloss: "now", pos: "adverb", ex: ["Я|=|I сейча́с|=|now до́ма|=|at home .", "I'm at home now."] },
+  { lemma: "большо́й", gloss: "big", pos: "adjective", ex: ["Э́то|=|this is большо́й|=|a big дом|=|house .", "This is a big house."] },
+  { lemma: "ма́ленький", gloss: "small", pos: "adjective", ex: ["У|=|(by) меня́|я|me ма́ленькая|ма́ленький|small (f.) ко́шка|=|cat .", "I have a small cat."] },
+  { lemma: "ру́сский", gloss: "Russian", pos: "adjective", ex: ["Я|=|I учу́|учи́ть|am learning ру́сский|=|Russian язы́к|=|language .", "I'm learning Russian."], note: "in Russian: по-ру́сски" },
+  { lemma: "оди́н", gloss: "one", pos: "number", ex: ["Оди́н|=|one ко́фе|=|coffee , пожа́луйста|=|please .", "One coffee, please."] },
+  { lemma: "два", gloss: "two", pos: "number", ex: ["Два|=|two ча́я|чай|teas (gen.) , пожа́луйста|=|please .", "Two teas, please."], note: "after 2, 3, 4 a noun takes the genitive singular" },
+  { lemma: "три", gloss: "three", pos: "number" },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru };

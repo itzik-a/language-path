@@ -1,8 +1,8 @@
 /* The whole saved state. Every list item has an id and `updatedAt` (sync merges per item by it); removals are
    soft (`deletedAt`). New fields must be optional and filled in by normalize() in src/state/store.ts. */
 
-export type Lang = "ja" | "pl" | "ar" | "el" | "pt";
-export const LANGS: Lang[] = ["ja", "pl", "ar", "el", "pt"];
+export type Lang = "ja" | "pl" | "ar" | "el" | "pt" | "ru";
+export const LANGS: Lang[] = ["ja", "pl", "ar", "el", "pt", "ru"];
 
 export interface Item { id: string; updatedAt: number; deletedAt?: number }
 
@@ -16,7 +16,7 @@ export interface Token {
   r?: string;
   /** meaning in this context, short English */
   g?: string;
-  /** transliteration (romaji / Arabic in Latin letters; Greek is transliterated on the device) */
+  /** transliteration (romaji / Arabic in Latin letters; Greek and Russian are transliterated on the device) */
   x?: string;
 }
 
@@ -138,7 +138,7 @@ export interface LangSettings {
   level: string;
   /** Japanese: furigana over "unknown" kanji only, all, or none */
   furigana: "unknown" | "all" | "none";
-  /** Arabic: show harakat */
+  /** Arabic: show harakat; Russian: show stress marks */
   harakat: boolean;
   /** show transliteration under words */
   translit: boolean;
