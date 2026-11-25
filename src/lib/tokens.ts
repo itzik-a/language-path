@@ -3,7 +3,7 @@ import type { Lang, Sentence, Token } from "../types";
 import { LANG, lowerIfCased } from "./langs";
 
 const PUNCT_BEFORE_NO_SPACE = /^[.,!?;:;·…)\]»”、。！？」』）،؟؛]+$/;
-const OPEN_NO_SPACE_AFTER = /^[(\[«„“「『（]+$/;
+const OPEN_NO_SPACE_AFTER = /^[(\[«„“「『（¿¡]+$/;
 const ONLY_PUNCT = /^[\p{P}\p{S}]+$/u;
 
 /** Parse the starter markup: "surface|lemma|gloss|reading …", "=" lemma = surface, "-" = a name, bare tokens are punctuation.

@@ -80,6 +80,18 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["Ва́ся|-|Vasya о́чень|=|very рад|=|glad .", "Vasya is very glad."],
     ],
   },
+  {
+    id: "t_seed_es_sobremesa", lang: "es", title: "Una sobremesa larga", titleTr: "A long chat after lunch", newWords: ["alargarse", "cotilla", "casarse", "liar", "piso", "sacar"],
+    lines: [
+      ["El|=|the domingo|=|Sunday quedamos|quedar|we met up en|=|at casa|=|the house de|=|of mi|=|my abuela|=|grandmother para|=|to comer|=|have lunch .", "On Sunday we met up at my grandmother's for lunch."],
+      ["Como|=|as siempre|=|always , la|=|the comida|=|meal se|=|(itself) alargó|alargarse|went on y|=|and nos|=|(ourselves) quedamos|quedarse|we stayed de|=|at sobremesa|=|after-lunch chat hasta|=|until las|=|the siete|=|seven .", "As always, lunch went on and on, and we stayed chatting at the table until seven."],
+      ["Mi|=|my tío|=|uncle , que|=|who es|ser|is un|=|a cotilla|=|gossip , se|=|(himself) empeñó|empeñarse|insisted en|=|on enterarse|=|finding out de|=|about toda|todo|all mi|=|my vida|=|life .", "My uncle, who's a gossip, was set on finding out about my whole life."],
+      ["Me|=|me preguntó|preguntar|he asked : « ¿ Y|=|and tú|=|you , cuándo|=|when te|=|(yourself) casas|casarse|get married ? »", "He asked me: \"And you, when are you getting married?\""],
+      ["Yo|=|I , por|=|so as no|=|not liarla|liar|to stir things up , le|=|him dije|decir|I told que|=|that ya|=|(in time) veríamos|ver|we'd see .", "So as not to stir things up, I told him we'd see."],
+      ["Pues|=|well encima|=|on top of that se|=|(himself) puso|ponerse|started a|=|to contar|=|tell que|=|that mi|=|my prima|primo|cousin (f.) se|=|(herself) había|haber|had comprado|comprar|bought un|=|a piso|=|flat .", "Well, on top of that he started telling everyone that my cousin had bought a flat."],
+      ["Total|=|so , que|=|that no|=|not me|=|(myself) atreví|atreverse|I dared a|=|to irme|irse|leave hasta|=|until que|=|that mi|=|my abuela|=|grandmother sacó|sacar|brought out el|=|the café|=|coffee .", "So I didn't dare leave until my grandmother brought out the coffee."],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

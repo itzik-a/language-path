@@ -18,6 +18,7 @@ const SAMPLE: Record<Lang, string> = {
   el: "Καλημέρα! Τι κάνεις;",
   pt: "Bom dia! Tudo bem contigo?",
   ru: "Приве́т! Как дела́?",
+  es: "¡Hola! ¿Qué tal te va?",
 };
 
 /** "pt-PT" → "Portugal", "pt-BR" → "Brazil". */
@@ -91,7 +92,7 @@ function VoiceSection({ lang }: { lang: Lang }) {
           <>
             <div className="voice-row">
               <Select label="Voice" value={chosen} onChange={(v) => setPrefs({ voice: { ...prefs.voice, [lang]: v } })}
-                options={voices.map((v) => ({ id: v.voiceURI, label: `${v.name}${LANG[lang].strictRegion ? ` (${regionName(v.lang)})` : ""}${v.localService ? "" : " (online)"}` }))} />
+                options={voices.map((v) => ({ id: v.voiceURI, label: `${v.name}${LANG[lang].strictRegion || new Set(voices.map((x) => x.lang)).size > 1 ? ` (${regionName(v.lang)})` : ""}${v.localService ? "" : " (online)"}` }))} />
               <button type="button" className="icon-btn" aria-label="Play a sample" onClick={() => void speak(SAMPLE[lang], lang)}><IconSpeaker /></button>
             </div>
             {LANG[lang].strictRegion && !voices.some((v) => v.lang.replace("_", "-") === LANG[lang].bcp) && (

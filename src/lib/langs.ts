@@ -25,6 +25,7 @@ export const LANG: Record<Lang, LangInfo> = {
   el: { id: "el", name: "Greek", native: "ελληνικά", mark: "Ελ", bcp: "el-GR", dir: "ltr", spaces: true, cased: true },
   pt: { id: "pt", name: "Portuguese", native: "português", mark: "Pt", bcp: "pt-PT", dir: "ltr", spaces: true, cased: true, strictRegion: true },
   ru: { id: "ru", name: "Russian", native: "русский", mark: "Ру", bcp: "ru-RU", dir: "ltr", spaces: true, cased: true },
+  es: { id: "es", name: "Spanish", native: "español", mark: "Es", bcp: "es-ES", dir: "ltr", spaces: true, cased: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */
@@ -62,7 +63,7 @@ export function wordKey(lang: Lang, lemma: string): string {
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
-  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?;:;·。、！？「」…"'«»„”-]+/g, "");
+  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?¿¡;:;·。、！？「」…"'«»„”-]+/g, "");
   return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : lang === "ru" ? foldRussian(t) : t;
 }
 

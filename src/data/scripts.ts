@@ -421,6 +421,15 @@ export const PAIRS: Record<Lang, Pair[]> = {
     { a: ["sono", "sleep"], b: ["sonho", "dream"], what: "n vs nh" },
     { a: ["mala", "suitcase"], b: ["malha", "knitwear"], what: "l vs lh" },
   ],
+  es: [
+    { a: ["pero", "but"], b: ["perro", "dog"], what: "tapped r vs trilled rr" },
+    { a: ["caro", "expensive"], b: ["carro", "cart; car"], what: "tapped r vs trilled rr" },
+    { a: ["pago", "I pay"], b: ["pagó", "he paid"], what: "stress: second-to-last or last syllable" },
+    { a: ["hablo", "I speak"], b: ["habló", "she spoke"], what: "stress: second-to-last or last syllable" },
+    { a: ["término", "term"], b: ["terminó", "it ended"], what: "stress: three places in one word (termino = I finish)" },
+    { a: ["papa", "potato; the Pope"], b: ["papá", "dad"], what: "stress: first or last syllable" },
+    { a: ["cayo", "key (islet)"], b: ["calló", "he went quiet"], what: "same sound, different spelling (y / ll): only the stress differs" },
+  ],
   ru: [
     { a: ["мат", "checkmate"], b: ["мать", "mother"], what: "hard vs soft t" },
     { a: ["брат", "brother"], b: ["брать", "to take"], what: "hard vs soft t" },

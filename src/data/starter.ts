@@ -297,4 +297,39 @@ const ru: StarterWord[] = [
   { lemma: "три", gloss: "three", pos: "number" },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru };
+/** Spanish, for an advanced speaker: conversation glue (discourse markers) and colloquial verbs, the words that make speech
+    sound natural. Spain-only words say so in the note. */
+const es: StarterWord[] = [
+  { lemma: "pues", gloss: "well…; so; then", pos: "discourse marker", ex: ["Pues|=|well no|=|not sé|saber|I know , la|=|the verdad|=|truth .", "Well, I don't know, honestly."], note: "starts an answer or a reaction: «Pues mira…», «¡Pues claro!»" },
+  { lemma: "bueno", gloss: "well, OK, anyway (filler)", pos: "discourse marker", ex: ["Bueno|=|anyway , ¿ qué|=|what tal|=|how el|=|the viaje|=|trip ?", "Anyway, how was the trip?"], note: "changes the subject or softens a correction: «Bueno, no exactamente…»" },
+  { lemma: "vaya", gloss: "wow; what a…; oh dear", pos: "interjection", ex: ["¡ Vaya|=|what a día|=|day !", "What a day!"], note: "surprise or sympathy: «¡Vaya, lo siento!»" },
+  { lemma: "oye", gloss: "hey, listen", pos: "interjection", ex: ["Oye|oír|hey , ¿ tienes|tener|do you have un|=|a momento|=|moment ?", "Hey, have you got a moment?"], note: "to get attention; formal: oiga" },
+  { lemma: "encima", gloss: "on top of that, what's more", pos: "adverb", ex: ["Llegó|llegar|he arrived tarde|=|late y|=|and encima|=|on top of that se|=|(himself) quejó|quejarse|complained .", "He arrived late and on top of that he complained."] },
+  { lemma: "total", gloss: "so, in the end (summing up a story)", pos: "discourse marker", ex: ["Total|=|so , que|=|that al|a|in the final|=|end no|=|not fuimos|ir|we went .", "So in the end we didn't go."], note: "«Total, que…» wraps up a long story" },
+  { lemma: "igual", gloss: "maybe (colloquial)", pos: "adverb", ex: ["Igual|=|maybe voy|ir|I go mañana|=|tomorrow .", "I might go tomorrow."], note: "mostly Spain; takes the indicative, unlike quizás" },
+  { lemma: "vamos", gloss: "I mean, that is; come on", pos: "discourse marker", ex: ["Es|ser|it's caro|=|expensive , vamos|=|I mean , carísimo|caro|really expensive .", "It's expensive, I mean really expensive."] },
+  { lemma: "aguantar", gloss: "to put up with, to bear; to hold", pos: "verb", ex: ["No|=|not aguanto|aguantar|I can stand el|=|the calor|=|heat .", "I can't stand the heat."], note: "aguantarse: to hold back, to put up with it" },
+  { lemma: "agobiarse", gloss: "to get overwhelmed, stressed", pos: "verb", ex: ["No|=|don't te|=|(yourself) agobies|agobiarse|get stressed , hay|haber|there is tiempo|=|time .", "Don't stress, there's time."], note: "estoy agobiado = I'm overwhelmed" },
+  { lemma: "madrugar", gloss: "to get up early", pos: "verb", ex: ["Mañana|=|tomorrow tengo|tener|I have que|=|to madrugar|=|get up early .", "I have to get up early tomorrow."] },
+  { lemma: "enterarse", gloss: "to find out; to get it, to follow", pos: "verb", ex: ["Me|=|(myself) enteré|enterarse|I found out ayer|=|yesterday .", "I found out yesterday."], note: "«No me entero» = I'm not following" },
+  { lemma: "soler", gloss: "to usually (do)", pos: "verb", ex: ["Suelo|soler|I usually cenar|=|have dinner tarde|=|late .", "I usually have dinner late."], note: "suelo, sueles, suele…; + infinitive" },
+  { lemma: "apetecer", gloss: "to feel like (something)", pos: "verb", ex: ["¿ Te|=|to you apetece|apetecer|appeals un|=|a café|=|coffee ?", "Do you feel like a coffee?"], note: "Spain; built like gustar. In Latin America: tener ganas de, provocar" },
+  { lemma: "quedar", gloss: "to meet up, to arrange; to be left", pos: "verb", ex: ["¿ Quedamos|quedar|shall we meet a|=|at las|=|the ocho|=|eight ?", "Shall we meet at eight?"], note: "quedar con alguien; quedarse = to stay" },
+  { lemma: "tardar", gloss: "to take (time); to be late", pos: "verb", ex: ["¿ Cuánto|=|how long tardas|tardar|you take en|=|in llegar|=|arriving ?", "How long does it take you to get here?"] },
+  { lemma: "pillar", gloss: "to catch; to get (a joke); to grab", pos: "verb", ex: ["No|=|not pillé|pillar|I got el|=|the chiste|=|joke .", "I didn't get the joke."], note: "colloquial, mostly Spain" },
+  { lemma: "liarse", gloss: "to get caught up, to get muddled", pos: "verb", ex: ["Me|=|(myself) lié|liarse|I got caught up hablando|hablar|talking y|=|and perdí|perder|I missed el|=|the tren|=|train .", "I got caught up talking and missed the train."], note: "Spain; liarla = to mess things up" },
+  { lemma: "merecer", gloss: "to deserve; to be worth", pos: "verb", ex: ["Merece|merecer|it's worth la|=|the pena|=|trouble verlo|ver|seeing it .", "It's worth seeing."], note: "merecer / valer la pena = to be worth it" },
+  { lemma: "fastidiar", gloss: "to annoy; to ruin, to spoil", pos: "verb", ex: ["La|=|the lluvia|=|rain nos|=|for us fastidió|fastidiar|ruined el|=|the plan|=|plan .", "The rain ruined our plan."], note: "«¡No fastidies!» = you're kidding!" },
+  { lemma: "empeñarse", gloss: "to insist on, to be set on", pos: "verb", ex: ["Se|=|(himself) empeñó|empeñarse|he insisted en|=|on pagar|=|paying .", "He insisted on paying."] },
+  { lemma: "atreverse", gloss: "to dare", pos: "verb", ex: ["No|=|not me|=|(myself) atrevo|atreverse|I dare a|=|to decírselo|decir|tell him .", "I don't dare tell him."] },
+  { lemma: "quejarse", gloss: "to complain", pos: "verb", ex: ["Siempre|=|always se|=|(himself) queja|quejarse|complains de|=|about todo|=|everything .", "He always complains about everything."] },
+  { lemma: "aprovechar", gloss: "to make the most of, to take the chance", pos: "verb", ex: ["Aprovecho|aprovechar|I take the chance para|=|to darte|dar|give you las|=|the gracias|=|thanks .", "I'll take the chance to thank you."], note: "«¡Que aproveche!» = enjoy your meal" },
+  { lemma: "tutear", gloss: "to address someone as tú", pos: "verb", ex: ["¿ Nos|=|each other tuteamos|tutear|shall we use tú ?", "Shall we use tú with each other?"], note: "with usted: tratar de usted" },
+  { lemma: "rato", gloss: "a while, a moment", pos: "noun (m.)", ex: ["Nos|=|(each other) vemos|ver|we see en|=|in un|=|a rato|=|while .", "See you in a bit."], note: "«pasar un buen rato» = to have a good time" },
+  { lemma: "lío", gloss: "mess, muddle; fuss", pos: "noun (m.)", ex: ["¡ Menudo|=|what a lío|=|mess !", "What a mess!"], note: "«meterse en un lío» = to get into trouble" },
+  { lemma: "ganas", gloss: "desire, wish (to)", pos: "noun (f. pl.)", ex: ["Tengo|tener|I have ganas|=|a wish de|=|to verte|ver|see you .", "I'm looking forward to seeing you."], note: "tener ganas de + infinitive; «¡Qué ganas!»" },
+  { lemma: "sobremesa", gloss: "the long chat at the table after a meal", pos: "noun (f.)", ex: ["La|=|the sobremesa|=|after-lunch chat duró|durar|lasted tres|=|three horas|hora|hours .", "The after-lunch chat lasted three hours."] },
+  { lemma: "menudo", gloss: "what a… (ironic, before a noun)", pos: "adjective", ex: ["¡ Menuda|menudo|what a (f.) suerte|=|luck !", "What luck!"], note: "Spain; can be sincere or ironic, the tone tells" },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es };

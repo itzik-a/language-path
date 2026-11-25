@@ -17,6 +17,7 @@ export const defaultSettings = (): Settings => ({
     ar: { ...base, translit: true, level: "Complete beginner in Modern Standard Arabic, still learning the alphabet. I read Hebrew fluently, so Hebrew cognates help." },
     el: { ...base, translit: true, level: "Complete beginner in Modern Greek, still learning the alphabet. I read Hebrew and English." },
     pt: { ...base, translit: false, level: "Beginner-intermediate in European Portuguese (as spoken in Portugal, not Brazil). I speak Spanish, so similarities with Spanish and false friends help." },
+    es: { ...base, translit: false, newPerDay: 5, level: "Advanced. I read whole books in Spanish and understand well what I hear. What I need is conversation: speaking fluently and naturally, colloquial Spanish and idioms, and having the small mistakes I still make corrected. No particular variety (I'll name one here if I want one)." },
     ru: { ...base, translit: true, level: "Beginner in Russian. I know a few words but can barely read Cyrillic yet, so I'm still practising the alphabet. I read Hebrew, English and some Greek." },
   },
   updatedAt: 0,

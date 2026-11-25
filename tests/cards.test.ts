@@ -93,6 +93,8 @@ describe("checking answers", () => {
     expect(check("ru", "mat", ["мать"])).toBe("right");
     expect(check("ru", "privit", ["приве́т"])).toBe("almost");
     expect(check("ru", "spasibo", ["приве́т"])).toBe("wrong");
+    expect(check("es", "lio", ["lío"])).toBe("almost");
+    expect(check("es", "¿Lío?", ["lío"])).toBe("right");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });

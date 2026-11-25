@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European) and Russian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian and Spanish**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -47,6 +47,14 @@ Added 2026-11-26:
 | Typing | Stress marks and ё are ignored; typing in Latin letters is checked by transliteration (privet = приве́т) |
 | Extras | Stress marked on every word (setting "Stress marks"), as learner books do; transliteration under words, worked out on the device; stress minimal pairs (за́мок / замо́к) |
 | Voice | Russian voice (Milena on Apple devices), fed text without stress marks |
+
+| | Spanish |
+|---|---|
+| Where I start | Advanced: I read whole books and understand what I hear; I need conversation |
+| Script | Nothing to learn; minimal pairs for stress (pago / pagó) and r / rr |
+| Typing | Missing accents are "almost" |
+| Extras | Starter words are conversation glue and colloquial verbs (pues, encima, total, enterarse, liarse, apetecer), 5 new a day; Talk scenes for arguing, discussing a book, a job interview, catching up; Claude speaks at native level in the variety my level text names |
+| Voice | Spain first; the voice picker names each voice's region |
 
 ## 3. Concepts
 
@@ -100,6 +108,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: Spanish added (advanced; conversation practice first). The phone's language switch became a picker: seven buttons don't fit.
 - 2026-11-26: Russian added (beginner, still learning to read Cyrillic). Stress is written with U+0301 in starter words and asked of Claude; ids drop it.
 
 - Three languages, all beginners; goals: listening, conversation, reading.

@@ -1,8 +1,8 @@
 /* The whole saved state. Every list item has an id and `updatedAt` (sync merges per item by it); removals are
    soft (`deletedAt`). New fields must be optional and filled in by normalize() in src/state/store.ts. */
 
-export type Lang = "ja" | "pl" | "ar" | "el" | "pt" | "ru";
-export const LANGS: Lang[] = ["ja", "pl", "ar", "el", "pt", "ru"];
+export type Lang = "ja" | "pl" | "ar" | "el" | "pt" | "ru" | "es";
+export const LANGS: Lang[] = ["ja", "pl", "ar", "el", "pt", "ru", "es"];
 
 export interface Item { id: string; updatedAt: number; deletedAt?: number }
 

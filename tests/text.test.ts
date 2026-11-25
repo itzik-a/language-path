@@ -141,3 +141,14 @@ describe("Russian", () => {
     expect(s.tokens[4]).toMatchObject({ t: "во́ду", l: "вода́" });
   });
 });
+
+describe("Spanish", () => {
+  it("keeps ¿ and ¡ against the next word", () => {
+    expect(sentenceText(sentence("es", "Bueno|=|anyway , ¿ qué|=|what tal|=|how el|=|the viaje|=|trip ?", ""))).toBe("Bueno, ¿qué tal el viaje?");
+    expect(sentenceText(sentence("es", "Me|=|me preguntó|preguntar|asked : « ¿ Y|=|and tú|=|you ? »", ""))).toBe("Me preguntó: «¿Y tú?»");
+  });
+  it("folds case and ¿ ¡ away", () => {
+    expect(fold("es", "¡Vaya!")).toBe(fold("es", "vaya"));
+    expect(wordKey("es", "Lío")).toBe(wordKey("es", "lío"));
+  });
+});
