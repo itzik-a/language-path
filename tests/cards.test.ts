@@ -74,16 +74,16 @@ describe("checking answers", () => {
     expect(check("ja", "たべる", ["食べる", "たべる"])).toBe("right");
     expect(check("ja", "nomu", ["食べる", "たべる"])).toBe("wrong");
   });
-  it("calls missing Polish accents almost", () => {
-    expect(check("pl", "jablko", ["jabłko"])).toBe("almost");
+  it("does not count missing accents as a mistake", () => {
+    expect(check("pl", "jablko", ["jabłko"])).toBe("right");
     expect(check("pl", "Jabłko", ["jabłko"])).toBe("right");
-    expect(check("pl", "dziekuje", ["dziękuję"])).toBe("almost");
+    expect(check("pl", "dziekuje", ["dziękuję"])).toBe("right");
   });
   it("ignores harakat in Arabic", () => {
     expect(check("ar", "كتاب", ["كِتَاب"])).toBe("right");
-    expect(check("pt", "pao", ["pão"])).toBe("almost");
+    expect(check("pt", "pao", ["pão"])).toBe("right");
     expect(check("pt", "Pão", ["pão"])).toBe("right");
-    expect(check("el", "καλημερα", ["καλημέρα"])).toBe("almost");
+    expect(check("el", "καλημερα", ["καλημέρα"])).toBe("right");
     expect(check("el", "kalimera", ["καλημέρα"])).toBe("right");
     expect(check("el", "kalimeri", ["καλημέρα"])).toBe("almost");
     expect(check("el", "nero", ["καλημέρα"])).toBe("wrong");
@@ -93,15 +93,17 @@ describe("checking answers", () => {
     expect(check("ru", "mat", ["мать"])).toBe("right");
     expect(check("ru", "privit", ["приве́т"])).toBe("almost");
     expect(check("ru", "spasibo", ["приве́т"])).toBe("wrong");
-    expect(check("es", "lio", ["lío"])).toBe("almost");
+    expect(check("es", "lio", ["lío"])).toBe("right");
     expect(check("es", "¿Lío?", ["lío"])).toBe("right");
-    expect(check("fr", "creve", ["crevé"])).toBe("almost");
-    expect(check("it", "cioe", ["cioè"])).toBe("almost");
+    expect(check("es", "alargo", ["alargó"])).toBe("right");
+    expect(check("es", "alargp", ["alargó"])).toBe("almost");
+    expect(check("fr", "creve", ["crevé"])).toBe("right");
+    expect(check("it", "cioe", ["cioè"])).toBe("right");
     expect(check("de", "Strasse", ["Straße"])).toBe("right");
     expect(check("de", "schoen", ["schön"])).toBe("right");
-    expect(check("de", "schon", ["schön"])).toBe("almost");
+    expect(check("de", "schon", ["schön"])).toBe("right");
     expect(check("de", "zug", ["Zug"])).toBe("right");
-    expect(check("nl", "een", ["één"])).toBe("almost");
+    expect(check("nl", "een", ["één"])).toBe("right");
     expect(check("nl", "Gezellig", ["gezellig"])).toBe("right");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });

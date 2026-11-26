@@ -1,4 +1,4 @@
-/* Checking a typed answer: right, almost (accents / one letter off), or wrong. Harakat and kana kind are ignored. */
+/* Checking a typed answer: right, almost (one letter off), or wrong. Accents, harakat and kana kind are ignored. */
 import type { Lang } from "../types";
 import { autoTranslit, fold, foldArabic, foldGerman, foldLatin, kataToHira } from "./langs";
 import { toKana } from "./romaji";
@@ -17,6 +17,11 @@ function lev(a: string, b: string): number {
   return prev[n];
 }
 
+const ACCENTED: Lang[] = ["pl", "pt", "es", "fr", "it", "de", "nl", "el"];
+
+/** The answer with accents taken off, for the languages that have them (alargó → alargo, jabłko → jablko, καλημέρα → καλημερα). */
+export const foldAccents = (lang: Lang, s: string): string => (ACCENTED.includes(lang) ? foldLatin(s) : s);
+
 export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   let t = typed.trim();
   if (!t) return "wrong";
@@ -33,10 +38,11 @@ export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   }
   // German typed without umlauts or ß, written out (Strasse, Muell, schoen): right
   if (lang === "de" && keys.some((k) => foldGerman(k) === foldGerman(ft))) return "right";
-  // missing accents (Polish ł ś, Portuguese ã ç é, Spanish á ñ, French é ç, Italian è, German ä ö ü, Dutch é ë, Greek τόνος): almost
-  if ((lang === "pl" || lang === "pt" || lang === "es" || lang === "fr" || lang === "it" || lang === "de" || lang === "nl" || lang === "el") && keys.some((k) => foldLatin(k) === foldLatin(ft))) return "almost";
+  // missing accents are not a mistake (Polish ł ś, Portuguese ã ç é, Spanish á ñ, French é ç, Italian è, German ä ö ü, Dutch é ë, Greek τόνος): right
+  const at = foldAccents(lang, ft), akeys = keys.map((k) => foldAccents(lang, k));
+  if (akeys.includes(at)) return "right";
   if (lang === "ar" && keys.some((k) => foldArabic(k) === foldArabic(ft))) return "right";
   if (lang === "ja" && keys.some((k) => kataToHira(k) === kataToHira(ft))) return "right";
-  if (keys.some((k) => k.length >= 4 && lev(k, ft) <= 1)) return "almost";
+  if (akeys.some((k) => k.length >= 4 && lev(k, at) <= 1)) return "almost";
   return "wrong";
 }

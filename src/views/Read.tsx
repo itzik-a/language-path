@@ -6,7 +6,7 @@ import { PasteSheet } from "../components/PasteSheet";
 import { StorySheet } from "../components/StorySheet";
 import { Seg, useLocalState } from "../components/ui";
 import { WordPop } from "../components/WordPop";
-import { check } from "../lib/check";
+import { check, foldAccents } from "../lib/check";
 import { coverage, isKnown, knownSet } from "../lib/coverage";
 import { fold, LANG } from "../lib/langs";
 import { setPrefs, usePrefs } from "../lib/prefs";
@@ -255,11 +255,12 @@ function Dictation({ text, alt, lang, rate }: { text: string; alt: string; lang:
   const [result, setResult] = useState<null | { verdict: string; score: number }>(null);
   const score = () => {
     const input = lang === "ja" && /[a-z]/i.test(typed) ? toKana(typed, { final: true }) : typed;
-    const a = fold(lang, input);
+    const f = (x: string) => foldAccents(lang, fold(lang, x)); // accents don't count
+    const a = f(input);
     const v = check(lang, input, [text, alt]);
     // share of the expected characters that appear in order (best of the written and the kana form)
     const share = (b: string) => { let i = 0, hit = 0; for (const ch of a) { const j = b.indexOf(ch, i); if (j >= 0) { hit++; i = j + 1; } } return b.length ? hit / b.length : 0; };
-    setResult({ verdict: v, score: Math.max(share(fold(lang, text)), share(fold(lang, alt))) });
+    setResult({ verdict: v, score: Math.max(share(f(text)), share(f(alt))) });
   };
   return (
     <div className="tool-panel" dir="ltr">
