@@ -26,7 +26,7 @@ function load(): Prefs {
   return {
     lang: x.lang && LANGS.includes(x.lang) ? x.lang : "ja",
     voice: x.voice ?? {},
-    rate: { ja: 0.9, pl: 0.9, ar: 0.85, el: 0.9, pt: 0.9, ru: 0.85, es: 1, fr: 1, it: 1, ...x.rate },
+    rate: { ja: 0.9, pl: 0.9, ar: 0.85, el: 0.9, pt: 0.9, ru: 0.85, es: 1, fr: 1, it: 1, de: 0.95, ...x.rate },
     device: x.device || Math.random().toString(36).slice(2, 10),
     claudeKey: x.claudeKey,
     model: x.model ?? "claude-opus-5-5",

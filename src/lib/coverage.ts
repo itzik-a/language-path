@@ -12,6 +12,7 @@ const GRAMMAR: Record<Lang, string[]> = {
   es: ["el", "la", "los", "las", "un", "una", "unos", "unas", "de", "del", "a", "al", "en", "por", "para", "con", "sin", "y", "e", "o", "u", "pero", "que", "se", "no", "me", "te", "le", "lo", "les", "nos", "su", "sus", "mi", "tu", "es", "muy"],
   fr: ["le", "la", "les", "l", "un", "une", "des", "de", "d", "du", "au", "aux", "à", "en", "dans", "sur", "pour", "par", "avec", "sans", "et", "ou", "mais", "que", "qu", "qui", "ne", "n", "pas", "se", "s", "me", "m", "te", "t", "ce", "c", "je", "j", "il", "elle", "on", "y"],
   it: ["il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una", "di", "del", "della", "a", "al", "alla", "da", "in", "nel", "nella", "con", "su", "per", "tra", "fra", "e", "o", "ma", "che", "non", "si", "mi", "ti", "ci", "vi", "ne"],
+  de: ["der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "eines", "und", "oder", "aber", "in", "im", "ins", "an", "am", "auf", "zu", "zum", "zur", "mit", "von", "vom", "bei", "beim", "für", "aus", "nach", "nicht", "sich", "es", "dass", "wie", "auch", "so"],
   ar: ["فِي", "فى", "وَ", "و", "مِنْ", "من", "إِلَى", "الى", "عَلَى", "على", "مَعَ", "مع", "هٰذَا", "هذا", "هٰذِهِ", "هذه", "أَنْ", "ان", "لَا", "لا", "مَا", "ما"],
 };
 

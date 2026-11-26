@@ -14,6 +14,8 @@ export interface LangInfo {
   spaces: boolean;
   /** the script has upper and lower case (lemmas are stored lower-cased) */
   cased: boolean;
+  /** nouns are capitalised (German): lemmas keep their case; ids still ignore it */
+  nounCaps?: boolean;
   /** only voices of this exact region will do (European, not Brazilian, Portuguese) */
   strictRegion?: boolean;
 }
@@ -28,6 +30,7 @@ export const LANG: Record<Lang, LangInfo> = {
   es: { id: "es", name: "Spanish", native: "español", mark: "Es", bcp: "es-ES", dir: "ltr", spaces: true, cased: true },
   fr: { id: "fr", name: "French", native: "français", mark: "Fr", bcp: "fr-FR", dir: "ltr", spaces: true, cased: true },
   it: { id: "it", name: "Italian", native: "italiano", mark: "It", bcp: "it-IT", dir: "ltr", spaces: true, cased: true },
+  de: { id: "de", name: "German", native: "Deutsch", mark: "De", bcp: "de-DE", dir: "ltr", spaces: true, cased: true, nounCaps: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */
@@ -52,8 +55,12 @@ export const kanjiIn = (s: string) => [...new Set([...s].filter(isKanji))];
 /** An elided word (French j', l', qu'; Italian l', un', dell'): the next word follows with no space. */
 export const isElided = (t: string) => /\p{L}['’]$/u.test(t);
 
-/** Lemmas of cased languages are stored lower-cased ("Kot" → "kot"). */
-export const lowerIfCased = (lang: Lang, s: string) => (LANG[lang].cased ? s.toLowerCase() : s);
+/** Lemmas of cased languages are stored lower-cased ("Kot" → "kot"), except where nouns are capitalised (German "Hund"). */
+export const lowerIfCased = (lang: Lang, s: string) => (LANG[lang].cased && !LANG[lang].nounCaps ? s.toLowerCase() : s);
+
+/** German folded the way a learner may type it without a German keyboard: ß → ss, ä → ae, ö → oe, ü → ue. */
+export const foldGerman = (s: string) =>
+  s.toLowerCase().replace(/ß/g, "ss").replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue");
 
 /** Russian stress marks (a combining acute on the stressed vowel: молоко́), as learner texts write them. */
 export const stripStress = (s: string) => s.normalize("NFC").replace(/\u0301/g, "");
@@ -62,7 +69,7 @@ export const foldRussian = (s: string) => stripStress(s).replace(/ё/g, "е").re
 
 /** The key a word is stored under: same word on two devices → same id. */
 export function wordKey(lang: Lang, lemma: string): string {
-  const base = lang === "ar" ? stripHarakat(lemma) : lang === "ru" ? foldRussian(lemma.toLowerCase()) : lowerIfCased(lang, lemma);
+  const base = lang === "ar" ? stripHarakat(lemma) : lang === "ru" ? foldRussian(lemma.toLowerCase()) : LANG[lang].cased ? lemma.toLowerCase() : lemma;
   return `w_${lang}_${base.normalize("NFC").trim()}`;
 }
 

@@ -448,6 +448,15 @@ export const PAIRS: Record<Lang, Pair[]> = {
     { a: ["àncora", "anchor"], b: ["ancóra", "still, again"], what: "stress: first or second syllable" },
     { a: ["pèsca", "peach"], b: ["pésca", "fishing"], what: "open vs closed e" },
   ],
+  de: [
+    { a: ["Mutter", "mother"], b: ["Mütter", "mothers"], what: "u vs ü" },
+    { a: ["schon", "already"], b: ["schön", "beautiful"], what: "o vs ö" },
+    { a: ["Stadt", "city"], b: ["Staat", "state"], what: "short vs long a" },
+    { a: ["Bett", "bed"], b: ["Beet", "flower bed"], what: "short vs long e" },
+    { a: ["füllen", "to fill"], b: ["fühlen", "to feel"], what: "short vs long ü" },
+    { a: ["Kirche", "church"], b: ["Kirsche", "cherry"], what: "ch vs sch" },
+    { a: ["Hölle", "hell"], b: ["Höhle", "cave"], what: "short vs long ö" },
+  ],
   ru: [
     { a: ["мат", "checkmate"], b: ["мать", "mother"], what: "hard vs soft t" },
     { a: ["брат", "brother"], b: ["брать", "to take"], what: "hard vs soft t" },

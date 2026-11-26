@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, Spanish, French and Italian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, German, Spanish, French and Italian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -64,6 +64,14 @@ Added 2026-11-26:
 | Extras | Spoken French starter words (bah, du coup, carrément, la flemme, bosser, piger, a little verlan: relou, ouf); Claude drops ne and uses on like natives; elided words are their own tokens | Conversation glue (allora, cioè, magari, mica, insomma, boh) and colloquial verbs (arrangiarsi, fregarsene, sbrigarsi); elision handled the same way |
 | Voice | France first; regions named | Italy |
 
+| | German |
+|---|---|
+| Where I start | Intermediate: everyday conversations and simple texts; mistakes with cases, word order, genders |
+| Script | Minimal pairs: umlauts (Mutter / Mütter, schon / schön), long and short vowels (Stadt / Staat), ch / sch |
+| Typing | ss, ae, oe, ue for ß ä ö ü are right; missing umlauts are "almost"; case ignored |
+| Extras | Starter words: modal particles (doch, mal, halt), connectors with the word order they cause (obwohl, trotzdem, deshalb), separable and reflexive verbs (anrufen, sich freuen), nouns with their article; Talk scenes at a bakery, in a WG, at the Bürgeramt, with a colleague |
+| Voice | Germany |
+
 ## 3. Concepts
 
 | Thing | What it is |
@@ -116,6 +124,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: German added (intermediate). Nouns keep their capital in lemmas.
 - 2026-11-26: French and Italian added (both advanced; conversation practice first; 5 new words a day).
 - 2026-11-26: Spanish added (advanced; conversation practice first). The phone's language switch became a picker: seven buttons don't fit.
 - 2026-11-26: Russian added (beginner, still learning to read Cyrillic). Stress is written with U+0301 in starter words and asked of Claude; ids drop it.

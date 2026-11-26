@@ -398,4 +398,42 @@ const it: StarterWord[] = [
   { lemma: "pazzesco", gloss: "crazy, incredible", pos: "adjective", ex: ["È|essere|it's pazzesco|=|incredible !", "That's incredible!"] },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es, fr, it };
+/** German, intermediate: modal particles, connectors that move the verb, separable and reflexive verbs, and everyday
+    nouns with their article. Nouns keep their capital; reflexive verbs are stored without sich. In the examples a
+    sentence-initial word that isn't a noun names its lower-case lemma. */
+const de: StarterWord[] = [
+  { lemma: "doch", gloss: "(particle) do…, come on; yes (to a negative question)", pos: "particle", ex: ["Komm|kommen|come doch|=|(do) mit|mitkommen|along !", "Do come along!"], note: "«Du kommst nicht?» «Doch!» = yes, I am" },
+  { lemma: "mal", gloss: "(particle) just, for a sec (softens a request)", pos: "particle", ex: ["Warte|warten|wait mal|=|a sec !", "Wait a sec!"] },
+  { lemma: "halt", gloss: "(particle) just, simply (that's how it is)", pos: "particle", ex: ["Das|das|that ist|sein|is halt|=|just so|=|so .", "That's just how it is."], note: "mostly southern; in the north eben" },
+  { lemma: "eben", gloss: "just now; (particle) simply", pos: "adverb / particle", ex: ["Ich|ich|I war|sein|was eben|=|just now noch|=|still da|=|there .", "I was there just a moment ago."] },
+  { lemma: "eigentlich", gloss: "actually, really", pos: "adverb", ex: ["Eigentlich|eigentlich|actually wollte|wollen|wanted ich|=|I heute|=|today arbeiten|=|to work .", "Actually I wanted to work today."] },
+  { lemma: "obwohl", gloss: "although", pos: "conjunction", ex: ["Ich|ich|I gehe|gehen|go raus|=|out , obwohl|=|although es|=|it regnet|regnen|rains .", "I'm going out, although it's raining."], note: "sends the verb to the end: …, obwohl es regnet" },
+  { lemma: "trotzdem", gloss: "nevertheless, all the same", pos: "adverb", ex: ["Es|es|it regnet|regnen|rains , trotzdem|=|all the same gehe|gehen|go ich|=|I raus|=|out .", "It's raining, but I'm going out anyway."], note: "the verb comes straight after it: trotzdem gehe ich" },
+  { lemma: "deshalb", gloss: "that's why, so", pos: "adverb", ex: ["Ich|ich|I bin|sein|am müde|=|tired , deshalb|=|so bleibe|bleiben|stay ich|=|I zu|=|at Hause|Haus|home .", "I'm tired, so I'm staying home."], note: "verb second: deshalb bleibe ich" },
+  { lemma: "sowieso", gloss: "anyway, in any case", pos: "adverb", ex: ["Ich|ich|I muss|müssen|have to sowieso|=|anyway einkaufen|=|go shopping .", "I have to go shopping anyway."] },
+  { lemma: "ziemlich", gloss: "quite, fairly", pos: "adverb", ex: ["Das|das|that ist|sein|is ziemlich|=|quite teuer|=|expensive .", "That's quite expensive."] },
+  { lemma: "genau", gloss: "exactly; precise", pos: "adverb", ex: ["Genau|genau|exactly , so|=|that's how machen|=|do wir|=|we das|das|it .", "Exactly, that's how we'll do it."], note: "«Genau!» = that's right (very common agreement)" },
+  { lemma: "unterwegs", gloss: "on the way, out and about", pos: "adverb", ex: ["Ich|ich|I bin|sein|am schon|=|already unterwegs|=|on my way .", "I'm already on my way."] },
+  { lemma: "anrufen", gloss: "to call (on the phone)", pos: "verb (separable)", ex: ["Ich|ich|I rufe|anrufen|call dich|du|you (acc.) morgen|=|tomorrow an|anrufen|(call) .", "I'll call you tomorrow."], note: "rief an, hat angerufen; jemanden (acc.) anrufen" },
+  { lemma: "aufhören", gloss: "to stop", pos: "verb (separable)", ex: ["Hör|aufhören|stop endlich|=|finally auf|aufhören|(stop) !", "Just stop it!"], note: "aufhören mit / aufhören zu + infinitive" },
+  { lemma: "vorhaben", gloss: "to plan, to have in mind", pos: "verb (separable)", ex: ["Was|was|what hast|vorhaben|have du|=|you am|an|at the Wochenende|=|weekend vor|vorhaben|planned ?", "What are you up to at the weekend?"] },
+  { lemma: "freuen", gloss: "sich freuen: to be glad; auf: to look forward to", pos: "verb (sich)", ex: ["Ich|ich|I freue|freuen|look forward mich|ich|(myself) auf|=|to das|der|the Wochenende|=|weekend .", "I'm looking forward to the weekend."], note: "sich freuen auf (something coming) / über (something now)" },
+  { lemma: "kümmern", gloss: "sich kümmern um: to take care of", pos: "verb (sich)", ex: ["Ich|ich|I kümmere|kümmern|take care mich|ich|(myself) darum|=|of it .", "I'll take care of it."] },
+  { lemma: "vermissen", gloss: "to miss (someone)", pos: "verb", ex: ["Ich|ich|I vermisse|vermissen|miss dich|du|you .", "I miss you."], note: "a train you miss: verpassen" },
+  { lemma: "schaffen", gloss: "to manage, to make it", pos: "verb", ex: ["Wir|wir|we schaffen|=|manage das|das|it !", "We can do it!"] },
+  { lemma: "erledigen", gloss: "to get done, to sort out", pos: "verb", ex: ["Ich|ich|I muss|müssen|must noch|=|still etwas|=|something erledigen|=|sort out .", "I still have something to sort out."] },
+  { lemma: "klappen", gloss: "to work out (colloquial)", pos: "verb", ex: ["Hat|haben|has es|=|it geklappt|klappen|worked out ?", "Did it work out?"] },
+  { lemma: "Termin", gloss: "appointment", pos: "noun (der)", ex: ["Ich|ich|I habe|haben|have morgen|=|tomorrow einen|ein|an Termin|=|appointment .", "I have an appointment tomorrow."], note: "der Termin, die Termine; not \"term\"" },
+  { lemma: "Feierabend", gloss: "the end of the working day; time off", pos: "noun (der)", ex: ["Endlich|endlich|finally Feierabend|=|knocking-off time !", "Finally done for the day!"], note: "«Schönen Feierabend!» = have a nice evening (after work)" },
+  { lemma: "Lust", gloss: "desire, the mood (to do something)", pos: "noun (die)", ex: ["Hast|haben|have du|=|you Lust|=|the mood auf|=|for Kino|=|cinema ?", "Do you fancy the cinema?"], note: "Lust haben auf + noun / zu + infinitive" },
+  { lemma: "Bescheid", gloss: "word, notice (Bescheid sagen: to let know)", pos: "noun (der)", ex: ["Sag|sagen|tell mir|ich|me Bescheid|=|(word) !", "Let me know!"], note: "Bescheid sagen / geben / wissen" },
+  { lemma: "Stau", gloss: "traffic jam", pos: "noun (der)", ex: ["Ich|ich|I stand|stehen|stood im|in|in the Stau|=|traffic jam .", "I was stuck in traffic."] },
+  { lemma: "Rechnung", gloss: "bill; invoice", pos: "noun (die)", ex: ["Die|der|the Rechnung|=|bill , bitte|=|please .", "The bill, please."], note: "«Zahlen, bitte!» works too" },
+  { lemma: "Erfahrung", gloss: "experience", pos: "noun (die)", ex: ["Das|das|that war|sein|was eine|ein|a gute|gut|good Erfahrung|=|experience .", "That was a good experience."], note: "-ung nouns are always die" },
+  { lemma: "Meinung", gloss: "opinion", pos: "noun (die)", ex: ["Was|was|what ist|sein|is deine|dein|your Meinung|=|opinion ?", "What's your opinion?"], note: "meiner Meinung nach = in my opinion" },
+  { lemma: "Mitbewohner", gloss: "flatmate", pos: "noun (der)", ex: ["Mein|mein|my Mitbewohner|=|flatmate kocht|kochen|cooks gern|=|likes to .", "My flatmate likes cooking."], note: "a woman: die Mitbewohnerin; a shared flat: die WG" },
+  { lemma: "gemütlich", gloss: "cosy, relaxed", pos: "adjective", ex: ["Das|der|the Café|=|café ist|sein|is sehr|=|very gemütlich|=|cosy .", "The café is very cosy."] },
+  { lemma: "anstrengend", gloss: "tiring, exhausting", pos: "adjective", ex: ["Der|der|the Tag|=|day war|sein|was anstrengend|=|exhausting .", "The day was exhausting."] },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es, fr, it, de };

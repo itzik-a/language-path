@@ -1,7 +1,7 @@
 {
   "name": "Language Path",
   "short_name": "Languages",
-  "description": "Japanese, Polish, Arabic, Greek, Portuguese, Russian, Spanish, French and Italian: reviews, stories at my level, and conversation practice.",
+  "description": "Japanese, Polish, Arabic, Greek, Portuguese, Russian, Spanish, French, Italian and German: reviews, stories at my level, and conversation practice.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -161,3 +161,12 @@ describe("French and Italian elision", () => {
     expect(sentence("fr", "J'|je|I ai|avoir|have", "").tokens[0].l).toBe("je");
   });
 });
+
+describe("German", () => {
+  it("keeps noun capitals in lemmas, but ids ignore case", () => {
+    const s = sentence("de", "Der|der|the Zug|=|train hatte|haben|had Verspätung|=|a delay .", "");
+    expect(s.tokens[2].l).toBe("Zug");
+    expect(wordKey("de", "Zug")).toBe(wordKey("de", "zug"));
+    expect(sentenceText(s)).toBe("Der Zug hatte Verspätung.");
+  });
+});

@@ -97,6 +97,10 @@ describe("checking answers", () => {
     expect(check("es", "¿Lío?", ["lío"])).toBe("right");
     expect(check("fr", "creve", ["crevé"])).toBe("almost");
     expect(check("it", "cioe", ["cioè"])).toBe("almost");
+    expect(check("de", "Strasse", ["Straße"])).toBe("right");
+    expect(check("de", "schoen", ["schön"])).toBe("right");
+    expect(check("de", "schon", ["schön"])).toBe("almost");
+    expect(check("de", "zug", ["Zug"])).toBe("right");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });

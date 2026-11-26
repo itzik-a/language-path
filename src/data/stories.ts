@@ -114,6 +114,18 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["Però|=|but al|a|on the ritorno|=|return ho|avere|I have perso|perdere|missed l'|il|the ultimo|=|last treno|=|train , e|=|and mi|=|myself sono|essere|(aux.) dovuto|dovere|had to arrangiare|arrangiarsi|manage .", "But on the way back I missed the last train and had to make do."],
     ],
   },
+  {
+    id: "t_seed_de_zug", lang: "de", title: "Ein Montag mit Verspätung", titleTr: "A Monday with a delay", newWords: ["Verspätung", "Chef", "passieren", "treffen", "unterhalten", "Haltestelle", "verpassen", "schlimm"],
+    lines: [
+      ["Am|an|on (the) Montag|=|Monday wollte|wollen|wanted Lena|-|Lena früh|=|early ins|in|into the Büro|=|office fahren|=|to go .", "On Monday Lena wanted to get to the office early."],
+      ["Aber|aber|but ihr|=|her Zug|=|train hatte|haben|had natürlich|=|of course Verspätung|=|a delay .", "But of course her train was late."],
+      ["Sie|sie|she rief|anrufen|called ihren|ihr|her (acc.) Chef|=|boss an|anrufen|(called) und|=|and sagte|sagen|told ihm|er|him Bescheid|=|(word) .", "She called her boss and let him know."],
+      ["Er|er|he meinte|meinen|said nur|=|only , das|das|that passiert|passieren|happens halt|=|just .", "He just said these things happen."],
+      ["Im|in|in the Zug|=|train hat|haben|has sie|=|she dann|=|then einen|ein|an alten|alt|old Freund|=|friend getroffen|treffen|met .", "Then on the train she ran into an old friend."],
+      ["Sie|sie|they haben|=|have sich|=|(each other) so|=|so gut|=|well unterhalten|=|talked , dass|=|that sie|=|she fast|=|almost ihre|ihr|her Haltestelle|=|stop verpasst|verpassen|missed hat|haben|has .", "They got talking so well that she almost missed her stop."],
+      ["Eigentlich|eigentlich|actually war|sein|was die|der|the Verspätung|=|delay gar|=|at all nicht|=|not so|=|so schlimm|=|bad .", "Actually, the delay wasn't so bad after all."],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

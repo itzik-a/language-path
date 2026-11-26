@@ -1,6 +1,6 @@
 /* Checking a typed answer: right, almost (accents / one letter off), or wrong. Harakat and kana kind are ignored. */
 import type { Lang } from "../types";
-import { autoTranslit, fold, foldArabic, foldLatin, kataToHira } from "./langs";
+import { autoTranslit, fold, foldArabic, foldGerman, foldLatin, kataToHira } from "./langs";
 import { toKana } from "./romaji";
 
 export type Verdict = "right" | "almost" | "wrong";
@@ -31,8 +31,10 @@ export function check(lang: Lang, typed: string, answers: string[]): Verdict {
     if (lat.some((k) => k.length >= 4 && lev(k, foldLatin(ft)) <= 1)) return "almost";
     return "wrong";
   }
-  // missing accents (Polish ł ś, Portuguese ã ç é, Spanish á ñ, French é ç, Italian è, Greek τόνος): almost
-  if ((lang === "pl" || lang === "pt" || lang === "es" || lang === "fr" || lang === "it" || lang === "el") && keys.some((k) => foldLatin(k) === foldLatin(ft))) return "almost";
+  // German typed without umlauts or ß, written out (Strasse, Muell, schoen): right
+  if (lang === "de" && keys.some((k) => foldGerman(k) === foldGerman(ft))) return "right";
+  // missing accents (Polish ł ś, Portuguese ã ç é, Spanish á ñ, French é ç, Italian è, German ä ö ü, Greek τόνος): almost
+  if ((lang === "pl" || lang === "pt" || lang === "es" || lang === "fr" || lang === "it" || lang === "de" || lang === "el") && keys.some((k) => foldLatin(k) === foldLatin(ft))) return "almost";
   if (lang === "ar" && keys.some((k) => foldArabic(k) === foldArabic(ft))) return "right";
   if (lang === "ja" && keys.some((k) => kataToHira(k) === kataToHira(ft))) return "right";
   if (keys.some((k) => k.length >= 4 && lev(k, ft) <= 1)) return "almost";
