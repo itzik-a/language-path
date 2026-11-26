@@ -42,8 +42,14 @@ export const stripHarakat = (s: string) => s.replace(HARAKAT, "");
 export const foldArabic = (s: string) =>
   stripHarakat(s).replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/ؤ/g, "و").replace(/ئ/g, "ي");
 
-/** Latin diacritics removed (ł → l too), for "almost right" in Polish. */
-export const foldLatin = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l").replace(/Ł/g, "L");
+/** Diacritics removed (ł → l, œ → oe, æ → ae too), so answers typed without accents count. */
+export const foldLatin = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l").replace(/Ł/g, "L").replace(/œ/g, "oe").replace(/Œ/g, "OE").replace(/æ/g, "ae").replace(/Æ/g, "AE");
+
+/** The same, only on Latin letters (transliterations: kitāb → kitab, Tōkyō → Tokyo), leaving й, ぱ and Arabic as they are. */
+export const foldLatinOnly = (s: string) =>
+  s.normalize("NFD").replace(/(\p{Script=Latin})[\u0300-\u036f]+/gu, "$1").normalize("NFC").replace(/[ʿʾʻʼ]/g, "")
+    .replace(/ł/g, "l").replace(/œ/g, "oe").replace(/æ/g, "ae");
 
 const KATA_START = 0x30a1, KATA_END = 0x30f6;
 export const kataToHira = (s: string) =>
@@ -76,7 +82,7 @@ export function wordKey(lang: Lang, lemma: string): string {
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
-  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s\p{P}]+/gu, "") // spaces and all punctuation never count;
+  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s\p{P}]+/gu, ""); // spaces and all punctuation never count
   return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : lang === "ru" ? foldRussian(t) : t;
 }
 
@@ -118,6 +124,18 @@ export function russianTranslit(text: string): string {
 }
 
 // ── Greek → Latin letters ─────────────────────────────────────
+
+const GR_LETTER: Record<string, string> = {
+  α: "a", β: "b", γ: "g", δ: "d", ε: "e", ζ: "z", η: "i", θ: "th", ι: "i", κ: "k", λ: "l", μ: "m", ν: "n", ξ: "x",
+  ο: "o", π: "p", ρ: "r", σ: "s", ς: "s", τ: "t", υ: "y", φ: "f", χ: "ch", ψ: "ps", ω: "o",
+};
+/** Greek letter for letter, the way Greeks write it in Latin letters (γεια → geia, ευχαριστώ → eycharisto); no accents. */
+export const greekLetters = (text: string) =>
+  [...text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()].map((c) => GR_LETTER[c] ?? c).join("");
+
+/** Greek in Latin letters, loosened so common spellings meet: kh / ch → h, gh → g, dh → d, ph → f, w → o, y → i. */
+export const looseGreekLatin = (s: string) =>
+  s.replace(/kh|ch/g, "h").replace(/gh/g, "g").replace(/dh/g, "d").replace(/ph/g, "f").replace(/w/g, "o").replace(/y/g, "i");
 
 const GR_ONE: Record<string, string> = {
   α: "a", β: "v", γ: "gh", δ: "dh", ε: "e", ζ: "z", η: "i", θ: "th", ι: "i", κ: "k", λ: "l", μ: "m", ν: "n", ξ: "x",

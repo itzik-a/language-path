@@ -121,6 +121,27 @@ describe("checking answers", () => {
     expect(check("nl", "Gezellig", ["gezellig"])).toBe("right");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
+  it("takes what a learner types without special keys", () => {
+    expect(check("ru", "yozh", ["ёж"])).toBe("right");
+    expect(check("ru", "yezh", ["ёж"])).toBe("right");
+    expect(check("ru", "chornyy", ["чёрный"])).toBe("right");
+    expect(check("ja", "konnichiwa", ["今日は", "こんにちは", "konnichiwa"])).toBe("right");
+    expect(check("ja", "konnichiha", ["今日は", "こんにちは", "konnichiwa"])).toBe("right");
+    expect(check("ja", "tokyo", ["東京", "とうきょう", "Tōkyō"])).toBe("right");
+    expect(check("fr", "coeur", ["cœur"])).toBe("right");
+    expect(check("ar", "kitab", ["كِتَاب", "", "kitāb"])).toBe("right");
+    expect(check("ar", "كتاب", ["كِتَاب", "", "kitāb"])).toBe("right");
+    expect(check("ru", "мой", ["мои"])).not.toBe("right");
+    expect(check("el", "efharisto", ["ευχαριστώ"])).toBe("right");
+    expect(check("el", "eycharisto", ["ευχαριστώ"])).toBe("right");
+    expect(check("el", "geia", ["γεια"])).toBe("right");
+    expect(check("el", "yia", ["γεια"])).toBe("right");
+    expect(check("el", "kalhmera", ["καλημέρα"])).toBe("right");
+    expect(check("el", "kalimera", ["καλημέρα"])).toBe("right");
+    expect(check("el", "pedia", ["παιδιά"])).toBe("right");
+    expect(check("el", "paidia", ["παιδιά"])).toBe("right");
+    expect(check("el", "nero", ["καλημέρα"])).toBe("wrong");
+  });
 });
 
 import { dayTotals, streak } from "../src/lib/progress";

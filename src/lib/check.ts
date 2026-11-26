@@ -1,6 +1,6 @@
 /* Checking a typed answer: right, almost (one letter off), or wrong. Accents, harakat and kana kind are ignored. */
 import type { Lang } from "../types";
-import { autoTranslit, fold, foldArabic, foldGerman, foldLatin, kataToHira } from "./langs";
+import { autoTranslit, fold, foldArabic, foldGerman, foldLatin, foldLatinOnly, greekLetters, kataToHira, looseGreekLatin } from "./langs";
 import { toKana } from "./romaji";
 
 export type Verdict = "right" | "almost" | "wrong";
@@ -19,8 +19,9 @@ function lev(a: string, b: string): number {
 
 const ACCENTED: Lang[] = ["pl", "pt", "es", "fr", "it", "de", "nl", "el"];
 
-/** The answer with accents taken off, for the languages that have them (alargó → alargo, jabłko → jablko, καλημέρα → καλημερα). */
-export const foldAccents = (lang: Lang, s: string): string => (ACCENTED.includes(lang) ? foldLatin(s) : s);
+/** The answer with accents taken off (alargó → alargo, jabłko → jablko, cœur → coeur, καλημέρα → καλημερα); in the other
+ *  languages only on Latin letters, for answers typed as a transliteration (kitāb → kitab). */
+export const foldAccents = (lang: Lang, s: string): string => (ACCENTED.includes(lang) ? foldLatin(s) : foldLatinOnly(s));
 
 /** How close a typed line is to the real one, 0–1: letters the two share in order at the best alignment
  *  (longest common subsequence), against the length of both, so missing and extra letters both cost. */
@@ -39,15 +40,26 @@ export function likeness(typed: string, line: string): number {
 export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   let t = typed.trim();
   if (!t) return "wrong";
-  if (lang === "ja" && /[a-z]/i.test(t)) t = toKana(t, { final: true });
+  const answersIn = answers.filter(Boolean);
+  // Japanese in romaji: also against the word's own romaji (konnichiwa, not only konnichiha), before it turns into kana
+  if (lang === "ja" && /[a-z]/i.test(t)) {
+    const rt = foldLatinOnly(fold(lang, t));
+    if (answersIn.some((a) => /[a-z]/i.test(a) && foldLatinOnly(fold(lang, a)) === rt)) return "right";
+    t = toKana(t, { final: true });
+  }
   const ft = fold(lang, t);
-  const keys = answers.filter(Boolean).map((a) => fold(lang, a));
+  const keys = answersIn.map((a) => fold(lang, a));
   if (keys.includes(ft)) return "right";
-  // Greek and Russian typed in Latin letters: compared by transliteration (kalimera = καλημέρα, privet = привет)
+  // Greek and Russian typed in Latin letters: compared by transliteration (kalimera = καλημέρα, privet = привет).
+  // Worked out from the answer as written too, so ё counts as yo (yozh = ёж), as the transliteration shows it.
   if ((lang === "el" || lang === "ru") && /[a-z]/i.test(ft) && !/[\p{Script=Greek}\p{Script=Cyrillic}]/u.test(ft)) {
-    const lat = keys.map((k) => foldLatin(autoTranslit(lang, k)!).replace(/'/g, ""));
-    if (lat.includes(foldLatin(ft))) return "right";
-    if (lat.some((k) => k.length >= 4 && lev(k, foldLatin(ft)) <= 1)) return "almost";
+    const raw = answersIn.map((a) => a.normalize("NFC").toLowerCase().replace(/[\s\p{P}]+/gu, ""));
+    let lat = [...keys, ...raw].map((k) => foldLatin(autoTranslit(lang, k)!).replace(/'/g, ""));
+    let typedLat = foldLatin(ft);
+    // Greek: also the way Greeks spell it in Latin letters (geia, efharisto, kalhmera: η as h too), letter for letter or by sound
+    if (lang === "el") { lat = [...lat, ...keys.map(greekLetters), ...keys.map((k) => greekLetters(k.replace(/η/g, "h")))].map(looseGreekLatin); typedLat = looseGreekLatin(typedLat); }
+    if (lat.includes(typedLat)) return "right";
+    if (lat.some((k) => k.length >= 4 && lev(k, typedLat) <= 1)) return "almost";
     return "wrong";
   }
   // German typed without umlauts or ß, written out (Strasse, Muell, schoen): right
