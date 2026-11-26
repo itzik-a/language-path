@@ -132,6 +132,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: Google Cloud voices (Chirp 3 HD), optional with my own Google API key on the device: iPhone has no Google voices, and Chrome's leave out Arabic, Greek and European Portuguese. Those three switch to Google as soon as a key is saved; every other language can in Settings → Voice. Clips cached on the device; offline falls back to the device voice.
 - 2026-11-26: Dutch added (intermediate).
 - 2026-11-26: German added (intermediate). Nouns keep their capital in lemmas.
 - 2026-11-26: French and Italian added (both advanced; conversation practice first; 5 new words a day).

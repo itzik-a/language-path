@@ -1,6 +1,8 @@
-/* Settings: sync, the active language's settings, this device's voice, Claude, backup. */
+/* Settings: sync, the active language's settings, this device's voice (device or Google), Claude, Google voices, backup. */
+import { useEffect, useState } from "react";
 import { LANG } from "../lib/langs";
 import { setPrefs, usePrefs } from "../lib/prefs";
+import { listVoices, type CloudVoice } from "../lib/cloudTts";
 import { canSpeak, speak, useVoices } from "../lib/speech";
 import { setLangSettings } from "../state/actions";
 import { useAppState } from "../state/store";
@@ -9,6 +11,7 @@ import { IconSpeaker } from "./Icons";
 import { ThemePicker } from "./ThemePicker";
 import { BackupSection, SyncSection } from "./SyncSection";
 import { ClaudeSection } from "./ClaudeSection";
+import { GoogleSection } from "./GoogleSection";
 import { Field, Seg, Select, Sheet, Stepper, Switch } from "./ui";
 
 const SAMPLE: Record<Lang, string> = {
@@ -40,6 +43,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
       <LangSection lang={lang} />
       <VoiceSection lang={lang} />
       <ClaudeSection />
+      <GoogleSection />
       <section className="dlg-section" aria-labelledby="theme-title">
         <h3 id="theme-title">Appearance</h3>
         <ThemePicker />
@@ -86,13 +90,35 @@ function VoiceSection({ lang }: { lang: Lang }) {
   const prefs = usePrefs();
   const voices = useVoices(lang);
   const chosen = prefs.voice[lang] ?? voices[0]?.voiceURI ?? "";
+  const [cloud, setCloud] = useState<CloudVoice[] | null>(null);
+  const [cloudErr, setCloudErr] = useState("");
+  useEffect(() => {
+    setCloud(null); setCloudErr("");
+    if (!prefs.googleKey) return;
+    let live = true;
+    listVoices(lang, prefs.googleKey).then((v) => { if (live) setCloud(v); }, (e: Error) => { if (live) setCloudErr(e.message); });
+    return () => { live = false; };
+  }, [lang, prefs.googleKey]);
+  const cloudChosen = prefs.googleKey ? prefs.cloudVoice[lang] ?? "" : "";
   return (
     <section className="dlg-section" aria-labelledby="voice-title">
-      <h3 id="voice-title">Voice on this device</h3>
-      {!canSpeak() ? <p className="muted small">This browser can't speak.</p>
+      <h3 id="voice-title">Voice</h3>
+      {prefs.googleKey && (
+        <>
+          <div className="voice-row">
+            <Select label="Google voice" value={cloudChosen} onChange={(v) => setPrefs({ cloudVoice: { ...prefs.cloudVoice, [lang]: v } })}
+              options={[{ id: "", label: "Off: the device's voice" }, ...(cloud ?? (cloudChosen ? [{ name: cloudChosen, label: cloudChosen }] : [])).map((v) => ({ id: v.name, label: v.label }))]} />
+            <button type="button" className="icon-btn" aria-label="Play a sample" onClick={() => void speak(SAMPLE[lang], lang)}><IconSpeaker /></button>
+          </div>
+          {cloudErr ? <p className="small">Google voices: {cloudErr}</p>
+            : !cloud ? <p className="muted small">Loading Google voices…</p>
+            : <p className="muted small">Most natural first (Chirp 3 HD). Needs a connection; without one the device's voice reads instead.</p>}
+        </>
+      )}
+      {!canSpeak() ? <p className="muted small">This browser can't speak with its own voices.</p>
         : voices.length === 0 ? (
-          <p className="small">No {LANG[lang].name} voice on this device yet. On iPhone: Settings → Accessibility → Spoken Content → Voices → {LANG[lang].name}, and download one (the "Enhanced" or "Premium" ones sound best). On Mac: System Settings → Accessibility → Spoken Content → System voice → Manage Voices.</p>
-        ) : (
+          <p className="small">No {LANG[lang].name} voice on this device yet. On iPhone: Settings → Accessibility → Spoken Content → Voices → {LANG[lang].name}, and download one (the "Enhanced" or "Premium" ones sound best). On Mac: System Settings → Accessibility → Spoken Content → System voice → Manage Voices.{!prefs.googleKey ? " Or add a Google key below for Google's voices." : ""}</p>
+        ) : !cloudChosen && (
           <>
             <div className="voice-row">
               <Select label="Voice" value={chosen} onChange={(v) => setPrefs({ voice: { ...prefs.voice, [lang]: v } })}
@@ -102,11 +128,11 @@ function VoiceSection({ lang }: { lang: Lang }) {
             {LANG[lang].strictRegion && !voices.some((v) => v.lang.replace("_", "-") === LANG[lang].bcp) && (
               <p className="small">These voices are from {regionName(voices[0].lang)}, not Portugal. Download a Portugal voice (Joana or Catarina): on iPhone, Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal).</p>
             )}
-            <Stepper label="Speed" value={prefs.rate[lang]} min={0.5} max={1.3} step={0.05} format={(v) => `${Math.round(v * 100)}%`}
-              onChange={(v) => setPrefs({ rate: { ...prefs.rate, [lang]: v } })} />
-            <p className="muted small">Better voices: on iPhone, Settings → Accessibility → Spoken Content → Voices; on Mac, System Settings → Accessibility → Spoken Content.</p>
+            <p className="muted small">Better voices: on iPhone, Settings → Accessibility → Spoken Content → Voices; on Mac, System Settings → Accessibility → Spoken Content.{!prefs.googleKey ? " Or add a Google key below." : ""}</p>
           </>
         )}
+      <Stepper label="Speed" value={prefs.rate[lang]} min={0.5} max={1.3} step={0.05} format={(v) => `${Math.round(v * 100)}%`}
+        onChange={(v) => setPrefs({ rate: { ...prefs.rate, [lang]: v } })} />
     </section>
   );
 }

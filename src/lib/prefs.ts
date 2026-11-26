@@ -1,5 +1,5 @@
 /* Settings that belong to this device only (not synced): the active language, voices and speed (voices differ
-   per device), the Claude key and model, and a random device id (for per-device day logs). */
+   per device), the Claude key and model, the Google Cloud key and Google voice per language, and a random device id (for per-device day logs). */
 import { useSyncExternalStore } from "react";
 import { LANGS, type Lang } from "../types";
 
@@ -13,6 +13,10 @@ export interface Prefs {
   rate: Record<Lang, number>;
   device: string;
   claudeKey?: string;
+  /** Google Cloud API key (Text-to-Speech) */
+  googleKey?: string;
+  /** Google voice name per language; "" = use the device's voice; absent = not chosen yet */
+  cloudVoice: Partial<Record<Lang, string>>;
   model: Model;
   /** reader: show the translation under each line */
   showTr: boolean;
@@ -29,6 +33,8 @@ function load(): Prefs {
     rate: { ja: 0.9, pl: 0.9, ar: 0.85, el: 0.9, pt: 0.9, ru: 0.85, es: 1, fr: 1, it: 1, de: 0.95, nl: 0.95, ...x.rate },
     device: x.device || Math.random().toString(36).slice(2, 10),
     claudeKey: x.claudeKey,
+    googleKey: x.googleKey,
+    cloudVoice: x.cloudVoice ?? {},
     model: x.model ?? "claude-opus-5-5",
     showTr: x.showTr ?? false,
   };
