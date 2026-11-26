@@ -457,6 +457,15 @@ export const PAIRS: Record<Lang, Pair[]> = {
     { a: ["Kirche", "church"], b: ["Kirsche", "cherry"], what: "ch vs sch" },
     { a: ["Hölle", "hell"], b: ["Höhle", "cave"], what: "short vs long ö" },
   ],
+  nl: [
+    { a: ["man", "man"], b: ["maan", "moon"], what: "short a vs long aa" },
+    { a: ["zon", "sun"], b: ["zoon", "son"], what: "short o vs long oo" },
+    { a: ["bom", "bomb"], b: ["boom", "tree"], what: "short o vs long oo" },
+    { a: ["vel", "sheet"], b: ["veel", "many"], what: "short e vs long ee" },
+    { a: ["pit", "pip"], b: ["piet", "Piet (a name)"], what: "short i vs ie" },
+    { a: ["lijden", "to suffer"], b: ["luiden", "to ring (a bell)"], what: "ij vs ui" },
+    { a: ["bus", "bus"], b: ["buis", "pipe"], what: "u vs ui" },
+  ],
   ru: [
     { a: ["мат", "checkmate"], b: ["мать", "mother"], what: "hard vs soft t" },
     { a: ["брат", "brother"], b: ["брать", "to take"], what: "hard vs soft t" },

@@ -1,6 +1,6 @@
 # Language Path: plan
 
-My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, German, Spanish, French and Italian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
+My language-learning app for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, German, Dutch, Spanish, French and Italian**, aimed at listening, conversation and reading. It installs on the iPhone Home Screen and runs in the browser on the MacBook, works offline, and syncs through an encrypted private gist. Claude (my own key, on the device) writes stories at my level, explains words, and is my conversation partner.
 
 ## 1. What the research says, and what the app does with it
 
@@ -72,6 +72,14 @@ Added 2026-11-26:
 | Extras | Starter words: modal particles (doch, mal, halt), connectors with the word order they cause (obwohl, trotzdem, deshalb), separable and reflexive verbs (anrufen, sich freuen), nouns with their article; Talk scenes at a bakery, in a WG, at the Bürgeramt, with a colleague |
 | Voice | Germany |
 
+| | Dutch |
+|---|---|
+| Where I start | Intermediate: everyday conversations and simple texts; mix up de / het, word order, separable verbs |
+| Script | Minimal pairs: short and long vowels (man / maan, zon / zoon), ij / ui, u / ui |
+| Typing | Missing accents (één) are "almost" |
+| Extras | Starter words: particles (toch, wel, even, maar, hoor), connectors with their word order (omdat, daarom), separable verbs (opbellen, meevallen / tegenvallen), gezellig, borrel; nouns labelled de / het; Talk scenes at a borrel, a bike shop, the GP, with a housemate |
+| Voice | Netherlands first; Flemish voices are labelled |
+
 ## 3. Concepts
 
 | Thing | What it is |
@@ -124,6 +132,7 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.
+- 2026-11-26: Dutch added (intermediate).
 - 2026-11-26: German added (intermediate). Nouns keep their capital in lemmas.
 - 2026-11-26: French and Italian added (both advanced; conversation practice first; 5 new words a day).
 - 2026-11-26: Spanish added (advanced; conversation practice first). The phone's language switch became a picker: seven buttons don't fit.

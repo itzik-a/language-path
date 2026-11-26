@@ -126,6 +126,17 @@ const STORIES: { id: string; lang: Lang; title: string; titleTr: string; newWord
       ["Eigentlich|eigentlich|actually war|sein|was die|der|the Verspätung|=|delay gar|=|at all nicht|=|not so|=|so schlimm|=|bad .", "Actually, the delay wasn't so bad after all."],
     ],
   },
+  {
+    id: "t_seed_nl_fietstocht", lang: "nl", title: "Een fietstocht", titleTr: "A bike ride", newWords: ["strand", "fietsen", "waaien", "halverwege", "lek", "band", "fietsenmaker", "terwijl", "terras", "halen"],
+    lines: [
+      ["Zaterdag|zaterdag|Saturday wilden|willen|wanted Sanne|-|Sanne en|=|and ik|=|I naar|=|to het|=|the strand|=|beach fietsen|=|cycle .", "On Saturday Sanne and I wanted to cycle to the beach."],
+      ["Het|het|the weer|=|weather viel|tegenvallen|was disappointing een|=|a beetje|=|bit tegen|tegenvallen|(disappointing) , want|=|because het|=|it waaide|waaien|blew hard|=|hard .", "The weather was a bit disappointing, because it was very windy."],
+      ["Halverwege|halverwege|halfway kreeg|krijgen|got ik|=|I ook|=|also nog|=|(on top) een|=|a lekke|lek|flat band|=|tyre .", "Halfway there I got a flat tyre too."],
+      ["Gelukkig|gelukkig|luckily wist|weten|knew Sanne|-|Sanne een|=|a fietsenmaker|=|bike repairer in|=|in het|=|the dorp|=|village .", "Luckily Sanne knew a bike repairer in the village."],
+      ["Terwijl|terwijl|while we|=|we wachtten|wachten|waited , dronken|drinken|drank we|=|we koffie|=|coffee op|=|on een|=|a terras|=|terrace .", "While we waited, we had coffee on a terrace."],
+      ["Het|het|the strand|=|beach hebben|=|have we|=|we nooit|=|never gehaald|halen|reached , maar|=|but het|=|it was|zijn|was heel|=|very gezellig|=|fun .", "We never made it to the beach, but it was a lovely day."],
+    ],
+  },
 ];
 
 export const starterTexts = (): Text[] =>

@@ -21,6 +21,7 @@ export const defaultSettings = (): Settings => ({
     fr: { ...base, translit: false, newPerDay: 5, level: "Advanced. I read whole books in French and understand well what I hear. What I need is conversation: speaking fluently and naturally, everyday spoken French and idioms, and having the small mistakes I still make corrected." },
     it: { ...base, translit: false, newPerDay: 5, level: "Advanced. I read whole books in Italian and understand well what I hear. What I need is conversation: speaking fluently and naturally, everyday spoken Italian and idioms, and having the small mistakes I still make corrected." },
     de: { ...base, translit: false, level: "Intermediate in German. I can follow everyday conversations and simple texts, and get by in most situations, but I still make mistakes with cases, word order and genders, and I want to speak more fluently and widen my vocabulary." },
+    nl: { ...base, translit: false, level: "Intermediate in Dutch. I can follow everyday conversations and simple texts and get by in most situations, but I still mix up de and het, word order and separable verbs, and I want to speak more fluently and widen my vocabulary." },
     ru: { ...base, translit: true, level: "Beginner in Russian. I know a few words but can barely read Cyrillic yet, so I'm still practising the alphabet. I read Hebrew, English and some Greek." },
   },
   updatedAt: 0,

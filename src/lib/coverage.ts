@@ -13,6 +13,7 @@ const GRAMMAR: Record<Lang, string[]> = {
   fr: ["le", "la", "les", "l", "un", "une", "des", "de", "d", "du", "au", "aux", "à", "en", "dans", "sur", "pour", "par", "avec", "sans", "et", "ou", "mais", "que", "qu", "qui", "ne", "n", "pas", "se", "s", "me", "m", "te", "t", "ce", "c", "je", "j", "il", "elle", "on", "y"],
   it: ["il", "lo", "la", "i", "gli", "le", "l", "un", "uno", "una", "di", "del", "della", "a", "al", "alla", "da", "in", "nel", "nella", "con", "su", "per", "tra", "fra", "e", "o", "ma", "che", "non", "si", "mi", "ti", "ci", "vi", "ne"],
   de: ["der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "eines", "und", "oder", "aber", "in", "im", "ins", "an", "am", "auf", "zu", "zum", "zur", "mit", "von", "vom", "bei", "beim", "für", "aus", "nach", "nicht", "sich", "es", "dass", "wie", "auch", "so"],
+  nl: ["de", "het", "een", "en", "of", "maar", "in", "op", "aan", "met", "van", "voor", "naar", "bij", "uit", "om", "te", "dat", "die", "dit", "niet", "geen", "er", "zich", "ook", "als", "dan", "nog", "al", "zo"],
   ar: ["فِي", "فى", "وَ", "و", "مِنْ", "من", "إِلَى", "الى", "عَلَى", "على", "مَعَ", "مع", "هٰذَا", "هذا", "هٰذِهِ", "هذه", "أَنْ", "ان", "لَا", "لا", "مَا", "ما"],
 };
 

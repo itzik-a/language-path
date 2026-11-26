@@ -436,4 +436,39 @@ const de: StarterWord[] = [
   { lemma: "anstrengend", gloss: "tiring, exhausting", pos: "adjective", ex: ["Der|der|the Tag|=|day war|sein|was anstrengend|=|exhausting .", "The day was exhausting."] },
 ];
 
-export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es, fr, it, de };
+/** Dutch, intermediate: modal particles (toch, wel, even, maar, hoor), connectors and the word order they cause,
+    separable verbs, and everyday words (gezellig, borrel). Reflexive verbs are stored without zich. */
+const nl: StarterWord[] = [
+  { lemma: "toch", gloss: "(particle) surely, right?; still, anyway", pos: "particle", ex: ["Je|je|you komt|komen|come toch|=|(surely) ook|=|too ?", "You're coming too, right?"] },
+  { lemma: "even", gloss: "(particle) just, for a moment", pos: "particle", ex: ["Wacht|wachten|wait even|=|a sec !", "Wait a sec!"], note: "softens a request: Mag ik even…?" },
+  { lemma: "wel", gloss: "(particle) really, though; all right (contradicting a no)", pos: "particle", ex: ["Dat|dat|that is|zijn|is wel|=|(really) leuk|=|nice .", "That's actually nice."], note: "Ik kom wel = I will come (after all)" },
+  { lemma: "maar", gloss: "but; (particle) just, go ahead", pos: "conjunction / particle", ex: ["Kom|binnenkomen|come maar|=|(go ahead) binnen|binnenkomen|in .", "Come on in."] },
+  { lemma: "hoor", gloss: "(particle) really, you know (friendly reassurance)", pos: "particle", ex: ["Dat|dat|that is|zijn|is goed|=|fine , hoor|=|(really) .", "That's fine, really."] },
+  { lemma: "nou", gloss: "well…; now", pos: "discourse marker", ex: ["Nou|nou|well , ik|=|I weet|weten|know het|=|it niet|=|not .", "Well, I don't know."] },
+  { lemma: "eigenlijk", gloss: "actually, really", pos: "adverb", ex: ["Eigenlijk|eigenlijk|actually heb|hebben|have ik|=|I geen|=|no tijd|=|time .", "Actually I don't have time."] },
+  { lemma: "gewoon", gloss: "just, simply; normal, ordinary", pos: "adverb / adjective", ex: ["Ik|ik|I doe|doen|do het|=|it gewoon|=|just morgen|=|tomorrow .", "I'll just do it tomorrow."], note: "«Doe normaal!» = behave yourself" },
+  { lemma: "gezellig", gloss: "cosy, sociable, fun (with people)", pos: "adjective", ex: ["Het|het|it was|zijn|was heel|=|very gezellig|=|fun .", "It was really nice."], note: "the Dutch word with no English twin" },
+  { lemma: "lekker", gloss: "tasty; nice (weather, sleep)", pos: "adjective", ex: ["Lekker|lekker|nice weer|=|weather , hè|=|isn't it ?", "Lovely weather, isn't it?"] },
+  { lemma: "omdat", gloss: "because", pos: "conjunction", ex: ["Ik|ik|I blijf|blijven|stay thuis|=|home , omdat|=|because ik|=|I moe|=|tired ben|zijn|am .", "I'm staying home because I'm tired."], note: "sends the verb to the end: omdat ik moe ben" },
+  { lemma: "daarom", gloss: "that's why, so", pos: "adverb", ex: ["Ik|ik|I ben|zijn|am moe|=|tired , daarom|=|that's why ga|gaan|go ik|=|I naar|=|to bed|=|bed .", "I'm tired, so I'm going to bed."], note: "verb second: daarom ga ik" },
+  { lemma: "opbellen", gloss: "to call (on the phone)", pos: "verb (separable)", ex: ["Ik|ik|I bel|opbellen|call je|jij|you morgen|=|tomorrow op|opbellen|(call) .", "I'll call you tomorrow."], note: "belde op, heeft opgebeld; also just bellen" },
+  { lemma: "afspreken", gloss: "to arrange, to meet up", pos: "verb (separable)", ex: ["Zullen|zullen|shall we|=|we morgen|=|tomorrow afspreken|=|meet up ?", "Shall we meet up tomorrow?"], note: "spreken af, heeft afgesproken; de afspraak = appointment" },
+  { lemma: "meevallen", gloss: "to turn out better than expected", pos: "verb (separable)", ex: ["Het|het|it viel|meevallen|turned out mee|meevallen|(fine) .", "It wasn't as bad as I thought."] },
+  { lemma: "tegenvallen", gloss: "to be disappointing", pos: "verb (separable)", ex: ["Het|het|the weer|=|weather viel|tegenvallen|was disappointing tegen|tegenvallen|(disappointing) .", "The weather was disappointing."] },
+  { lemma: "vergissen", gloss: "zich vergissen: to be mistaken", pos: "verb (zich)", ex: ["Ik|ik|I vergis|vergissen|am mistaken me|=|(myself) .", "I'm mistaken."] },
+  { lemma: "snappen", gloss: "to get it, to understand (colloquial)", pos: "verb", ex: ["Snap|snappen|get je|=|you het|=|it ?", "Do you get it?"] },
+  { lemma: "zeuren", gloss: "to moan, to nag", pos: "verb", ex: ["Zeur|zeuren|moan niet|=|not zo|=|so !", "Stop moaning!"] },
+  { lemma: "zin", gloss: "desire, the mood; sentence", pos: "noun (de)", ex: ["Heb|hebben|have je|=|you zin|=|the mood in|=|for koffie|=|coffee ?", "Do you fancy a coffee?"], note: "zin hebben in = to fancy" },
+  { lemma: "afspraak", gloss: "appointment; arrangement", pos: "noun (de)", ex: ["Ik|ik|I heb|hebben|have een|=|an afspraak|=|appointment bij|=|at de|=|the huisarts|=|GP .", "I have an appointment at the GP."] },
+  { lemma: "borrel", gloss: "drinks (after work), a get-together", pos: "noun (de)", ex: ["Kom|komen|come je|=|you vrijdag|=|Friday naar|=|to de|=|the borrel|=|drinks ?", "Are you coming to the drinks on Friday?"], note: "borrelen = to have drinks and snacks" },
+  { lemma: "fiets", gloss: "bike", pos: "noun (de)", ex: ["Mijn|mijn|my fiets|=|bike is|zijn|has been gestolen|stelen|stolen .", "My bike's been stolen."] },
+  { lemma: "huisgenoot", gloss: "housemate", pos: "noun (de)", ex: ["Mijn|mijn|my huisgenoot|=|housemate kookt|koken|cooks vaak|=|often .", "My housemate often cooks."] },
+  { lemma: "boodschap", gloss: "message; boodschappen doen: to do the shopping", pos: "noun (de)", ex: ["Ik|ik|I moet|moeten|must nog|=|still boodschappen|boodschap|the shopping doen|=|do .", "I still have to do the shopping."] },
+  { lemma: "handig", gloss: "handy, practical", pos: "adjective", ex: ["Dat|dat|that is|zijn|is handig|=|handy .", "That's handy."] },
+  { lemma: "druk", gloss: "busy; crowded", pos: "adjective", ex: ["Ik|ik|I heb|hebben|have het|=|it druk|=|busy .", "I'm busy."], note: "Het is druk = it's crowded" },
+  { lemma: "jammer", gloss: "a pity", pos: "adjective", ex: ["Wat|wat|what jammer|=|a pity !", "What a pity!"] },
+  { lemma: "meteen", gloss: "right away", pos: "adverb", ex: ["Ik|ik|I kom|komen|come meteen|=|right away .", "I'm coming right away."] },
+  { lemma: "straks", gloss: "later (today), in a bit", pos: "adverb", ex: ["Tot|tot|until straks|=|later !", "See you later!"], note: "later = some time later; tot ziens = goodbye" },
+];
+
+export const STARTER: Record<Lang, StarterWord[]> = { ja, pl, ar, el, pt, ru, es, fr, it, de, nl };

@@ -1,6 +1,6 @@
 # Language Path
 
-My language-learning web app (React, built with Vite, hosted on GitHub Pages), used on a MacBook and an iPhone (installed to the Home Screen), for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, German (intermediate), and Spanish, French and Italian (all three advanced: conversation first)**: spaced-repetition cards (FSRS), stories at my level, listening, and conversation practice with Claude. See `PLAN.md` for the research behind it, the concepts, milestones and decisions.
+My language-learning web app (React, built with Vite, hosted on GitHub Pages), used on a MacBook and an iPhone (installed to the Home Screen), for **Japanese, Polish, Arabic (MSA), Greek (modern), Portuguese (European), Russian, German and Dutch (intermediate), and Spanish, French and Italian (all three advanced: conversation first)**: spaced-repetition cards (FSRS), stories at my level, listening, and conversation practice with Claude. See `PLAN.md` for the research behind it, the concepts, milestones and decisions.
 
 ## How it's built
 
@@ -29,7 +29,7 @@ Vite + React 19 + TypeScript. Node 22 (`.nvmrc`). On this Mac `npm start` runs `
 
 ## Rules for changes
 
-- Design mobile-first (iPhone ~390 px), tap targets at least 44 px, safe-area padding. Below 768 px: top bar + bottom tab bar (4 tabs); from 768 px a sidebar. Check both widths, light and dark, and all ten languages (Arabic is right-to-left; Japanese has furigana; Greek and Russian have transliteration under words; Spanish opens with ¿ ¡, which take no space after them; French and Italian elided words (j', l', un') are their own tokens and the next word follows with no space: `isElided()` in `src/lib/langs.ts`, used by `sentence()` and `cleanSentence()`). On the phone the language is chosen from a native select (`LangSwitch compact`); the sidebar lists every language.
+- Design mobile-first (iPhone ~390 px), tap targets at least 44 px, safe-area padding. Below 768 px: top bar + bottom tab bar (4 tabs); from 768 px a sidebar. Check both widths, light and dark, and all eleven languages (Arabic is right-to-left; Japanese has furigana; Greek and Russian have transliteration under words; Spanish opens with ¿ ¡, which take no space after them; French and Italian elided words (j', l', un') are their own tokens and the next word follows with no space: `isElided()` in `src/lib/langs.ts`, used by `sentence()` and `cleanSentence()`). On the phone the language is chosen from a native select (`LangSwitch compact`); the sidebar lists every language.
 - Colours only from the CSS tokens in `:root`; light and dark themes must both stay readable.
 - New state fields must be optional in `normalize()` so older copies still load.
 - Nothing about me leaves the device unencrypted except what a Claude request needs (the text of that job, my level description and known-word list). The Claude key stays on the device and out of the synced state.

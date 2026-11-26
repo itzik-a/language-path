@@ -101,6 +101,8 @@ describe("checking answers", () => {
     expect(check("de", "schoen", ["schön"])).toBe("right");
     expect(check("de", "schon", ["schön"])).toBe("almost");
     expect(check("de", "zug", ["Zug"])).toBe("right");
+    expect(check("nl", "een", ["één"])).toBe("almost");
+    expect(check("nl", "Gezellig", ["gezellig"])).toBe("right");
     expect(check("ar", "ام", ["أُمّ"])).toBe("right");
   });
 });

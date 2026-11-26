@@ -31,6 +31,7 @@ export const LANG: Record<Lang, LangInfo> = {
   fr: { id: "fr", name: "French", native: "français", mark: "Fr", bcp: "fr-FR", dir: "ltr", spaces: true, cased: true },
   it: { id: "it", name: "Italian", native: "italiano", mark: "It", bcp: "it-IT", dir: "ltr", spaces: true, cased: true },
   de: { id: "de", name: "German", native: "Deutsch", mark: "De", bcp: "de-DE", dir: "ltr", spaces: true, cased: true, nounCaps: true },
+  nl: { id: "nl", name: "Dutch", native: "Nederlands", mark: "Nl", bcp: "nl-NL", dir: "ltr", spaces: true, cased: true },
 };
 
 /** Arabic harakat, tanwin, shadda, sukun, superscript alef, tatweel. */

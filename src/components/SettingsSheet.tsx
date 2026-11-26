@@ -22,6 +22,7 @@ const SAMPLE: Record<Lang, string> = {
   fr: "Salut ! Ça va, depuis le temps ?",
   it: "Ciao! Come va, tutto bene?",
   de: "Hallo! Wie geht's dir heute?",
+  nl: "Hoi! Hoe gaat het met je?",
 };
 
 /** "pt-PT" → "Portugal", "pt-BR" → "Brazil". */

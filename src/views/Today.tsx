@@ -26,6 +26,7 @@ const SCRIPT_LINK: Record<Lang, [string, string]> = {
   fr: ["é", "Vowels and nasals: minimal pairs"],
   it: ["è", "Double consonants and stress: minimal pairs"],
   de: ["ü", "Umlauts, long and short vowels, ch / sch: minimal pairs"],
+  nl: ["ij", "Long and short vowels, ij / ui: minimal pairs"],
   ru: ["Я", "Cyrillic, step by step; stress, soft and hard"],
 };
 
