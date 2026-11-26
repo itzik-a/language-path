@@ -96,6 +96,9 @@ describe("checking answers", () => {
     expect(check("es", "lio", ["lío"])).toBe("right");
     expect(check("es", "¿Lío?", ["lío"])).toBe("right");
     expect(check("es", "alargo", ["alargó"])).toBe("right");
+    expect(check("es", "si claro que si", ["—¡Sí, claro (que sí)!"])).toBe("right");
+    expect(check("fr", "cest leau", ["« C’est l’eau. »"])).toBe("right");
+    expect(check("ar", "هل انت بخير", ["هل أنت بخير؟"])).toBe("right");
     expect(check("es", "alargp", ["alargó"])).toBe("almost");
     expect(check("fr", "creve", ["crevé"])).toBe("right");
     expect(check("it", "cioe", ["cioè"])).toBe("right");

@@ -76,7 +76,7 @@ export function wordKey(lang: Lang, lemma: string): string {
 
 /** Text compared for "is this the same word": case, harakat and kana kind folded. */
 export function fold(lang: Lang, s: string): string {
-  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s.,!?¿¡;:;·。、！？「」…"'’«»„”-]+/g, "");
+  const t = s.normalize("NFC").trim().toLowerCase().replace(/[\s\p{P}]+/gu, "") // spaces and all punctuation never count;
   return lang === "ar" ? foldArabic(t) : lang === "ja" ? kataToHira(t) : lang === "el" ? t.replace(/ς/g, "σ") : lang === "ru" ? foldRussian(t) : t;
 }
 
