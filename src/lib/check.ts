@@ -22,6 +22,20 @@ const ACCENTED: Lang[] = ["pl", "pt", "es", "fr", "it", "de", "nl", "el"];
 /** The answer with accents taken off, for the languages that have them (alargó → alargo, jabłko → jablko, καλημέρα → καλημερα). */
 export const foldAccents = (lang: Lang, s: string): string => (ACCENTED.includes(lang) ? foldLatin(s) : s);
 
+/** How close a typed line is to the real one, 0–1: letters the two share in order at the best alignment
+ *  (longest common subsequence), against the length of both, so missing and extra letters both cost. */
+export function likeness(typed: string, line: string): number {
+  const a = [...typed], b = [...line];
+  if (!a.length || !b.length) return 0;
+  let prev = new Array<number>(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [0];
+    for (let j = 1; j <= b.length; j++) cur[j] = a[i - 1] === b[j - 1] ? prev[j - 1] + 1 : Math.max(prev[j], cur[j - 1]);
+    prev = cur;
+  }
+  return (2 * prev[b.length]) / (a.length + b.length);
+}
+
 export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   let t = typed.trim();
   if (!t) return "wrong";

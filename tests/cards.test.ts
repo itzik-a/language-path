@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { check } from "../src/lib/check";
+import { check, foldAccents, likeness } from "../src/lib/check";
+import { fold } from "../src/lib/langs";
 import { DAY } from "../src/lib/dates";
 import { nextCard, queue } from "../src/lib/queue";
 import { Rating } from "../src/lib/srs";
@@ -65,6 +66,16 @@ describe("queue", () => {
   it("limits new script cards a day", () => {
     addScriptCards("ja", Array.from({ length: 30 }, (_, i) => `hira:x${i}`));
     expect(queue(getState(), "ja").fresh.length).toBe(12);
+  });
+});
+
+describe("dictation score", () => {
+  it("is not thrown off by one wrong word", () => {
+    const f = (x: string) => foldAccents("es", fold("es", x));
+    const got = likeness(f("mi tio que es con contilla se empeno en enterarse de toda mi vida"), f("Mi tío, que es un cotilla, se empeñó en enterarse de toda mi vida."));
+    expect(got).toBeGreaterThan(0.93);
+    expect(likeness(f("mi tio"), f("Mi tío, que es un cotilla"))).toBeLessThan(0.5);
+    expect(likeness("abc", "abc")).toBe(1);
   });
 });
 
