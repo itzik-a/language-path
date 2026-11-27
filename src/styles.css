@@ -461,6 +461,7 @@ input[type="date"].text-input, input[type="month"].text-input { -webkit-appearan
 .row-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .row-head > div { display: grid; gap: 2px; min-width: 0; }
 .row-head > .btn { flex: none; margin-top: 4px; }
+.row-head > .btn-row { display: flex; flex: none; align-items: center; margin-top: 4px; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .grow { flex: 1; min-width: 0; }
 .empty { justify-items: start; }
