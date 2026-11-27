@@ -1,5 +1,5 @@
 /* Grammar topics per language, in learning order. A topic's lesson is written by Claude the first time it's opened
-   (src/lib/claude.ts writeLesson) from `covers`, and kept in the state (Lesson, id g_<topic id>).
+   (src/lib/claude.ts startLesson, through the batch queue) from `covers`, and kept in the state (Lesson, id g_<topic id>).
    - Topic ids never change once shipped: lessons, drill progress and Talk corrections point at them.
    - `hints`: the words a gloss or a correction uses for this topic ("coffee (acc.)" → accusative), lower-case.
    Every language has a list (Spanish, French and Italian start at B1: I'm advanced there). */

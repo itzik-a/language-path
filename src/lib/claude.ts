@@ -45,11 +45,10 @@ function explain(e: unknown): ClaudeError {
 }
 
 /** One structured request. `model` overrides the one in Settings (grammar always uses Opus: a wrong ending in a
-    table teaches the wrong thing). `stream` for long answers: the SDK refuses a non-streamed request whose
-    max_tokens could take over 10 minutes. */
+    table teaches the wrong thing). Lessons don't come through here: they go through the batch queue (startLesson). */
 export async function ask<S extends z.ZodType>(schema: S, opts: {
   system: string; user: string; effort?: "low" | "medium" | "high"; maxTokens?: number; history?: Anthropic.Beta.BetaMessageParam[];
-  model?: Model; stream?: boolean;
+  model?: Model;
 }): Promise<z.infer<S>> {
   const model = opts.model ?? getPrefs().model;
   const withFallback = model !== "claude-haiku-5-5";
@@ -62,7 +61,7 @@ export async function ask<S extends z.ZodType>(schema: S, opts: {
       messages: [...(opts.history ?? []), { role: "user" as const, content: opts.user }],
       output_config: { format: betaZodOutputFormat(schema), effort: opts.effort ?? "low" },
     };
-    const res = opts.stream ? await client().beta.messages.stream(params).finalMessage() : await client().beta.messages.parse(params);
+    const res = await client().beta.messages.parse(params);
     // every answer is billed, refused or cut off too; counting must never break the job
     try { recordUsage(res.model || model, res.usage); } catch (e) { console.warn("[claude] usage not recorded", e); }
     if (res.stop_reason === "refusal") throw new ClaudeError("Claude declined this one. Try different wording.");
@@ -342,18 +341,29 @@ const cleanTable = (t: z.infer<typeof TableZ>): GTable => ({
   title: t.title.trim(), cols: t.cols, rows: t.rows.filter((r) => r.head.trim() || r.cells.some((c) => c.trim())), ...(t.note.trim() ? { note: t.note.trim() } : {}),
 });
 
-/** A grammar lesson for one topic (always Claude Opus 5.5). */
-export async function writeLesson(lang: Lang, topic: Topic, o: { level: string; known: string }) {
-  const r = await ask(LessonZ, {
-    model: "claude-opus-5-5", effort: "high", maxTokens: 64000, stream: true,
+/* A grammar lesson for one topic (always Claude Opus 5.5, effort high). Writing one takes Claude minutes, longer than
+   a page reliably lives on a phone, so it goes through the Message Batches API: startLesson() hands the request over
+   and returns the batch id, checkLesson() asks later (from any page, after the app was closed). Half price; a batch
+   request can't use the server-side fallback, so a refusal is shown as one. Results are kept 29 days. */
+
+const LESSON_MAX = 64000; // thinking at effort high counts toward it
+
+function lessonRequest(lang: Lang, topic: Topic, o: { level: string; known: string }) {
+  return {
+    model: "claude-opus-5-5" as const,
+    max_tokens: LESSON_MAX,
     system: grammarSystem(lang, o.level),
-    user: [
+    messages: [{ role: "user" as const, content: [
       `Write a lesson on: ${topic.title} (${topic.level}).`,
       `It has to cover: ${topic.covers}`,
       `Words the learner knows (use them in examples and exercises where you can): ${o.known || "(very few yet)"}`,
       "Exercises: each tests one form from the lesson; vary persons, genders, numbers and verbs; never two with the same answer.",
-    ].join("\n"),
-  });
+    ].join("\n") }],
+    output_config: { format: betaZodOutputFormat(LessonZ), effort: "high" as const },
+  };
+}
+
+function lessonFrom(lang: Lang, r: z.infer<typeof LessonZ>) {
   return {
     intro: r.intro.map((p) => p.trim()).filter(Boolean),
     tables: r.tables.map(cleanTable),
@@ -366,6 +376,52 @@ export async function writeLesson(lang: Lang, topic: Topic, o: { level: string; 
     mistakes: r.mistakes.filter((m) => m.right.trim()),
     drills: cleanDrills(r.drills),
   };
+}
+
+export type LessonResult = ReturnType<typeof lessonFrom>;
+
+/** Hand a lesson to Claude's batch queue; the id is what checkLesson() needs. */
+export async function startLesson(lang: Lang, topic: Topic, o: { level: string; known: string }): Promise<string> {
+  try {
+    const b = await client().beta.messages.batches.create({ requests: [{ custom_id: `lesson-${topic.id}`, params: lessonRequest(lang, topic, o) }] });
+    return b.id;
+  } catch (e) { throw explain(e); }
+}
+
+export type LessonCheck = { state: "waiting" } | { state: "done"; lesson: LessonResult } | { state: "failed"; error: string };
+
+/** Is the lesson written yet? Network trouble throws (try again later); anything that ended the batch is "failed". */
+export async function checkLesson(lang: Lang, batchId: string): Promise<LessonCheck> {
+  try {
+    const b = await client().beta.messages.batches.retrieve(batchId);
+    if (b.processing_status !== "ended") return { state: "waiting" };
+    for await (const item of await client().beta.messages.batches.results(batchId)) {
+      const r = item.result;
+      if (r.type === "expired") return { state: "failed", error: "Claude's queue didn't get to it within 24 hours. Try again." };
+      if (r.type === "canceled") return { state: "failed", error: "The lesson was canceled." };
+      if (r.type === "errored") {
+        const said = (r.error as { error?: { message?: string } } | undefined)?.error?.message;
+        return { state: "failed", error: `Claude couldn't write it${said ? `: ${said}` : ""}. Try again.` };
+      }
+      const m = r.message;
+      try { recordUsage(m.model || "claude-opus-5-5", m.usage, { batch: true }); } catch (e) { console.warn("[claude] usage not recorded", e); }
+      if (m.stop_reason === "refusal") return { state: "failed", error: "Claude declined to write this one." };
+      if (m.stop_reason === "max_tokens") return { state: "failed", error: "The lesson was too long and got cut off. Try again." };
+      const text = m.content.flatMap((c) => (c.type === "text" ? [c.text] : [])).join("");
+      const parsed = LessonZ.safeParse((() => { try { return JSON.parse(text); } catch { return null; } })());
+      if (!parsed.success) return { state: "failed", error: "Claude's lesson didn't come back in the expected shape. Try again." };
+      return { state: "done", lesson: lessonFrom(lang, parsed.data) };
+    }
+    return { state: "failed", error: "The batch ended without a lesson. Try again." };
+  } catch (e) {
+    if (e instanceof Anthropic.NotFoundError) return { state: "failed", error: "Claude no longer has this lesson (results are kept 29 days). Try again." };
+    throw explain(e);
+  }
+}
+
+/** Stop waiting for a lesson (best effort: it may already be done). */
+export async function cancelLesson(batchId: string) {
+  try { await client().beta.messages.batches.cancel(batchId); } catch { /* ended already, or offline: the job is dropped anyway */ }
 }
 
 const MoreDrillsZ = z.object({ drills: z.array(DrillZ).describe("new exercises, none repeating one the learner already has") });

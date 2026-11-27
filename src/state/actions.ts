@@ -194,15 +194,15 @@ export function bumpDay(s: AppState, lang: Lang, d: Partial<Pick<DayLog, "review
 // ── Claude usage ──────────────────────────────────────────────
 
 /** Count one Claude response toward this month's record for this device (src/lib/claude.ts calls it for every answer,
-    refused or cut off ones too: they're billed). */
-export function recordUsage(model: string, tokens: TokenCounts) {
+    refused or cut off ones too: they're billed). Batch answers (grammar lessons) cost half. */
+export function recordUsage(model: string, tokens: TokenCounts, o: { batch?: boolean } = {}) {
   const now = Date.now(), month = monthOf(now), device = getPrefs().device;
   const id = `u_${month}_${device}`;
   update((s) => {
     let u = s.usage.find((x) => x.id === id);
     if (!u) { u = { id, updatedAt: 0, month, device, calls: 0, usd: 0, last: 0 }; s.usage.push(u); }
     u.calls += 1;
-    u.usd = Math.round((u.usd + costUsd(model, tokens)) * 1e6) / 1e6;
+    u.usd = Math.round((u.usd + costUsd(model, tokens) * (o.batch ? 0.5 : 1)) * 1e6) / 1e6;
     u.last = now;
     u.updatedAt = now;
   });

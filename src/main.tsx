@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { startLessonJobs } from "./state/lessonJobs";
 import { initStore } from "./state/store";
 import { startSync } from "./state/sync";
 import "./lib/theme";
@@ -13,6 +14,7 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
 
 void initStore().then(() => {
   startSync();
+  startLessonJobs(); // grammar lessons waiting in Claude's batch queue
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />
