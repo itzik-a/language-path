@@ -2,7 +2,7 @@
    and practice I start myself (#grammar/<topic>/practice, or #grammar/practice for the drills due across topics).
    Lessons are written by Claude Opus the first time and kept; drills have their own FSRS progress (src/state/grammar.ts)
    and never join the daily reviews. */
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FormTable, Rich } from "../components/FormTable";
 import { IconBack, IconNext, IconSparkle, IconSpeaker } from "../components/Icons";
 import { Line, Term, useDisplay } from "../components/Lx";
@@ -10,7 +10,6 @@ import { StorySheet } from "../components/StorySheet";
 import { WordPop } from "../components/WordPop";
 import { LEVEL_LABEL, topicById, topicsFor, type Level, type Topic } from "../data/grammar";
 import { checkForm, type Verdict } from "../lib/check";
-import { ago } from "../lib/dates";
 import { LANG } from "../lib/langs";
 import { hasClaude } from "../lib/prefs";
 import { href } from "../lib/route";
@@ -19,10 +18,9 @@ import { Rating } from "../lib/srs";
 import { sentenceText } from "../lib/tokens";
 import { showToast } from "../lib/toast";
 import {
-  addDrills, answerDrill, dueDrills, lessonOf, mistakesByTopic, mixedRound, practiceRound, regradeDrill, STATUS_TEXT,
+  addDrills, answerDrill, dueDrills, lessonOf, mistakesByTopic, mixedRound, practiceRound, regradeDrill, saveLesson, STATUS_TEXT,
   suggestTopic, topicProgress,
 } from "../state/grammar";
-import { cancelLesson, lessonJob, startLesson, subscribeJobs } from "../state/lessonJobs";
 import { getState, useAppState } from "../state/store";
 import type { Drill, GCard, Lang, Sentence, Token } from "../types";
 
@@ -109,8 +107,52 @@ function Overview({ lang }: { lang: Lang }) {
 
 // ── a topic ───────────────────────────────────────────────────
 
-/** This topic's lesson job in Claude's batch queue, if one is waiting or failed (src/state/lessonJobs.ts). */
-const useLessonJob = (topic: string) => useSyncExternalStore(subscribeJobs, () => lessonJob(topic));
+/** Lessons being written right now, by topic: writing goes on if I leave the page, and the page shows it when I'm back.
+    How it ended goes in a toast wherever I am, and a failure's reason stays for the topic's page (`failed`) until
+    the next try, so leaving the page never hides why nothing came. */
+const writing = new Map<string, Promise<void>>();
+const failed = new Map<string, string>();
+
+/* A write takes Claude a few minutes and dies with the page (the app closed, sent to the background, or reloaded).
+   This device notes each write it starts (localStorage, topic → start time), so after a reload the topic page can say
+   the last try was cut off instead of showing nothing. Kept for an hour at most. */
+const LS_WRITING = "languagePath.writing";
+function marks(): Record<string, number> { try { return JSON.parse(localStorage.getItem(LS_WRITING) || "{}"); } catch { return {}; } }
+function mark(topic: string, on: boolean) {
+  const m = marks();
+  if (on) m[topic] = Date.now(); else delete m[topic];
+  localStorage.setItem(LS_WRITING, JSON.stringify(m));
+}
+/** The page is going away (reload, close): the write's request fails as it goes, and that must not clear its mark. */
+let leaving = false;
+if (typeof window !== "undefined") window.addEventListener("pagehide", () => { leaving = true; });
+const CUT_OFF = "The last try was cut off: the app was closed or reloaded while Claude was still writing. Writing takes a few minutes; keep the app open on this page until the lesson appears.";
+function cutOff(topic: string): string {
+  const at = marks()[topic];
+  if (!at || writing.has(topic)) return "";
+  mark(topic, false);
+  if (Date.now() - at > 3_600_000) return "";
+  failed.set(topic, CUT_OFF); // shown like any failure until the next try
+  return CUT_OFF;
+}
+
+/** Keep the screen on while Claude writes (a locked phone suspends the page and the request with it). */
+async function keepAwake(): Promise<() => void> {
+  try {
+    const lock = await (navigator as Navigator & { wakeLock?: { request(t: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock?.request("screen");
+    return () => { void lock?.release().catch(() => {}); };
+  } catch { return () => {}; }
+}
+
+function useWriting(topic: string) {
+  const [busy, setBusy] = useState(writing.has(topic));
+  const [err, setErr] = useState(() => failed.get(topic) ?? cutOff(topic));
+  useEffect(() => {
+    const p = writing.get(topic);
+    if (p) void p.finally(() => { setBusy(false); setErr(failed.get(topic) ?? ""); });
+  }, [topic]);
+  return [busy, setBusy, err, setErr] as const;
+}
 
 function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
   const s = useAppState();
@@ -118,23 +160,33 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
   const lesson = lessonOf(s, topic.id);
   const p = topicProgress(s, topic.id);
   const mistakes = mistakesByTopic(s, lang).get(topic.id) ?? [];
-  const job = useLessonJob(topic.id);
-  const busy = !!job && !job.error;
-  const [starting, setStarting] = useState(false);
-  const [err, setErr] = useState("");
-  const shownErr = err || job?.error || "";
+  const [busy, setBusy, err, setErr] = useWriting(topic.id);
   const [more, setMore] = useState(false);
   const [pop, setPop] = useState<{ tok: Token; s: Sentence } | null>(null);
   const [story, setStory] = useState(false);
   useEffect(() => () => stopSpeaking(), []);
 
-  const write = async () => {
-    setStarting(true); setErr("");
-    try { await startLesson(lang, topic.id); } catch (e) { setErr((e as Error).message || "Something went wrong."); }
-    finally { setStarting(false); }
+  const write = () => {
+    setBusy(true); setErr(""); failed.delete(topic.id); mark(topic.id, true);
+    const job = (async () => {
+      const release = await keepAwake();
+      try {
+        const claude = await import("../lib/claude");
+        const st = getState();
+        const r = await claude.writeLesson(lang, topic, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 300) });
+        saveLesson(lang, topic.id, r, "claude-opus-5-5");
+        showToast(`The lesson "${topic.title}" is ready`);
+      } catch (e) {
+        if (leaving) return;
+        const msg = (e as Error).message || "Something went wrong.";
+        failed.set(topic.id, msg); setErr(msg);
+        showToast(`The lesson "${topic.title}" wasn't written: ${msg}`);
+      } finally { writing.delete(topic.id); if (!leaving) mark(topic.id, false); release(); setBusy(false); }
+    })();
+    writing.set(topic.id, job);
   };
   const rewrite = () => {
-    if (window.confirm(`Write the "${topic.title}" lesson again?\n\nIt gets new tables, examples and exercises; your practice on the old exercises starts over.`)) void write();
+    if (window.confirm(`Write the "${topic.title}" lesson again?\n\nIt gets new tables, examples and exercises; your practice on the old exercises starts over.`)) write();
   };
   const addMore = async () => {
     if (!lesson) return;
@@ -148,13 +200,6 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
     } catch (e) { setErr((e as Error).message); }
     finally { setMore(false); }
   };
-
-  const waitNote = job && !job.error && (
-    <p className="muted small">
-      Claude is writing it in its queue, started {ago(job.at)}: usually a few minutes, sometimes up to an hour. You can close the app; the lesson is saved the next time it's open.{" "}
-      <button type="button" className="text-btn" onClick={() => void cancelLesson(topic.id)}>Cancel</button>
-    </p>
-  );
 
   const head = (
     <div className="page-head">
@@ -173,9 +218,9 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
           {hasClaude() ? (
             <>
               <p>Claude Opus writes this lesson for your level: an explanation, tables of the forms, examples with words you know, common mistakes and about a dozen exercises. It's written once and kept on all your devices.</p>
-              {shownErr && <p className="form-error" role="alert">{shownErr}</p>}
-              <button type="button" className="btn primary" disabled={busy || starting} onClick={() => void write()}><IconSparkle /> {busy ? "Writing the lesson…" : starting ? "Sending to Claude…" : shownErr ? "Try again" : "Write the lesson"}</button>
-              {waitNote}
+              {err && <p className="form-error" role="alert">{err}</p>}
+              <button type="button" className="btn primary" disabled={busy} onClick={write}><IconSparkle /> {busy ? "Writing the lesson… (a minute or two)" : "Write the lesson"}</button>
+              {busy && <p className="muted small">This takes a few minutes. You can go to other pages, but keep the app open: closing it or switching apps stops the writing.</p>}
             </>
           ) : (
             <p className="muted">Lessons are written by Claude. Add your Claude API key in Settings → Claude to turn this on.</p>
@@ -253,16 +298,15 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
 
       <section className="card">
         {practise}
-        {shownErr && <p className="form-error" role="alert">{shownErr}</p>}
+        {err && <p className="form-error" role="alert">{err}</p>}
         <div className="btn-row">
           <button type="button" className="btn sm" disabled={more || busy} onClick={() => void addMore()}><IconSparkle /> {more ? "Writing exercises…" : "More exercises"}</button>
           <button type="button" className="btn ghost sm" onClick={() => setStory(true)}>A story that uses it</button>
         </div>
         <div className="row-between">
           <span className="muted small">Written by Claude Opus 5.5, {lesson.writtenOn}</span>
-          <button type="button" className="text-btn" disabled={busy || starting} onClick={rewrite}>{busy ? "Rewriting…" : "Rewrite"}</button>
+          <button type="button" className="text-btn" disabled={busy} onClick={rewrite}>{busy ? "Rewriting…" : "Rewrite"}</button>
         </div>
-        {waitNote}
       </section>
 
       {pop && <WordPop lang={lang} tok={pop.tok} sentence={pop.s} onClose={() => setPop(null)} />}
