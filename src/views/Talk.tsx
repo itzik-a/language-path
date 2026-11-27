@@ -14,6 +14,7 @@ import { speak, stopSpeaking } from "../lib/speech";
 import { showToast } from "../lib/toast";
 import { sentenceText } from "../lib/tokens";
 import { addSuggested, addTurn, live, logTime, newChat, removeChat, setChatReview } from "../state/actions";
+import { topicById, topicsFor } from "../data/grammar";
 import { getState, useAppState } from "../state/store";
 import type { Chat, Lang, Sentence, Token, Turn } from "../types";
 
@@ -117,7 +118,7 @@ function ChatView({ id, lang }: { id: string; lang: Lang }) {
     try {
       const st = getState();
       const claude = await import("../lib/claude");
-      const r = await claude.chatTurn(lang, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 400), scenario: c.scenario, lines: linesOf(c) });
+      const r = await claude.chatTurn(lang, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 400), scenario: c.scenario, lines: linesOf(c), topics: topicsFor(lang) });
       const t: Turn = { who: "them", text: sentenceText(r.reply), tokens: r.reply.tokens, tr: r.reply.tr, at: Date.now() };
       addTurn(c.id, t, r.fix);
       if (voice) void speak(t.text, lang);
@@ -159,8 +160,8 @@ function ChatView({ id, lang }: { id: string; lang: Lang }) {
     try {
       const st = getState();
       const claude = await import("../lib/claude");
-      const r = await claude.reviewChat(lang, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 400), scenario: chat.scenario, lines: linesOf(chat) });
-      setChatReview(chat.id, { summary: r.summary, points: r.points.map((p) => ({ said: p.said, better: p.better, why: p.why })) });
+      const r = await claude.reviewChat(lang, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 400), scenario: chat.scenario, lines: linesOf(chat), topics: topicsFor(lang) });
+      setChatReview(chat.id, { summary: r.summary, points: r.points.map((p) => ({ said: p.said, better: p.better, why: p.why, ...(p.topic ? { topic: p.topic } : {}) })) });
       const added = addSuggested(lang, [
         ...r.points.filter((p) => p.better.trim()).map((p) => ({ lemma: p.better.trim(), gloss: p.tr, note: p.why, pos: "phrase" })),
         ...r.words.map((w) => ({ lemma: w.lemma, gloss: w.gloss, pos: w.pos, ...(w.reading && lang === "ja" && w.reading !== w.lemma ? { reading: w.reading } : {}), ...(w.translit ? { translit: w.translit } : {}) })),
@@ -202,6 +203,7 @@ function ChatView({ id, lang }: { id: string; lang: Lang }) {
               <div className="fix">
                 <button type="button" className="fix-better" lang={LANG[lang].bcp} dir="auto" onClick={() => void speak(t.fix!.better, lang)}>{t.fix.better}</button>
                 <span className="muted small">{t.fix.why}</span>
+                <TopicLink lang={lang} id={t.fix.topic} />
               </div>
             )}
           </div>
@@ -221,6 +223,7 @@ function ChatView({ id, lang }: { id: string; lang: Lang }) {
                   <span className="muted small" lang={LANG[lang].bcp} dir="auto"><s>{p.said}</s></span>
                   <button type="button" className="fix-better" lang={LANG[lang].bcp} dir="auto" onClick={() => void speak(p.better, lang)}>{p.better}</button>
                   <span className="small">{p.why}</span>
+                  <TopicLink lang={lang} id={p.topic} />
                 </li>
               ))}
             </ul>
@@ -250,6 +253,12 @@ function ChatView({ id, lang }: { id: string; lang: Lang }) {
       {pop && <WordPop lang={lang} tok={pop.tok} sentence={pop.s} source="chat" onClose={() => setPop(null)} />}
     </div>
   );
+}
+
+/** A correction's grammar topic, as a link to its lesson. */
+function TopicLink({ lang, id }: { lang: Lang; id?: string }) {
+  const t = topicById(lang, id);
+  return t ? <a className="link small" href={href("grammar", t.id)}>Grammar: {t.title}</a> : null;
 }
 
 function useTalkTime(lang: Lang) {

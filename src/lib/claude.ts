@@ -6,9 +6,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import * as z from "zod";
-import type { AppState, Lang, Sentence, Token } from "../types";
+import type { AppState, Drill, GTable, Lang, Sentence, Token } from "../types";
+import type { Topic } from "../data/grammar";
 import { isElided, LANG, stripHarakat } from "./langs";
-import { getPrefs } from "./prefs";
+import { getPrefs, type Model } from "./prefs";
 
 export { hasClaude, MODELS } from "./prefs";
 
@@ -37,21 +38,25 @@ function explain(e: unknown): ClaudeError {
   return new ClaudeError((e as Error)?.message || "Something went wrong.");
 }
 
-/** One structured request. */
+/** One structured request. `model` overrides the one in Settings (grammar always uses Opus: a wrong ending in a
+    table teaches the wrong thing). `stream` for long answers: the SDK refuses a non-streamed request whose
+    max_tokens could take over 10 minutes. */
 export async function ask<S extends z.ZodType>(schema: S, opts: {
   system: string; user: string; effort?: "low" | "medium" | "high"; maxTokens?: number; history?: Anthropic.Beta.BetaMessageParam[];
+  model?: Model; stream?: boolean;
 }): Promise<z.infer<S>> {
-  const model = getPrefs().model;
+  const model = opts.model ?? getPrefs().model;
   const withFallback = model !== "claude-haiku-5-5";
   try {
-    const res = await client().beta.messages.parse({
+    const params = {
       model,
       max_tokens: opts.maxTokens ?? 16000,
       ...(withFallback ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
       system: opts.system,
-      messages: [...(opts.history ?? []), { role: "user", content: opts.user }],
+      messages: [...(opts.history ?? []), { role: "user" as const, content: opts.user }],
       output_config: { format: betaZodOutputFormat(schema), effort: opts.effort ?? "low" },
-    });
+    };
+    const res = opts.stream ? await client().beta.messages.stream(params).finalMessage() : await client().beta.messages.parse(params);
     if (res.stop_reason === "refusal") throw new ClaudeError("Claude declined this one. Try different wording.");
     if (res.stop_reason === "max_tokens") throw new ClaudeError("The answer was too long and got cut off. Try something shorter.");
     if (res.parsed_output == null) throw new ClaudeError("Claude's answer didn't come back in the expected shape. Try again.");
@@ -125,7 +130,7 @@ const StoryZ = z.object({
   sentences: z.array(SentenceZ),
 });
 
-export async function writeStory(lang: Lang, o: { level: string; known: string; topic: string; lines: number; newWords: number }) {
+export async function writeStory(lang: Lang, o: { level: string; known: string; topic: string; lines: number; newWords: number; grammar?: Topic }) {
   const r = await ask(StoryZ, {
     effort: "medium",
     system: `You write graded reading for a language learner, in ${LANG_RULES[lang]}\n${TOKEN_RULES}\nThe learner says about their level: "${o.level}"`,
@@ -133,7 +138,8 @@ export async function writeStory(lang: Lang, o: { level: string; known: string; 
       `Write a short, coherent story of about ${o.lines} sentences${o.topic.trim() ? ` about: ${o.topic.trim()}` : ""}.`,
       `Words the learner knows (dictionary forms): ${o.known || "(almost none yet)"}`,
       `Rules: at least 95% of the words must be from that list or basic grammar words. Use exactly ${o.newWords} new words, each one useful and common, and repeat each new word at least twice. Keep sentences short and natural; a little humour or a small twist is welcome. List the new words' lemmas in new_words.`,
-    ].join("\n"),
+      o.grammar ? `Grammar practice: the learner is studying "${o.grammar.title}" (${o.grammar.covers}). Use it naturally and often, in as many different forms as the story allows, and mark it in g (e.g. "coffee (acc.)").` : "",
+    ].filter(Boolean).join("\n"),
   });
   return { title: r.title, titleTr: r.title_tr, newWords: r.new_words, sentences: r.sentences.map((x) => cleanSentence(lang, x)) };
 }
@@ -207,13 +213,19 @@ const TurnZ = z.object({
     needed: z.boolean().describe("true if the learner's last message had a mistake or sounded unnatural"),
     better: z.string().describe("the corrected, natural version of the learner's last message in the target language; \"\" if not needed"),
     why: z.string().describe("one short sentence in English on what was wrong; \"\" if not needed"),
+    topic: z.string().describe("the id of the grammar topic the mistake is about, from the list given; \"\" if none fits or no fix"),
   }),
   reply: SentenceZ.describe("your next line in the conversation, as one sentence entry (it may contain two short sentences)"),
 });
 
 export interface ChatLine { who: "me" | "them"; text: string }
 
-export async function chatTurn(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[] }) {
+/** The grammar topics as "id: title" lines, for Claude to tag a correction with ("" when the language has none). */
+function topicLines(topics: Topic[] | undefined): string {
+  return topics?.length ? `Grammar topics (for the topic field): ${topics.map((t) => `${t.id} = ${t.title}`).join("; ")}` : "There are no grammar topics: leave topic \"\".";
+}
+
+export async function chatTurn(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[]; topics?: Topic[] }) {
   const transcript = o.lines.map((l) => `${l.who === "me" ? "Learner" : "You"}: ${l.text}`).join("\n");
   const r = await ask(TurnZ, {
     system: [
@@ -224,12 +236,13 @@ export async function chatTurn(lang: Lang, o: { level: string; known: string; sc
       "Speak at their level: one or two short sentences, mostly words they know, and end with a question or a prompt so they have something to answer. Never switch to English in your reply.",
       "If the learner writes in English or Hebrew, they're stuck: reply in the target language with the phrase they need, simply.",
       "Correct the learner's last message only for real mistakes or clearly unnatural phrasing; ignore missing accents or vowel marks.",
+      topicLines(o.topics),
     ].join("\n"),
     user: transcript ? `Conversation so far:\n${transcript}\n\nYour turn.` : "Start the conversation with your first line.",
   });
   return {
     reply: cleanSentence(lang, r.reply),
-    fix: r.fix.needed && r.fix.better.trim() ? { better: r.fix.better.trim(), why: r.fix.why.trim() } : undefined,
+    fix: r.fix.needed && r.fix.better.trim() ? { better: r.fix.better.trim(), why: r.fix.why.trim(), ...(validTopic(o.topics, r.fix.topic) ? { topic: r.fix.topic } : {}) } : undefined,
   };
 }
 
@@ -240,14 +253,136 @@ const ReviewZ = z.object({
     better: z.string().describe("the natural version in the target language"),
     tr: z.string().describe("English meaning of the better version"),
     why: z.string().describe("short English explanation"),
+    topic: z.string().describe("the id of the grammar topic the mistake is about, from the list given; \"\" if none fits"),
   })).describe("the learner's most useful mistakes, at most 5"),
   words: z.array(z.object({ lemma: z.string(), reading: z.string(), translit: z.string(), gloss: z.string(), pos: z.string() }))
     .describe("up to 5 words from the conversation worth learning that aren't on the known list"),
 });
 
-export function reviewChat(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[] }) {
-  return ask(ReviewZ, {
-    system: `You coach a language learner after a practice conversation in ${LANG_RULES[lang]}\nThe learner says about their level: "${o.level}". Words they know: ${o.known || "(very few)"}`,
+export async function reviewChat(lang: Lang, o: { level: string; known: string; scenario: string; lines: ChatLine[]; topics?: Topic[] }) {
+  const r = await ask(ReviewZ, {
+    system: `You coach a language learner after a practice conversation in ${LANG_RULES[lang]}\nThe learner says about their level: "${o.level}". Words they know: ${o.known || "(very few)"}\n${topicLines(o.topics)}`,
     user: `Scene: ${o.scenario}\n\n${o.lines.map((l) => `${l.who === "me" ? "Learner" : "Partner"}: ${l.text}`).join("\n")}\n\nReview it.`,
   });
+  return { ...r, points: r.points.map((p) => ({ ...p, topic: validTopic(o.topics, p.topic) ? p.topic : "" })) };
+}
+
+const validTopic = (topics: Topic[] | undefined, id: string) => !!id && !!topics?.some((t) => t.id === id);
+
+// ── grammar ───────────────────────────────────────────────────
+
+const TableZ = z.object({
+  title: z.string().describe("what the table shows, in English"),
+  cols: z.array(z.string()).describe("column headings; the first one heads the row-heading column (e.g. \"case\" or \"person\")"),
+  rows: z.array(z.object({
+    head: z.string().describe("row heading (e.g. \"accusative\", \"ja\", \"ich\")"),
+    cells: z.array(z.string()).describe("one cell per column after the first, in the target language; \"–\" where there is no form"),
+  })),
+  note: z.string().describe("one short line under the table, or \"\""),
+});
+
+const DrillZ = z.object({
+  sentence: z.string().describe("a short, natural sentence in the target language with exactly one gap written ___ where the answer goes"),
+  base: z.string().describe("the dictionary form of the word(s) to put into the right form, shown in brackets after the sentence; \"\" if the gap isn't a form of a given word"),
+  hint: z.string().describe("what's asked, in 1–3 English words (\"accusative\", \"we, past\", \"after mit\")"),
+  answer: z.string().describe("exactly what fills the gap"),
+  alts: z.array(z.string()).describe("other fillings that are just as right; [] if none"),
+  tr: z.string().describe("English translation of the whole sentence"),
+  why: z.string().describe("one short English sentence: why this form"),
+});
+
+function grammarSystem(lang: Lang, level: string) {
+  return [
+    `You are an expert teacher of ${LANG[lang].name} grammar, writing for one learner. Language: ${LANG_RULES[lang]}`,
+    TOKEN_RULES,
+    `The learner says about their level: "${level}". They read Hebrew and English; compare with Hebrew or English only where it really helps.`,
+    "Accuracy comes first: every form in every table, example and answer must be correct standard usage. Check each one before you write it.",
+    lang === "ru" ? "Russian: put the stress mark (U+0301) on every word of two or more syllables everywhere: table cells, examples, drill sentences, answers, mistakes." : "",
+    "Write in plain, friendly English for a learner, short sentences, no jargon without explaining it.",
+  ].filter(Boolean).join("\n");
+}
+
+const LessonZ = z.object({
+  intro: z.array(z.string()).describe("3–6 short paragraphs explaining the point: what it is, when it's used, how the forms are made. May use **bold** for key terms; target-language words written as they are"),
+  tables: z.array(TableZ).describe("1–4 tables of the forms (endings, or a word in every person / case), small enough for a phone: at most 5 columns"),
+  examples: z.array(z.object({
+    sentence: SentenceZ,
+    focus: z.array(z.string()).describe("the t of each token in the sentence that shows the point, exactly as written there"),
+  })).describe("6–8 short example sentences that show the point, using mostly words the learner knows"),
+  compare: z.string().describe("one short paragraph on how Hebrew or English does this, if that genuinely helps; else \"\""),
+  mistakes: z.array(z.object({ wrong: z.string(), right: z.string(), why: z.string() })).describe("2–4 typical mistakes of English or Hebrew speakers, wrong and right in the target language"),
+  drills: z.array(DrillZ).describe("12 exercises from easy to harder, covering every form in the tables; mostly known words"),
+});
+
+/** Drills get ids unique to the batch (time + index), so a rewritten lesson's drills never take over the progress
+    of the old ones. */
+function cleanDrills(raw: z.infer<typeof DrillZ>[]): Drill[] {
+  const stamp = Date.now().toString(36);
+  const ok = raw.filter((d) => d.sentence.includes("___") && d.answer.trim());
+  return ok.map((d, i) => ({
+    id: `${stamp}-${i + 1}`, sentence: d.sentence.trim(), base: d.base.trim(), hint: d.hint.trim(), answer: d.answer.trim(),
+    alts: d.alts.map((a) => a.trim()).filter(Boolean), tr: d.tr.trim(), why: d.why.trim(),
+  }));
+}
+
+const cleanTable = (t: z.infer<typeof TableZ>): GTable => ({
+  title: t.title.trim(), cols: t.cols, rows: t.rows.filter((r) => r.head.trim() || r.cells.some((c) => c.trim())), ...(t.note.trim() ? { note: t.note.trim() } : {}),
+});
+
+/** A grammar lesson for one topic (always Claude Opus 5.5). */
+export async function writeLesson(lang: Lang, topic: Topic, o: { level: string; known: string }) {
+  const r = await ask(LessonZ, {
+    model: "claude-opus-5-5", effort: "high", maxTokens: 48000, stream: true,
+    system: grammarSystem(lang, o.level),
+    user: [
+      `Write a lesson on: ${topic.title} (${topic.level}).`,
+      `It has to cover: ${topic.covers}`,
+      `Words the learner knows (use them in examples and exercises where you can): ${o.known || "(very few yet)"}`,
+      "Exercises: each tests one form from the lesson; vary persons, genders, numbers and verbs; never two with the same answer.",
+    ].join("\n"),
+  });
+  return {
+    intro: r.intro.map((p) => p.trim()).filter(Boolean),
+    tables: r.tables.map(cleanTable),
+    examples: r.examples.map((e) => {
+      const sn = cleanSentence(lang, e.sentence);
+      const want = new Set(e.focus.map((f) => f.trim()));
+      return { s: sn, focus: sn.tokens.flatMap((t, i) => (t.l && want.has(t.t) ? [i] : [])) };
+    }),
+    compare: r.compare.trim(),
+    mistakes: r.mistakes.filter((m) => m.right.trim()),
+    drills: cleanDrills(r.drills),
+  };
+}
+
+const MoreDrillsZ = z.object({ drills: z.array(DrillZ).describe("new exercises, none repeating one the learner already has") });
+
+/** More exercises for a lesson, unlike the ones it has. */
+export async function moreDrills(lang: Lang, topic: Topic, o: { level: string; known: string; have: Drill[]; count?: number }) {
+  const r = await ask(MoreDrillsZ, {
+    model: "claude-opus-5-5", effort: "medium", maxTokens: 20000,
+    system: grammarSystem(lang, o.level),
+    user: [
+      `Topic: ${topic.title}. It covers: ${topic.covers}`,
+      `Words the learner knows: ${o.known || "(very few yet)"}`,
+      `Exercises the learner already has (don't repeat these sentences or answers):\n${o.have.map((d) => `- ${d.sentence} → ${d.answer}`).join("\n")}`,
+      `Write ${o.count ?? 10} new exercises, from easy to harder.`,
+    ].join("\n"),
+  });
+  return cleanDrills(r.drills);
+}
+
+const FormsZ = z.object({
+  tables: z.array(TableZ).describe("the word's full paradigm, as tables small enough for a phone (at most 5 columns): nouns by case × number, adjectives by case × gender/number, verbs by person × tense (present, past, future; also the imperative and for Polish/Russian the aspect partner). [] if the word doesn't change"),
+  note: z.string().describe("one or two lines: gender, aspect partner, stem changes or irregularities worth knowing; \"\" if none"),
+});
+
+/** Every form of one word (always Claude Opus 5.5). */
+export async function wordForms(lang: Lang, w: { lemma: string; gloss: string; pos?: string }, level: string) {
+  const r = await ask(FormsZ, {
+    model: "claude-opus-5-5", effort: "medium", maxTokens: 20000,
+    system: grammarSystem(lang, level),
+    user: `Give every form of: ${w.lemma} (${w.gloss}${w.pos ? `, ${w.pos}` : ""}).`,
+  });
+  return { tables: r.tables.map(cleanTable), note: r.note.trim() };
 }

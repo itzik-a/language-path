@@ -12,6 +12,8 @@ import { useAppState } from "../state/store";
 import type { Lang, Word, WordStatus } from "../types";
 import { WordCards } from "./WordCards";
 import { SuggestWords } from "../components/SuggestWords";
+import { hasGrammar } from "../data/grammar";
+import { WordForms } from "../components/WordForms";
 
 type Filter = WordStatus | "all";
 
@@ -47,7 +49,10 @@ function WordList({ lang }: { lang: Lang }) {
           <span className="eyebrow">{LANG[lang].name}</span>
           <h1 className="display">Words</h1>
         </div>
-        <a className="btn ghost sm" href={href("script")}>Scripts & sounds</a>
+        <div className="btn-row">
+          {hasGrammar(lang) && <a className="btn ghost sm" href={href("grammar")}>Grammar</a>}
+          <a className="btn ghost sm" href={href("script")}>Scripts & sounds</a>
+        </div>
       </div>
 
       <Seg className="full" label="Show" value={filter} onChange={(f) => { setFilter(f); setPicked(new Set()); }}
@@ -160,6 +165,8 @@ function WordPage({ id, lang }: { id: string; lang: Lang }) {
           <p className="muted">{w.example.tr}</p>
         </section>
       )}
+
+      <WordForms w={w} />
 
       <WordCards w={w} />
 

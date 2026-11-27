@@ -14,6 +14,7 @@ import type { Lang, Sentence, Token } from "../types";
 import { IconSpeaker } from "./Icons";
 import { Explain } from "./Explain";
 import { Sheet } from "./ui";
+import { topicForHint } from "../data/grammar";
 
 export function WordPop({ lang, tok, sentence, onClose, source = "text" }: { lang: Lang; tok: Token; sentence: Sentence; onClose: () => void; source?: "text" | "chat" }) {
   const s = useAppState();
@@ -22,6 +23,7 @@ export function WordPop({ lang, tok, sentence, onClose, source = "text" }: { lan
   const w = s.words.find((x) => x.id === wordKey(lang, lemma) && !x.deletedAt);
   const reading = lang === "ja" ? (w?.reading ?? lemmaReading(tok.t, tok.r, lemma)) : undefined;
   const [ex, setEx] = useState<Explanation | null>(null);
+  const gram = topicForHint(lang, tok.g);
   const extra = ex ? {
     gloss: ex.gloss || tok.g || "", ...(ex.pos ? { pos: ex.pos } : {}), ...(ex.translit ? { translit: ex.translit } : {}),
     ...(ex.reading && lang === "ja" ? { reading: ex.reading } : {}), ...(ex.root ? { root: ex.root } : {}), ...(ex.hebrew ? { hebrew: ex.hebrew } : {}),
@@ -40,6 +42,7 @@ export function WordPop({ lang, tok, sentence, onClose, source = "text" }: { lan
       </div>
       <p className="word-gloss">{w?.gloss || tok.g || "—"}</p>
       {w && tok.g && w.gloss !== tok.g && <p className="muted small">Here: {tok.g}</p>}
+      {gram && <a className="link small" href={href("grammar", gram.id)} onClick={onClose}>Grammar: {gram.title}</a>}
       {w?.note && <p className="note small">{w.note}</p>}
       <div className="pop-sentence">
         <button type="button" className="icon-btn subtle" aria-label="Hear the sentence" onClick={() => void speak(sentenceText(sentence), lang)}><IconSpeaker width={18} height={18} /></button>

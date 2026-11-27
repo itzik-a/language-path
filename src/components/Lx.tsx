@@ -40,7 +40,7 @@ export function Term({ lang, text, reading, translit, d, forceReading, className
   const under = lang === "ar" ? translit : autoTranslit(lang, text);
   return (
     <span className={`lx lx-${lang} ${className ?? ""}`} lang={LANG[lang].bcp} dir={LANG[lang].dir}>
-      {d.translit && under ? <Ruby text={typeof body === "string" ? body : text} rt={under} under /> : body}
+      {d.translit && under && under !== text ? <Ruby text={typeof body === "string" ? body : text} rt={under} under /> : body}
     </span>
   );
 }

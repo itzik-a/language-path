@@ -13,6 +13,9 @@ import { Script } from "./views/Script";
 import { Talk } from "./views/Talk";
 import { Today } from "./views/Today";
 import { Words } from "./views/Words";
+import { Grammar } from "./views/Grammar";
+import { hasGrammar } from "./data/grammar";
+import { IconGrammar } from "./components/Icons";
 
 const TABS: { id: View; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
   { id: "today", label: "Today", Icon: IconToday },
@@ -21,8 +24,8 @@ const TABS: { id: View; label: string; Icon: ComponentType<SVGProps<SVGSVGElemen
   { id: "words", label: "Words", Icon: IconWords },
 ];
 
-/** Which tab a view belongs to (review and script live under Today / Words). */
-const tabOf = (v: View): View => (v === "review" ? "today" : v === "script" ? "words" : v);
+/** Which tab a view belongs to (review under Today; scripts and grammar under Words). */
+const tabOf = (v: View): View => (v === "review" ? "today" : v === "script" || v === "grammar" ? "words" : v);
 
 export function App() {
   const { view, sub } = useRoute();
@@ -42,8 +45,9 @@ export function App() {
         <LangSwitch />
         <nav className="side-nav" aria-label="Sections">
           {TABS.map(({ id, label, Icon }) => (
-            <a key={id} href={href(id)} aria-current={tab === id ? "page" : undefined}><Icon /><span>{label}</span></a>
+            <a key={id} href={href(id)} aria-current={tab === id && !(view === "grammar" && hasGrammar(lang)) ? "page" : undefined}><Icon /><span>{label}</span></a>
           ))}
+          {hasGrammar(lang) && <a href={href("grammar")} className="side-sub" aria-current={view === "grammar" ? "page" : undefined}><IconGrammar /><span>Grammar</span></a>}
         </nav>
         <div className="side-foot">
           <DataPill onOpen={() => setSettings(true)} />
@@ -63,6 +67,7 @@ export function App() {
           : view === "read" ? <Read lang={lang} sub={sub} />
           : view === "talk" ? <Talk lang={lang} sub={sub} />
           : view === "script" ? <Script lang={lang} sub={sub} />
+          : view === "grammar" ? <Grammar lang={lang} sub={sub} />
           : <Words lang={lang} sub={sub} />}
       </main>
 

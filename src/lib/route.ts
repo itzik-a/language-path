@@ -1,8 +1,8 @@
-/* Routing is the URL hash: "#words/w_ja_水" → { view: "words", sub: "w_ja_水" }. */
+/* Routing is the URL hash: "#words/w_ja_水" → { view: "words", sub: "w_ja_水" }; "#grammar/pl-acc/practice" → sub "pl-acc/practice". */
 import { useEffect, useState } from "react";
 
-export type View = "today" | "read" | "talk" | "words" | "review" | "script";
-const VIEWS: View[] = ["today", "read", "talk", "words", "review", "script"];
+export type View = "today" | "read" | "talk" | "words" | "review" | "script" | "grammar";
+const VIEWS: View[] = ["today", "read", "talk", "words", "review", "script", "grammar"];
 
 export interface Route { view: View; sub?: string }
 

@@ -44,6 +44,8 @@ export const seedState = (): AppState => ({
   texts: starterTexts(),
   chats: [],
   days: [],
+  lessons: [],
+  gcards: [],
   settings: defaultSettings(),
   updatedAt: 0,
 });

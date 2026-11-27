@@ -48,6 +48,8 @@ export interface Word extends Item {
   source: "seed" | "text" | "chat" | "manual" | "claude";
   /** when it moved to learning (YYYY-MM-DD) */
   startedOn?: string;
+  /** every form (declension / conjugation), written by Claude on request */
+  forms?: { tables: GTable[]; note: string; at: number };
 }
 
 export type CardKind = "recog" | "listen" | "say" | "cloze" | "script";
@@ -95,6 +97,8 @@ export interface Text extends Item {
   createdOn: string;
   /** words new to me when it was written (lemmas) */
   newWords?: string[];
+  /** the grammar topic it practises, if I asked for one */
+  grammar?: string;
   readAt?: number;
   listens?: number;
 }
@@ -104,8 +108,8 @@ export interface Turn {
   text: string;
   tokens?: Token[];
   tr?: string;
-  /** a correction of my line */
-  fix?: { better: string; why: string };
+  /** a correction of my line; `topic`: the grammar topic it's about (src/data/grammar.ts), if any */
+  fix?: { better: string; why: string; topic?: string };
   at: number;
 }
 
@@ -114,7 +118,65 @@ export interface Chat extends Item {
   scenario: string;
   turns: Turn[];
   createdOn: string;
-  review?: { summary: string; points: { said: string; better: string; why: string }[] };
+  review?: { summary: string; points: { said: string; better: string; why: string; topic?: string }[] };
+}
+
+// ── grammar ───────────────────────────────────────────────────
+
+/** A table in a lesson or of a word's forms: cells in the target language. */
+export interface GTable {
+  title: string;
+  /** column headings (the first column is the row headings, its heading is cols[0]) */
+  cols: string[];
+  rows: { head: string; cells: string[] }[];
+  note?: string;
+}
+
+/** One exercise: a sentence with a gap (___) to fill with the right form. */
+export interface Drill {
+  /** stable within the lesson (the progress of each one is kept in a GCard) */
+  id: string;
+  /** the target-language sentence with ___ where the answer goes */
+  sentence: string;
+  /** what to put in the right form (its dictionary form), or "" when the gap needs a word of my own choice */
+  base: string;
+  /** what's asked, briefly: "accusative", "we, past" */
+  hint: string;
+  answer: string;
+  /** other right answers */
+  alts: string[];
+  /** English of the whole sentence */
+  tr: string;
+  /** why that form, one short sentence */
+  why: string;
+}
+
+/** A grammar lesson, written by Claude the first time I open its topic, kept (and synced) after that. */
+export interface Lesson extends Item {
+  lang: Lang;
+  /** the topic's id in src/data/grammar.ts */
+  topic: string;
+  /** paragraphs of plain English (may use **bold**) */
+  intro: string[];
+  tables: GTable[];
+  /** example sentences; `focus`: the token indices that show the point */
+  examples: { s: Sentence; focus: number[] }[];
+  /** how Hebrew or English does it, when that helps; "" if not */
+  compare: string;
+  mistakes: { wrong: string; right: string; why: string }[];
+  drills: Drill[];
+  model: string;
+  writtenOn: string;
+}
+
+/** My progress on one drill (FSRS, like a card, but only in grammar practice: never in the daily reviews). */
+export interface GCard extends Item {
+  lang: Lang;
+  topic: string;
+  drill: string;
+  srs: Srs;
+  /** answers: [time in ms, rating 1–4] */
+  log: [number, number][];
 }
 
 /** Counters for one day, language and device (each device writes its own, so sync never loses counts). */
@@ -162,6 +224,8 @@ export interface AppState {
   texts: Text[];
   chats: Chat[];
   days: DayLog[];
+  lessons: Lesson[];
+  gcards: GCard[];
   settings: Settings;
   updatedAt: number;
 }

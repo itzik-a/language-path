@@ -7,11 +7,13 @@ import { go } from "../lib/route";
 import { addText } from "../state/actions";
 import { getState } from "../state/store";
 import type { Lang } from "../types";
+import type { Topic } from "../data/grammar";
 import { closeSheet, Field, Seg, Sheet } from "./ui";
 
 const TOPICS = ["daily life", "food and cafés", "travel", "family", "a small mystery", "work", "shopping", "the weather", "a funny moment"];
 
-export function StorySheet({ lang, onClose }: { lang: Lang; onClose: () => void }) {
+/** `grammar`: a topic the story should use a lot (from a grammar lesson). */
+export function StorySheet({ lang, onClose, grammar }: { lang: Lang; onClose: () => void; grammar?: Topic }) {
   const [topic, setTopic] = useState("");
   const [lines, setLines] = useState(8);
   const [fresh, setFresh] = useState(4);
@@ -31,9 +33,9 @@ export function StorySheet({ lang, onClose }: { lang: Lang; onClose: () => void 
     try {
       const s = getState();
       const claude = await import("../lib/claude");
-      const r = await claude.writeStory(lang, { level: s.settings.lang[lang].level, known: claude.knownList(s, lang), topic, lines, newWords: fresh });
+      const r = await claude.writeStory(lang, { level: s.settings.lang[lang].level, known: claude.knownList(s, lang), topic, lines, newWords: fresh, grammar });
       const id = `t_${Date.now().toString(36)}`;
-      addText({ id, updatedAt: Date.now(), lang, title: r.title, titleTr: r.titleTr, sentences: r.sentences, source: "claude", prompt: topic, createdOn: today(), newWords: r.newWords });
+      addText({ id, updatedAt: Date.now(), lang, title: r.title, titleTr: r.titleTr, sentences: r.sentences, source: "claude", prompt: topic, createdOn: today(), newWords: r.newWords, ...(grammar ? { grammar: grammar.id } : {}) });
       closeSheet(el);
       go("read", id);
     } catch (e) { setErr((e as Error).message); setBusy(false); }
@@ -42,6 +44,7 @@ export function StorySheet({ lang, onClose }: { lang: Lang; onClose: () => void 
   return (
     <Sheet title="Write me a story" onClose={onClose}>
       <p className="muted small">Claude writes it from the {LANG[lang].name} words you know or are learning, with a few new ones, each used at least twice.</p>
+      {grammar && <p className="small"><span className="tag accent">Grammar</span> It uses <b>{grammar.title.toLowerCase()}</b> as often as it can.</p>}
       <Field label="About">
         <input className="text-input" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Anything, or leave it to Claude" />
       </Field>

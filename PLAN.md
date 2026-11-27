@@ -129,6 +129,20 @@ Status 2026-11-23: 1–8 built and live. Checked: phone and desktop widths, ligh
 - A phone-friendly "hands-free" talk mode (listen → reply → listen) and pronunciation feedback.
 - Import from feed-path (articles in Polish / Japanese / Arabic) into Read.
 
+## 7b. Grammar (2026-11-27)
+
+A Grammar section per language: cases, tenses, verb forms. Built first for Polish, Russian and German (the ones that lean most on cases), reviewed by me before it goes live; the other eight languages come after.
+
+- **G1 Topics & lessons**: an ordered topic list per language (A1 → B2); a lesson is written by Claude Opus the first time I open its topic (explanation, tables, examples with my words, Hebrew/English comparison, common mistakes) and kept, synced.
+- **G2 Practice**: about a dozen exercises per lesson (fill the gap with the right form), with their own spaced repetition, in a practice I start myself (never in the daily cards); "More exercises" on request.
+- **G3 All forms**: on a word's page, its full declension or conjugation.
+- **G4 Links**: grammar hints in glosses open their topic; Talk corrections are tagged with a topic, listed on its page and suggested on Today.
+- **G5 Stories**: "A story that uses it" writes a story full of the topic's forms.
+
+Decisions: lessons written by Claude (not by hand), always on Opus whatever the model setting; practice separate from the daily reviews; a missing accent that is the ending (kawę) is "almost", one wrong letter is wrong.
+
+Status 2026-11-27: G1–G5 built for pl / ru / de, waiting for my review. Not yet tried: a real lesson from Claude (tests use a fake API), Russian stress marks on a real iPhone.
+
 ## 8. Decisions (2026-11-23)
 
 - 2026-11-24: Greek (modern, from zero) and European Portuguese (beginner-intermediate, knows Spanish) added.

@@ -72,3 +72,17 @@ export function check(lang: Lang, typed: string, answers: string[]): Verdict {
   if (akeys.some((k) => k.length >= 4 && lev(k, at) <= 1)) return "almost";
   return "wrong";
 }
+
+/** Checking a grammar drill. Stricter than check(): one wrong letter is usually the ending itself (книга for
+ *  кни́гу), so it's wrong, not "almost"; and where an accent can be the ending (Polish kawę, not kawe; German Mütter,
+ *  not Mutter) a missing one is "almost". Russian stress marks and ё, German ae / oe / ue / ss for ä ö ü ß, and
+ *  Greek / Russian typed in Latin letters still count as right. */
+export function checkForm(lang: Lang, typed: string, answers: string[]): Verdict {
+  const ft = fold(lang, typed), keys = answers.filter(Boolean).map((a) => fold(lang, a));
+  if (!ft) return "wrong";
+  if (keys.includes(ft)) return "right";
+  if (lang === "de" && keys.some((k) => foldGerman(k) === foldGerman(ft))) return "right";
+  if (ACCENTED.includes(lang) && keys.some((k) => foldAccents(lang, k) === foldAccents(lang, ft))) return "almost";
+  // the rest (transliteration, romaji, harakat, kana) as for cards, without the one-letter "almost"
+  return check(lang, typed, answers) === "right" ? "right" : "wrong";
+}

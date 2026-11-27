@@ -1,7 +1,7 @@
 /* Merging two copies of the state (this device and the gist). Type-only imports, so it can be tested alone.
    - every list: per item, the newer `updatedAt` wins (soft deletes win the same way)
-   - cards: the winner also gets every review either copy has (logs unioned by time), so two devices reviewing
-     offline lose no history
+   - cards and grammar drills (gcards): the winner also gets every review either copy has (logs unioned by time),
+     so two devices reviewing offline lose no history
    - settings: the copy with the newer `settings.updatedAt` */
 import type { AppState, Card } from "../types";
 
@@ -17,7 +17,7 @@ function byId<T extends { id: string; updatedAt: number }>(a: T[], b: T[], join?
   return [...out.values()];
 }
 
-function joinCards(win: Card, lose: Card): Card {
+function joinCards<C extends Pick<Card, "log">>(win: C, lose: C): C {
   if (!lose.log.length) return win;
   const seen = new Set(win.log.map(([t]) => t));
   const extra = lose.log.filter(([t]) => !seen.has(t));
@@ -32,6 +32,8 @@ export function merge(local: AppState, remote: AppState): AppState {
     texts: byId(local.texts, remote.texts),
     chats: byId(local.chats, remote.chats),
     days: byId(local.days, remote.days),
+    lessons: byId(local.lessons ?? [], remote.lessons ?? []),
+    gcards: byId(local.gcards ?? [], remote.gcards ?? [], joinCards),
     settings: (remote.settings.updatedAt || 0) > (local.settings.updatedAt || 0) ? remote.settings : local.settings,
     updatedAt: Math.max(local.updatedAt || 0, remote.updatedAt || 0),
   };

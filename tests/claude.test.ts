@@ -73,18 +73,87 @@ describe("conversation", () => {
   it("returns the reply and a correction of my line", async () => {
     setPrefs({ claudeKey: "sk-ant-test", model: "claude-opus-5-5" });
     const sent = fake({
-      fix: { needed: true, better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative." },
+      fix: { needed: true, better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative.", topic: "pl-acc" },
       reply: { tokens: [tok("Proszę", "proszę", "here you are"), tok(" "), tok("bardzo", "bardzo", "very"), tok("!")], tr: "Here you are!" },
     });
     const r = await chatTurn("pl", { level: "beginner", known: "kawa", scenario: "café", lines: [{ who: "them", text: "Dzień dobry!" }, { who: "me", text: "Poproszę kawa." }] });
-    expect(r.fix).toEqual({ better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative." });
+    expect(r.fix).toEqual({ better: "Poproszę kawę.", why: "kawa → kawę: the object takes the accusative." }); // no topic list given: no topic
     expect(sentenceText(r.reply)).toBe("Proszę bardzo!");
     expect(JSON.stringify(sent[0].body.messages)).toContain("Learner: Poproszę kawa.");
   });
   it("leaves out a correction that isn't needed", async () => {
     setPrefs({ claudeKey: "sk-ant-test" });
-    fake({ fix: { needed: false, better: "", why: "" }, reply: { tokens: [tok("Tak", "tak", "yes"), tok(".")], tr: "Yes." } });
+    fake({ fix: { needed: false, better: "", why: "", topic: "" }, reply: { tokens: [tok("Tak", "tak", "yes"), tok(".")], tr: "Yes." } });
     const r = await chatTurn("pl", { level: "", known: "", scenario: "x", lines: [] });
     expect(r.fix).toBeUndefined();
+  });
+});
+
+import { moreDrills, reviewChat, writeLesson } from "../src/lib/claude";
+import { topicById, topicsFor } from "../src/data/grammar";
+
+/** A streamed answer (server-sent events), as messages.stream() expects. */
+function fakeStream(payload: unknown) {
+  const sent: Sent[] = [];
+  setFetchForTests((async (url: string | URL | Request, init?: RequestInit) => {
+    sent.push({ url: String(url), headers: new Headers(init?.headers), body: JSON.parse(String(init?.body)) });
+    const text = JSON.stringify(payload);
+    const ev = (type: string, data: object) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`;
+    const body = [
+      ev("message_start", { message: { id: "msg_1", type: "message", role: "assistant", model: "claude-opus-5-5", content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 10, output_tokens: 1 } } }),
+      ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } }),
+      ev("content_block_delta", { index: 0, delta: { type: "text_delta", text } }),
+      ev("content_block_stop", { index: 0 }),
+      ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 10 } }),
+      ev("message_stop", {}),
+    ].join("");
+    return new Response(body, { status: 200, headers: { "content-type": "text/event-stream" } });
+  }) as typeof fetch);
+  return sent;
+}
+
+const drillRaw = (sentence: string, answer: string) => ({ sentence, base: "kawa", hint: "accusative", answer, alts: [], tr: "I'd like a coffee.", why: "-a → -ę" });
+
+describe("grammar", () => {
+  it("writes a lesson with Opus, streamed, whatever the model setting", async () => {
+    setPrefs({ claudeKey: "sk-ant-test", model: "claude-haiku-5-5" });
+    const sent = fakeStream({
+      intro: ["The **accusative** is for objects.", ""],
+      tables: [{ title: "Endings", cols: ["gender", "nominative", "accusative"], rows: [{ head: "feminine", cells: ["kawa", "kawę"] }], note: "" }],
+      examples: [{ sentence: { tokens: [tok("Poproszę", "prosić", "I'd like"), tok(" "), tok("kawę", "kawa", "coffee (acc.)"), tok(".")], tr: "A coffee, please." }, focus: ["kawę"] }],
+      compare: "",
+      mistakes: [{ wrong: "Poproszę kawa.", right: "Poproszę kawę.", why: "object → accusative" }],
+      drills: [drillRaw("Poproszę ___.", "kawę"), drillRaw("No gap here.", "x")],
+    });
+    const r = await writeLesson("pl", topicById("pl", "pl-acc")!, { level: "beginner", known: "kawa" });
+    expect(sent[0].body.model).toBe("claude-opus-5-5");
+    expect(sent[0].body.stream).toBe(true);
+    expect((sent[0].body.output_config as { effort: string }).effort).toBe("high");
+    expect(r.intro).toEqual(["The **accusative** is for objects."]);
+    expect(r.examples[0].focus).toEqual([2]);
+    expect(r.tables[0].note).toBeUndefined();
+    expect(r.drills).toHaveLength(1); // the one without ___ is dropped
+    expect(r.drills[0]).toMatchObject({ sentence: "Poproszę ___.", answer: "kawę", base: "kawa" });
+    expect(r.drills[0].id).toMatch(/-1$/);
+  });
+
+  it("asks for more drills without repeating the ones I have", async () => {
+    setPrefs({ claudeKey: "sk-ant-test" });
+    const sent = fake({ drills: [drillRaw("Mam ___.", "kawę")] });
+    const have = [{ id: "a-1", sentence: "Poproszę ___.", base: "kawa", hint: "acc", answer: "kawę", alts: [], tr: "", why: "" }];
+    const r = await moreDrills("pl", topicById("pl", "pl-acc")!, { level: "", known: "", have });
+    expect(JSON.stringify(sent[0].body.messages)).toContain("Poproszę ___. → kawę");
+    expect(r[0].id).not.toBe("a-1");
+  });
+
+  it("tags a chat review's points with a known topic only", async () => {
+    setPrefs({ claudeKey: "sk-ant-test" });
+    const sent = fake({ summary: "Good.", points: [
+      { said: "Poproszę kawa.", better: "Poproszę kawę.", tr: "", why: "acc.", topic: "pl-acc" },
+      { said: "a", better: "b", tr: "", why: "", topic: "made-up" },
+    ], words: [] });
+    const r = await reviewChat("pl", { level: "", known: "", scenario: "café", lines: [], topics: topicsFor("pl") });
+    expect(r.points.map((p) => p.topic)).toEqual(["pl-acc", ""]);
+    expect(sent[0].body.system).toContain("pl-acc = Accusative");
   });
 });

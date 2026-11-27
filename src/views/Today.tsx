@@ -14,6 +14,9 @@ import { go, href } from "../lib/route";
 import { live, startNewWords } from "../state/actions";
 import { useAppState } from "../state/store";
 import { LANGS, type Lang } from "../types";
+import { hasGrammar } from "../data/grammar";
+import { dueDrills, suggestTopic } from "../state/grammar";
+import { IconGrammar } from "../components/Icons";
 
 /** The Scripts & sounds link: a mark and what's there. */
 const SCRIPT_LINK: Record<Lang, [string, string]> = {
@@ -51,6 +54,8 @@ export function Today({ lang }: { lang: Lang }) {
   const nextText = texts.filter((t) => !t.readAt).map((t) => ({ t, c: coverage(lang, ks, t.sentences).pct })).sort((a, b) => b.c - a.c)[0];
   const easy = texts.filter((t) => t.readAt).map((t) => ({ t, c: coverage(lang, ks, t.sentences).pct })).sort((a, b) => b.c - a.c || (a.t.listens ?? 0) - (b.t.listens ?? 0))[0];
   const lastChat = live(s.chats).filter((c) => c.lang === lang).sort((a, b) => b.updatedAt - a.updatedAt)[0];
+  const gDue = hasGrammar(lang) ? dueDrills(s, lang) : 0;
+  const gHint = useMemo(() => (hasGrammar(lang) ? suggestTopic(s, lang) : undefined), [s, lang]);
   const others = LANGS.filter((l) => l !== lang).map((l) => { const x = queue(s, l); return { l, n: x.learningNow.length + x.due.length }; });
 
   const start = () => { startNewWords(lang); go("review"); };
@@ -155,6 +160,16 @@ export function Today({ lang }: { lang: Lang }) {
           </div>
         </div>
       </section>
+
+      {hasGrammar(lang) && (
+        <a className="card link-card" href={gHint && !gDue ? href("grammar", gHint.topic.id) : href("grammar")}>
+          <span className="set-mark"><IconGrammar /></span>
+          <span className="link-card-main"><b>Grammar</b><span className="muted small">
+            {gDue ? `${gDue} exercise${gDue === 1 ? "" : "s"} due again` : gHint ? `${gHint.topic.title}: ${gHint.count} correction${gHint.count === 1 ? "" : "s"} in Talk lately` : "Cases, tenses and verb forms, with exercises"}
+          </span></span>
+          <IconNext className="chev" />
+        </a>
+      )}
 
       <a className="card link-card" href={href("script")}>
         <span className={`set-mark lx-${lang}`} lang={LANG[lang].bcp}>{SCRIPT_LINK[lang][0]}</span>

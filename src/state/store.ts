@@ -45,6 +45,8 @@ export function normalize(s: unknown): AppState {
     texts: withSeeds(arr(x.texts, d.texts), d.texts),
     chats: arr(x.chats, d.chats),
     days: arr(x.days, d.days),
+    lessons: arr(x.lessons, d.lessons),
+    gcards: arr(x.gcards, d.gcards).map((c) => ({ ...c, log: Array.isArray(c.log) ? c.log : [] })),
     settings: normSettings(x.settings),
     updatedAt: x.updatedAt || 0,
   };
