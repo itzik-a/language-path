@@ -85,7 +85,7 @@ function Overview({ lang }: { lang: Lang }) {
                   <a className="card link-card" href={href("grammar", t.id)}>
                     <span className="link-card-main">
                       <b>{t.title}</b>
-                      <span className="muted small">{t.blurb}</span>
+                      <span className="muted small" dir="auto">{t.blurb}</span>
                       <span className="small grammar-meta">
                         {p.status !== "new" && <span className={`tag${p.status === "solid" ? " accent" : ""}`}>{STATUS_TEXT[p.status]}</span>}
                         {p.drills > 0 && <span className="muted">{p.practised} of {p.drills} practised{p.due ? ` · ${p.due} due` : ""}</span>}
@@ -165,7 +165,7 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
     <div className="page-head">
       <span className="eyebrow">{LANG[lang].name} · {topic.level}</span>
       <h1 className="display">{topic.title}</h1>
-      <p className="muted">{topic.blurb}</p>
+      <p className="muted" dir="auto">{topic.blurb}</p>
     </div>
   );
 
@@ -298,6 +298,14 @@ function MistakeList({ lang, list }: { lang: Lang; list: ReturnType<typeof mista
 
 interface Item { topic: string; drill: Drill }
 
+/** How else an answer can be typed, where it's not obvious. */
+const TYPE_TIP: Partial<Record<Lang, string>> = {
+  ru: "Latin letters work too (knigu for кни́гу).",
+  el: "Latin letters work too (grafo for γράφω).",
+  ja: "Kana or romaji both work.",
+  ar: "Arabic or Latin letters. Case endings only count in Latin letters (kitāba), as Arabic is usually typed without vowel marks.",
+};
+
 /** The drill's sentence with the answer in the gap. */
 const filled = (d: Drill, answer = d.answer) => d.sentence.replace("___", answer);
 
@@ -355,7 +363,7 @@ function DrillCard({ lang, item, n, of, showTopic, onNext }: { lang: Lang; item:
 
   const check = () => {
     if (verdict) return;
-    const v = typed.trim() ? checkForm(lang, typed, [drill.answer, ...drill.alts]) : "wrong";
+    const v = typed.trim() ? checkForm(lang, typed, [drill.answer, ...drill.alts, drill.answerReading ?? ""]) : "wrong";
     setVerdict(v);
     before.current = answerDrill(lang, item.topic, drill.id, v === "right" ? Rating.Good : v === "almost" ? Rating.Hard : Rating.Again);
     void speak(filled(drill), lang);
@@ -378,6 +386,7 @@ function DrillCard({ lang, item, n, of, showTopic, onNext }: { lang: Lang; item:
         {verdict ? <span className={`drill-answer ${verdict === "right" || counted ? "ok" : "no"}`}><Term lang={lang} text={drill.answer} d={d} /></span> : <span className="cloze-gap" aria-label="gap">{"  "}</span>}
         {post && <Term lang={lang} text={post} d={d} />}
       </p>
+      {drill.reading && <p className="muted drill-reading" dir="ltr">{verdict ? drill.reading.replace("___", drill.answerReading ?? "___") : drill.reading}</p>}
       {drill.base && <p className="drill-base">(<Term lang={lang} text={drill.base} d={d} />)</p>}
       <p className="muted small">{drill.tr}</p>
 
@@ -386,7 +395,7 @@ function DrillCard({ lang, item, n, of, showTopic, onNext }: { lang: Lang; item:
           <input ref={input} className="text-input" lang={LANG[lang].bcp} autoCapitalize="off" autoCorrect="off" spellCheck={false} value={typed} onChange={(e) => setTyped(e.target.value)}
             placeholder="Type the missing form" aria-label="Your answer" />
           <button type="submit" className="btn primary">{typed.trim() ? "Check" : "Show me"}</button>
-          {lang === "ru" && <span className="muted small">Latin letters work too (knigu for кни́гу).</span>}
+          {TYPE_TIP[lang] && <span className="muted small">{TYPE_TIP[lang]}</span>}
         </form>
       ) : (
         <div className="drill-back">

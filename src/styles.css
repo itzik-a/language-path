@@ -836,3 +836,6 @@ button.back { border: 0; background: none; color: var(--accent); font: inherit; 
 .drill-back { display: grid; gap: 8px; }
 .drill-back .btn-row { align-items: center; }
 .drill .type-box > span { grid-column: 1 / -1; }
+.drill-reading { font-size: .95rem; }
+.cell-say { display: inline-grid; justify-items: start; gap: 0; }
+.cell-reading { font-size: .75rem; color: var(--muted); line-height: 1.2; }

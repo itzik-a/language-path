@@ -5,7 +5,7 @@ import { merge } from "../src/lib/merge";
 import { seedState } from "../src/data/seed";
 import { mistakesByTopic, practiceRound, topicProgress } from "../src/state/grammar";
 import { newSrs } from "../src/lib/srs";
-import type { AppState, GCard, Lesson } from "../src/types";
+import { LANGS, type AppState, type GCard, type Lesson } from "../src/types";
 
 const drill = (id: string) => ({ id, sentence: "Mam ___.", base: "kawa", hint: "accusative", answer: "kawę", alts: [], tr: "I have coffee.", why: "-a → -ę" });
 const lesson = (drills = ["a", "b", "c"]): Lesson => ({
@@ -26,7 +26,10 @@ describe("grammar topics", () => {
     expect(topicForHint("de", "with the dog (dat.)")?.id).toBe("de-dat");
     expect(topicForHint("pl", "I was (past)")?.id).toBe("pl-past");
     expect(topicForHint("pl", "coffee")).toBeUndefined();
-    expect(topicsFor("ja")).toEqual([]);
+    for (const l of LANGS) expect(topicsFor(l).length, l).toBeGreaterThan(10);
+    expect(topicForHint("ja", "eat (te-form)")?.id).toBe("ja-te");
+    expect(topicForHint("es", "you'd come (subj. impf.)")?.id).toBe("es-subj-past");
+    expect(topicForHint("ar", "the book (gen.)")?.id).toBe("ar-cases");
   });
 });
 
@@ -38,6 +41,14 @@ describe("drill answers", () => {
     expect(checkForm("de", "Muetter", ["Mütter"])).toBe("right");
     expect(checkForm("de", "Mutter", ["Mütter"])).toBe("almost");
     expect(checkForm("de", "den Hund", ["den Hund"])).toBe("right");
+  });
+  it("take kana / romaji for Japanese and keep Arabic case endings in Latin letters", () => {
+    expect(checkForm("ja", "たべて", ["食べて", "たべて"])).toBe("right");
+    expect(checkForm("ja", "tabete", ["食べて", "たべて"])).toBe("right");
+    expect(checkForm("ar", "كتابا", ["كِتَابًا", "kitāban"])).toBe("right");
+    expect(checkForm("ar", "kitaban", ["كِتَابًا", "kitāban"])).toBe("right");
+    expect(checkForm("ar", "kitabun", ["كِتَابًا", "kitāban"])).toBe("wrong");
+    expect(checkForm("el", "grafo", ["γράφω"])).toBe("right");
   });
   it("ignore Russian stress marks and take transliteration", () => {
     expect(checkForm("ru", "книгу", ["кни́гу"])).toBe("right");

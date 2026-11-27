@@ -141,7 +141,7 @@ A Grammar section per language: cases, tenses, verb forms. Built first for Polis
 
 Decisions: lessons written by Claude (not by hand), always on Opus whatever the model setting; practice separate from the daily reviews; a missing accent that is the ending (kawę) is "almost", one wrong letter is wrong.
 
-Status 2026-11-27: G1–G5 built for pl / ru / de, waiting for my review. Not yet tried: a real lesson from Claude (tests use a fake API), Russian stress marks on a real iPhone.
+Status 2026-11-27: G1–G5 built for pl / ru / de, reviewed and live (2b3b969); then topic lists for the other eight languages (ja, ar, el, pt, es, fr, it, nl; es / fr / it from B1), with kana / Latin readings on Japanese and Arabic drills. Not yet tried: a real lesson from Claude (tests use a fake API), Russian stress marks on a real iPhone.
 
 ## 8. Decisions (2026-11-23)
 

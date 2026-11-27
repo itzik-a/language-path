@@ -112,7 +112,7 @@ function fakeStream(payload: unknown) {
   return sent;
 }
 
-const drillRaw = (sentence: string, answer: string) => ({ sentence, base: "kawa", hint: "accusative", answer, alts: [], tr: "I'd like a coffee.", why: "-a → -ę" });
+const drillRaw = (sentence: string, answer: string, reading = "", answer_reading = "") => ({ sentence, base: "kawa", hint: "accusative", answer, alts: [], tr: "I'd like a coffee.", why: "-a → -ę", reading, answer_reading });
 
 describe("grammar", () => {
   it("writes a lesson with Opus, streamed, whatever the model setting", async () => {
@@ -144,6 +144,14 @@ describe("grammar", () => {
     const r = await moreDrills("pl", topicById("pl", "pl-acc")!, { level: "", known: "", have });
     expect(JSON.stringify(sent[0].body.messages)).toContain("Poproszę ___. → kawę");
     expect(r[0].id).not.toBe("a-1");
+    expect(r[0].reading).toBeUndefined();
+  });
+
+  it("keeps a Japanese drill's readings", async () => {
+    setPrefs({ claudeKey: "sk-ant-test" });
+    fake({ drills: [drillRaw("水を ___。", "飲みます", "みずを ___。", "のみます")] });
+    const r = await moreDrills("ja", topicById("ja", "ja-masu")!, { level: "", known: "", have: [] });
+    expect(r[0]).toMatchObject({ reading: "みずを ___。", answerReading: "のみます" });
   });
 
   it("tags a chat review's points with a known topic only", async () => {

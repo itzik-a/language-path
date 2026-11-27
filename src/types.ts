@@ -149,6 +149,10 @@ export interface Drill {
   tr: string;
   /** why that form, one short sentence */
   why: string;
+  /** Japanese: the sentence in hiragana; Arabic: in Latin letters (the gap as ___ there too) */
+  reading?: string;
+  /** Japanese: the answer in hiragana; Arabic: in Latin letters, with the case ending (also a right answer) */
+  answerReading?: string;
 }
 
 /** A grammar lesson, written by Claude the first time I open its topic, kept (and synced) after that. */

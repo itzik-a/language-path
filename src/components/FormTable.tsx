@@ -22,14 +22,24 @@ export function Rich({ text }: { text: string }) {
 const NON_LATIN = /[\p{Script=Cyrillic}\p{Script=Greek}\p{Script=Arabic}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const targetScript = (s: string) => NON_LATIN.test(s) && !/[a-z]/i.test(s);
 
+/** A form followed by its reading in brackets, for Japanese and Arabic (the prompt asks for that). */
+const READING_LANGS = new Set<Lang>(["ja", "ar"]);
+const READING = /^(.+?)\s*\(([^()]+)\)$/;
+
 export function FormTable({ lang, t }: { lang: Lang; t: GTable }) {
   const d = useDisplay(lang);
   const cell = (c: string, key: number) => {
-    const say = c.replace(/[–—-]+$/, "").trim();
+    // "كَتَبْتُ (katabtu)", "食べます (たべます)": the form, with its reading as a small line under it
+    const m = READING_LANGS.has(lang) ? c.match(READING) : null;
+    const form = m ? m[1] : c;
+    const say = form.replace(/[–—-]+$/, "").trim();
     return (
       <td key={key}>
         {say && c !== "–" ? (
-          <button type="button" className="cell-say" onClick={() => void speak(say, lang)}><Term lang={lang} text={c} d={d} /></button>
+          <button type="button" className="cell-say" onClick={() => void speak(say, lang)}>
+            <Term lang={lang} text={form} d={d} />
+            {m && <span className="cell-reading" dir="ltr">{m[2]}</span>}
+          </button>
         ) : <span className="muted">–</span>}
       </td>
     );

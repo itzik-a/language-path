@@ -289,6 +289,8 @@ const DrillZ = z.object({
   alts: z.array(z.string()).describe("other fillings that are just as right; [] if none"),
   tr: z.string().describe("English translation of the whole sentence"),
   why: z.string().describe("one short English sentence: why this form"),
+  reading: z.string().describe("Japanese: the whole sentence in hiragana, with ___ for the gap; Arabic: the whole sentence in Latin transliteration with ___ for the gap; other languages: \"\""),
+  answer_reading: z.string().describe("Japanese: the answer in hiragana; Arabic: the answer in Latin transliteration, case ending included (kitāba); other languages: \"\""),
 });
 
 function grammarSystem(lang: Lang, level: string) {
@@ -298,6 +300,8 @@ function grammarSystem(lang: Lang, level: string) {
     `The learner says about their level: "${level}". They read Hebrew and English; compare with Hebrew or English only where it really helps.`,
     "Accuracy comes first: every form in every table, example and answer must be correct standard usage. Check each one before you write it.",
     lang === "ru" ? "Russian: put the stress mark (U+0301) on every word of two or more syllables everywhere: table cells, examples, drill sentences, answers, mistakes." : "",
+    lang === "ja" ? "Japanese: in table cells and mistakes, follow every form that has kanji with its hiragana reading in brackets: 食べます (たべます). Use kanji only for common words." : "",
+    lang === "ar" ? "Arabic: write every form fully vowelled. In table cells follow each form with its transliteration in brackets: كَتَبْتُ (katabtu). Exercises on case endings must show the ending in answer_reading." : "",
     "Write in plain, friendly English for a learner, short sentences, no jargon without explaining it.",
   ].filter(Boolean).join("\n");
 }
@@ -322,6 +326,7 @@ function cleanDrills(raw: z.infer<typeof DrillZ>[]): Drill[] {
   return ok.map((d, i) => ({
     id: `${stamp}-${i + 1}`, sentence: d.sentence.trim(), base: d.base.trim(), hint: d.hint.trim(), answer: d.answer.trim(),
     alts: d.alts.map((a) => a.trim()).filter(Boolean), tr: d.tr.trim(), why: d.why.trim(),
+    ...(d.reading.trim() ? { reading: d.reading.trim() } : {}), ...(d.answer_reading.trim() ? { answerReading: d.answer_reading.trim() } : {}),
   }));
 }
 
