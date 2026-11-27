@@ -694,7 +694,7 @@ button.back { border: 0; background: none; color: var(--accent); font: inherit; 
 .text-group { display: grid; gap: 4px; }
 .reader { gap: 4px; padding: 10px 12px; }
 .r-line { display: flex; gap: 8px; align-items: flex-start; padding: 8px 6px; border-radius: 14px; transition: background .2s; }
-.r-line.playing { background: var(--accent-soft); }
+.r-line.playing, .r-line.paused { background: var(--accent-soft); }
 .r-line.focus:not(.playing) { background: var(--surface-2); }
 .r-play {
   width: 30px; height: 30px; flex: none; margin-top: 8px; display: grid; place-items: center; position: relative;
@@ -722,6 +722,8 @@ button.back { border: 0; background: none; color: var(--accent); font: inherit; 
 @media (min-width: 768px) { .player { bottom: 16px; } }
 .play-btn { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); }
 .player .seg button { padding: 4px 10px; min-height: 36px; font-size: .84rem; }
+/* Room for Stop next to Pause on a phone (iPhone mini: 343 px inside the page padding). */
+@media (max-width: 420px) { .player { gap: 4px; padding-inline: 6px; } .player .seg button { padding-inline: 7px; } }
 .icon-btn.on { background: var(--accent-soft); color: var(--accent); }
 .new-words { gap: 8px; }
 .new-chip { display: inline-flex; align-items: baseline; gap: 8px; }

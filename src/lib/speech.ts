@@ -141,21 +141,25 @@ function sayDevice(text: string, lang: Lang, mine: number, rate: number): Promis
 }
 
 /** Speak several lines in order; onLine(i) before each, onLine(-1) at the end. Returns a stop function.
+    onBreak(i) when something else cuts in (any other speech, e.g. a tapped word) or line i can't be spoken:
+    i is the line to go on from. Not called after the returned stop function.
     With a Google voice the next line is fetched while this one plays. */
-export function speakLines(lines: string[], lang: Lang, onLine: (i: number) => void, opts: { from?: number; rate?: number; gapMs?: number } = {}): () => void {
+export function speakLines(lines: string[], lang: Lang, onLine: (i: number) => void, opts: { from?: number; rate?: number; gapMs?: number; onBreak?: (i: number) => void } = {}): () => void {
   stopSpeaking();
   const mine = session;
+  let stopped = false;
+  const broke = (i: number) => { if (!stopped) opts.onBreak?.(i); };
   void (async () => {
     for (let i = opts.from ?? 0; i < lines.length; i++) {
-      if (mine !== session) return;
+      if (mine !== session) return broke(i);
       onLine(i);
       const voice = cloudVoiceFor(lang);
       if (voice && lines[i + 1]) void synth(spoken(lines[i + 1], lang), lang, voice, getPrefs().googleKey!).catch(() => {});
       const ok = await say(lines[i], lang, mine, opts.rate);
-      if (!ok || mine !== session) return;
+      if (!ok || mine !== session) return broke(i);
       if (opts.gapMs) await new Promise((r) => setTimeout(r, opts.gapMs));
     }
-    if (mine === session) onLine(-1);
+    if (!stopped) onLine(-1);
   })();
-  return () => { if (mine === session) stopSpeaking(); };
+  return () => { stopped = true; if (mine === session) stopSpeaking(); };
 }

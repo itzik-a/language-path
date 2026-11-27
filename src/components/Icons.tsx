@@ -23,6 +23,9 @@ export const IconWords = (p: P) => (
 export const IconPlay = (p: P) => (
   <svg {...base(p)}><path d="M7 4.8v14.4a.8.8 0 0 0 1.2.7l11.5-7.2a.8.8 0 0 0 0-1.4L8.2 4.1A.8.8 0 0 0 7 4.8Z" fill="currentColor" stroke="none" /></svg>
 );
+export const IconPause = (p: P) => (
+  <svg {...base(p)}><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none" /><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none" /></svg>
+);
 export const IconStop = (p: P) => (
   <svg {...base(p)}><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none" /></svg>
 );

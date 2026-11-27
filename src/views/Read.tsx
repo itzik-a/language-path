@@ -1,6 +1,6 @@
 /* Read: my texts (library) and the reader (tap a word, sentence-by-sentence audio, listen first, shadow, dictation). */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { IconBack, IconEye, IconMic, IconNext, IconPlay, IconPlus, IconSparkle, IconStop, IconTranslate } from "../components/Icons";
+import { IconBack, IconEye, IconMic, IconNext, IconPause, IconPlay, IconPlus, IconSparkle, IconStop, IconTranslate } from "../components/Icons";
 import { Line, useDisplay } from "../components/Lx";
 import { PasteSheet } from "../components/PasteSheet";
 import { StorySheet } from "../components/StorySheet";
@@ -91,6 +91,8 @@ function Reader({ id, lang }: { id: string; lang: Lang }) {
   const t = s.texts.find((x) => x.id === id && !x.deletedAt);
   const known = useMemo(() => knownSet(s, lang), [s, lang]);
   const [playing, setPlaying] = useState(-1);
+  /** Paused "Play all": the line it goes on from (-1: not paused). */
+  const [paused, setPaused] = useState(-1);
   const [focus, setFocus] = useState<number | null>(null);
   const [tool, setTool] = useState<Tool>(null);
   const [hide, setHide] = useLocalState(`reader.hide`, false);
@@ -110,12 +112,17 @@ function Reader({ id, lang }: { id: string; lang: Lang }) {
     : newSet.has(fold(lang, tok.l)) ? "new" : "unknown";
 
   const lines = t.sentences.map((x) => sentenceText(x));
-  const playAll = (from = 0) => {
-    if (playing >= 0) { stopRef.current(); setPlaying(-1); return; }
-    if (from === 0) countListen(t.id);
-    stopRef.current = speakLines(lines, lang, (i) => setPlaying(i), { from, rate, gapMs: 350 });
+  /** Anything else spoken meanwhile (a word, one line, Slower, shadowing) pauses "Play all" where it was. */
+  const onBreak = (i: number) => { setPlaying(-1); setPaused(i); };
+  const playAll = () => {
+    if (playing >= 0) { stopRef.current(); setPlaying(-1); setPaused(playing); return; }
+    const from = paused >= 0 ? paused : 0;
+    if (paused < 0) countListen(t.id);
+    setPaused(-1);
+    stopRef.current = speakLines(lines, lang, (i) => setPlaying(i), { from, rate, gapMs: 350, onBreak });
   };
-  const playOne = (i: number) => { stopRef.current(); setPlaying(-1); setFocus(i); void speak(lines[i], lang, { rate }); };
+  const stopAll = () => { stopRef.current(); setPlaying(-1); setPaused(-1); };
+  const playOne = (i: number) => { setFocus(i); void speak(lines[i], lang, { rate }); };
 
   return (
     <>
@@ -131,7 +138,7 @@ function Reader({ id, lang }: { id: string; lang: Lang }) {
         {t.sentences.map((sn, i) => {
           const hidden = hide && !shownLines.has(i);
           return (
-            <div key={i} className={`r-line${playing === i ? " playing" : ""}${focus === i ? " focus" : ""}`} dir={LANG[lang].dir}>
+            <div key={i} className={`r-line${playing === i ? " playing" : ""}${paused === i ? " paused" : ""}${focus === i ? " focus" : ""}`} dir={LANG[lang].dir}>
               <button type="button" className="r-play" aria-label={`Play line ${i + 1}`} onClick={() => playOne(i)}><IconPlay width={14} height={14} /></button>
               <div className="r-body">
                 {hidden ? (
@@ -161,7 +168,8 @@ function Reader({ id, lang }: { id: string; lang: Lang }) {
       </div>
 
       <div className="player">
-        <button type="button" className="play-btn" aria-label={playing >= 0 ? "Stop" : "Play all"} onClick={() => playAll(0)}>{playing >= 0 ? <IconStop /> : <IconPlay />}</button>
+        <button type="button" className="play-btn" aria-label={playing >= 0 ? "Pause" : paused >= 0 ? "Resume" : "Play all"} onClick={playAll}>{playing >= 0 ? <IconPause /> : <IconPlay />}</button>
+        {(playing >= 0 || paused >= 0) && <button type="button" className="icon-btn subtle" aria-label="Stop" title="Stop" onClick={stopAll}><IconStop /></button>}
         <Seg label="Speed" value={rate} onChange={(v) => setRate(v)} options={[{ id: 0.65, label: "0.65×" }, { id: 0.8, label: "0.8×" }, { id: 1, label: "1×" }]} />
         <button type="button" className={`icon-btn${hide ? " on" : " subtle"}`} aria-pressed={hide} aria-label="Listen first: hide the text" title="Listen first" onClick={() => { setHide(!hide); setShownLines(new Set()); }}><IconEye /></button>
         <button type="button" className={`icon-btn${prefs.showTr ? " on" : " subtle"}`} aria-pressed={prefs.showTr} aria-label="Show translations" title="Translations" onClick={() => setPrefs({ showTr: !prefs.showTr })}><IconTranslate /></button>
