@@ -113,9 +113,40 @@ function Overview({ lang }: { lang: Lang }) {
 const writing = new Map<string, Promise<void>>();
 const failed = new Map<string, string>();
 
+/* A write takes Claude a few minutes and dies with the page (the app closed, sent to the background, or reloaded).
+   This device notes each write it starts (localStorage, topic → start time), so after a reload the topic page can say
+   the last try was cut off instead of showing nothing. Kept for an hour at most. */
+const LS_WRITING = "languagePath.writing";
+function marks(): Record<string, number> { try { return JSON.parse(localStorage.getItem(LS_WRITING) || "{}"); } catch { return {}; } }
+function mark(topic: string, on: boolean) {
+  const m = marks();
+  if (on) m[topic] = Date.now(); else delete m[topic];
+  localStorage.setItem(LS_WRITING, JSON.stringify(m));
+}
+/** The page is going away (reload, close): the write's request fails as it goes, and that must not clear its mark. */
+let leaving = false;
+if (typeof window !== "undefined") window.addEventListener("pagehide", () => { leaving = true; });
+const CUT_OFF = "The last try was cut off: the app was closed or reloaded while Claude was still writing. Writing takes a few minutes; keep the app open on this page until the lesson appears.";
+function cutOff(topic: string): string {
+  const at = marks()[topic];
+  if (!at || writing.has(topic)) return "";
+  mark(topic, false);
+  if (Date.now() - at > 3_600_000) return "";
+  failed.set(topic, CUT_OFF); // shown like any failure until the next try
+  return CUT_OFF;
+}
+
+/** Keep the screen on while Claude writes (a locked phone suspends the page and the request with it). */
+async function keepAwake(): Promise<() => void> {
+  try {
+    const lock = await (navigator as Navigator & { wakeLock?: { request(t: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock?.request("screen");
+    return () => { void lock?.release().catch(() => {}); };
+  } catch { return () => {}; }
+}
+
 function useWriting(topic: string) {
   const [busy, setBusy] = useState(writing.has(topic));
-  const [err, setErr] = useState(failed.get(topic) ?? "");
+  const [err, setErr] = useState(() => failed.get(topic) ?? cutOff(topic));
   useEffect(() => {
     const p = writing.get(topic);
     if (p) void p.finally(() => { setBusy(false); setErr(failed.get(topic) ?? ""); });
@@ -136,8 +167,9 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
   useEffect(() => () => stopSpeaking(), []);
 
   const write = () => {
-    setBusy(true); setErr(""); failed.delete(topic.id);
+    setBusy(true); setErr(""); failed.delete(topic.id); mark(topic.id, true);
     const job = (async () => {
+      const release = await keepAwake();
       try {
         const claude = await import("../lib/claude");
         const st = getState();
@@ -145,10 +177,11 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
         saveLesson(lang, topic.id, r, "claude-opus-5-5");
         showToast(`The lesson "${topic.title}" is ready`);
       } catch (e) {
+        if (leaving) return;
         const msg = (e as Error).message || "Something went wrong.";
         failed.set(topic.id, msg); setErr(msg);
         showToast(`The lesson "${topic.title}" wasn't written: ${msg}`);
-      } finally { writing.delete(topic.id); setBusy(false); }
+      } finally { writing.delete(topic.id); if (!leaving) mark(topic.id, false); release(); setBusy(false); }
     })();
     writing.set(topic.id, job);
   };
@@ -187,7 +220,7 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
               <p>Claude Opus writes this lesson for your level: an explanation, tables of the forms, examples with words you know, common mistakes and about a dozen exercises. It's written once and kept on all your devices.</p>
               {err && <p className="form-error" role="alert">{err}</p>}
               <button type="button" className="btn primary" disabled={busy} onClick={write}><IconSparkle /> {busy ? "Writing the lesson… (a minute or two)" : "Write the lesson"}</button>
-              {busy && <p className="muted small">You can leave this page; the lesson is saved when it's ready.</p>}
+              {busy && <p className="muted small">This takes a few minutes. You can go to other pages, but keep the app open: closing it or switching apps stops the writing.</p>}
             </>
           ) : (
             <p className="muted">Lessons are written by Claude. Add your Claude API key in Settings → Claude to turn this on.</p>
