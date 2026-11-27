@@ -107,16 +107,20 @@ function Overview({ lang }: { lang: Lang }) {
 
 // ── a topic ───────────────────────────────────────────────────
 
-/** Lessons being written right now, by topic: writing goes on if I leave the page, and the page shows it when I'm back. */
+/** Lessons being written right now, by topic: writing goes on if I leave the page, and the page shows it when I'm back.
+    How it ended goes in a toast wherever I am, and a failure's reason stays for the topic's page (`failed`) until
+    the next try, so leaving the page never hides why nothing came. */
 const writing = new Map<string, Promise<void>>();
+const failed = new Map<string, string>();
 
 function useWriting(topic: string) {
   const [busy, setBusy] = useState(writing.has(topic));
+  const [err, setErr] = useState(failed.get(topic) ?? "");
   useEffect(() => {
     const p = writing.get(topic);
-    if (p) void p.finally(() => setBusy(false));
+    if (p) void p.finally(() => { setBusy(false); setErr(failed.get(topic) ?? ""); });
   }, [topic]);
-  return [busy, setBusy] as const;
+  return [busy, setBusy, err, setErr] as const;
 }
 
 function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
@@ -125,23 +129,26 @@ function TopicPage({ lang, topic }: { lang: Lang; topic: Topic }) {
   const lesson = lessonOf(s, topic.id);
   const p = topicProgress(s, topic.id);
   const mistakes = mistakesByTopic(s, lang).get(topic.id) ?? [];
-  const [busy, setBusy] = useWriting(topic.id);
+  const [busy, setBusy, err, setErr] = useWriting(topic.id);
   const [more, setMore] = useState(false);
-  const [err, setErr] = useState("");
   const [pop, setPop] = useState<{ tok: Token; s: Sentence } | null>(null);
   const [story, setStory] = useState(false);
   useEffect(() => () => stopSpeaking(), []);
 
   const write = () => {
-    setBusy(true); setErr("");
+    setBusy(true); setErr(""); failed.delete(topic.id);
     const job = (async () => {
       try {
         const claude = await import("../lib/claude");
         const st = getState();
         const r = await claude.writeLesson(lang, topic, { level: st.settings.lang[lang].level, known: claude.knownList(st, lang, 300) });
         saveLesson(lang, topic.id, r, "claude-opus-5-5");
-      } catch (e) { setErr((e as Error).message); }
-      finally { writing.delete(topic.id); setBusy(false); }
+        showToast(`The lesson "${topic.title}" is ready`);
+      } catch (e) {
+        const msg = (e as Error).message || "Something went wrong.";
+        failed.set(topic.id, msg); setErr(msg);
+        showToast(`The lesson "${topic.title}" wasn't written: ${msg}`);
+      } finally { writing.delete(topic.id); setBusy(false); }
     })();
     writing.set(topic.id, job);
   };

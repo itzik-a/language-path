@@ -67,6 +67,13 @@ describe("Claude jobs", () => {
     expect(sent[0].body.fallbacks).toBeUndefined(); // Haiku has no server-side fallback
   });
 
+  it("passes on what the API said about a server error", async () => {
+    setPrefs({ claudeKey: "sk-ant-test", model: "claude-opus-5-5" });
+    setFetchForTests((async () => new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }),
+      { status: 529, headers: { "content-type": "application/json", "x-should-retry": "false" } })) as typeof fetch);
+    await expect(annotate("pl", ["Tak."])).rejects.toThrow("Claude had a problem (529: Overloaded). Try again.");
+  });
+
   it("explains errors in plain words", async () => {
     setPrefs({ claudeKey: "sk-ant-bad" });
     fake({}, { status: 401 });
@@ -142,6 +149,7 @@ describe("grammar", () => {
     expect(sent[0].body.model).toBe("claude-opus-5-5");
     expect(sent[0].body.stream).toBe(true);
     expect((sent[0].body.output_config as { effort: string }).effort).toBe("high");
+    expect(sent[0].body.max_tokens).toBe(64000); // thinking at effort high counts toward it
     expect(r.intro).toEqual(["The **accusative** is for objects."]);
     expect(r.examples[0].focus).toEqual([2]);
     expect(r.tables[0].note).toBeUndefined();

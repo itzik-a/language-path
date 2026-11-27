@@ -36,7 +36,11 @@ function explain(e: unknown): ClaudeError {
   if (e instanceof Anthropic.RateLimitError) return new ClaudeError("Claude is busy right now (rate limit). Try again in a minute.");
   if (e instanceof Anthropic.BadRequestError) return new ClaudeError(`Claude couldn't do this request: ${e.message}`);
   if (e instanceof Anthropic.APIConnectionError) return new ClaudeError("Couldn't reach Claude. Check the connection.");
-  if (e instanceof Anthropic.APIError) return new ClaudeError(`Claude had a problem (${e.status ?? "?"}). Try again.`);
+  if (e instanceof Anthropic.APIError) {
+    // the API's own words help more than a bare number (overloaded, a server error, a stream that broke off)
+    const said = (e.error as { error?: { message?: string } } | undefined)?.error?.message;
+    return new ClaudeError(`Claude had a problem (${e.status ?? "?"}${said ? `: ${said}` : ""}). Try again.`);
+  }
   return new ClaudeError((e as Error)?.message || "Something went wrong.");
 }
 
@@ -341,7 +345,7 @@ const cleanTable = (t: z.infer<typeof TableZ>): GTable => ({
 /** A grammar lesson for one topic (always Claude Opus 5.5). */
 export async function writeLesson(lang: Lang, topic: Topic, o: { level: string; known: string }) {
   const r = await ask(LessonZ, {
-    model: "claude-opus-5-5", effort: "high", maxTokens: 48000, stream: true,
+    model: "claude-opus-5-5", effort: "high", maxTokens: 64000, stream: true,
     system: grammarSystem(lang, o.level),
     user: [
       `Write a lesson on: ${topic.title} (${topic.level}).`,
