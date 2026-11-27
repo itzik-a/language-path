@@ -1,13 +1,17 @@
-/* Settings → Claude: the API key (this device only) and the model. */
+/* Settings → Claude: the API key (this device only), the model, and what Claude has cost this month (every device). */
 import { useState } from "react";
+import { money, usageSummary } from "../lib/cost";
+import { ago } from "../lib/dates";
 import { MODELS } from "../lib/prefs";
 import { setPrefs, usePrefs } from "../lib/prefs";
 import type { Model } from "../lib/prefs";
 import { IconExternal, IconLock } from "./Icons";
+import { useAppState } from "../state/store";
 import { Select } from "./ui";
 
 export function ClaudeSection() {
   const p = usePrefs();
+  const use = usageSummary(useAppState());
   const [key, setKey] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -39,6 +43,12 @@ export function ClaudeSection() {
           <a className="link" href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">Get a key in the Claude Console <IconExternal /></a>
           <p className="muted small">The key stays on this device (not in the synced data). Add it on each device you use.</p>
         </>
+      )}
+      {use.last > 0 && (
+        <p className="small">
+          Last call {ago(use.last)} · this month {money(use.usd)}{use.calls ? ` · ${use.calls} ${use.calls === 1 ? "call" : "calls"}` : ""}
+          <span className="muted"> · an estimate from token counts, all your devices; the Claude Console has the bill</span>
+        </p>
       )}
       {note && <p className="small" role="status">{note}</p>}
     </section>

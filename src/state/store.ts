@@ -47,6 +47,7 @@ export function normalize(s: unknown): AppState {
     days: arr(x.days, d.days),
     lessons: arr(x.lessons, d.lessons),
     gcards: arr(x.gcards, d.gcards).map((c) => ({ ...c, log: Array.isArray(c.log) ? c.log : [] })),
+    usage: arr(x.usage, d.usage),
     settings: normSettings(x.settings),
     updatedAt: x.updatedAt || 0,
   };

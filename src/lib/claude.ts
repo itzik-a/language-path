@@ -1,7 +1,8 @@
 /* Claude, called straight from the browser with my own key (kept on this device only, src/lib/prefs.ts).
    Every job asks for structured output (a Zod schema → JSON schema) and gets it back parsed.
    Model: Claude Opus 5.5 by default (Settings can switch to Sonnet 5.5 or Haiku 5.5); server-side refusal
-   fallback is on for the models that have it. Nothing is sent except the text the job needs.
+   fallback is on for the models that have it. Nothing is sent except the text the job needs. Each answer's token
+   counts go to recordUsage() (calls and estimated cost per month and device, shown in Settings → Claude).
    Loaded on demand (import("./claude")): the SDK is most of the bundle. */
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
@@ -10,6 +11,7 @@ import type { AppState, Drill, GTable, Lang, Sentence, Token } from "../types";
 import type { Topic } from "../data/grammar";
 import { isElided, LANG, stripHarakat } from "./langs";
 import { getPrefs, type Model } from "./prefs";
+import { recordUsage } from "../state/actions";
 
 export { hasClaude, MODELS } from "./prefs";
 
@@ -57,6 +59,8 @@ export async function ask<S extends z.ZodType>(schema: S, opts: {
       output_config: { format: betaZodOutputFormat(schema), effort: opts.effort ?? "low" },
     };
     const res = opts.stream ? await client().beta.messages.stream(params).finalMessage() : await client().beta.messages.parse(params);
+    // every answer is billed, refused or cut off too; counting must never break the job
+    try { recordUsage(res.model || model, res.usage); } catch (e) { console.warn("[claude] usage not recorded", e); }
     if (res.stop_reason === "refusal") throw new ClaudeError("Claude declined this one. Try different wording.");
     if (res.stop_reason === "max_tokens") throw new ClaudeError("The answer was too long and got cut off. Try something shorter.");
     if (res.parsed_output == null) throw new ClaudeError("Claude's answer didn't come back in the expected shape. Try again.");

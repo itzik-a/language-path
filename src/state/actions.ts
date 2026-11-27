@@ -1,4 +1,5 @@
 /* Every change to the saved state goes through here: stamps `updatedAt`, soft-deletes with Undo. */
+import { costUsd, monthOf, type TokenCounts } from "../lib/cost";
 import { today } from "../lib/dates";
 import { getPrefs } from "../lib/prefs";
 import { newWordsLeft } from "../lib/queue";
@@ -188,6 +189,23 @@ export function bumpDay(s: AppState, lang: Lang, d: Partial<Pick<DayLog, "review
   if (!log) { log = { id, updatedAt: 0, date, lang, device, reviews: 0, newWords: 0, readSec: 0, talkSec: 0, turns: 0 }; s.days.push(log); }
   for (const [k, v] of Object.entries(d) as [keyof typeof d, number][]) log[k] = Math.max(0, (log[k] ?? 0) + v);
   log.updatedAt = Date.now();
+}
+
+// ── Claude usage ──────────────────────────────────────────────
+
+/** Count one Claude response toward this month's record for this device (src/lib/claude.ts calls it for every answer,
+    refused or cut off ones too: they're billed). */
+export function recordUsage(model: string, tokens: TokenCounts) {
+  const now = Date.now(), month = monthOf(now), device = getPrefs().device;
+  const id = `u_${month}_${device}`;
+  update((s) => {
+    let u = s.usage.find((x) => x.id === id);
+    if (!u) { u = { id, updatedAt: 0, month, device, calls: 0, usd: 0, last: 0 }; s.usage.push(u); }
+    u.calls += 1;
+    u.usd = Math.round((u.usd + costUsd(model, tokens)) * 1e6) / 1e6;
+    u.last = now;
+    u.updatedAt = now;
+  });
 }
 
 export function logTime(lang: Lang, field: "readSec" | "talkSec", sec: number) {

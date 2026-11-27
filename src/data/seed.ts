@@ -46,6 +46,7 @@ export const seedState = (): AppState => ({
   days: [],
   lessons: [],
   gcards: [],
+  usage: [],
   settings: defaultSettings(),
   updatedAt: 0,
 });

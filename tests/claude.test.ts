@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { annotate, ClaudeError, setFetchForTests, writeStory } from "../src/lib/claude";
 import { setPrefs } from "../src/lib/prefs";
 import { sentenceText } from "../src/lib/tokens";
+import { getState } from "../src/state/store";
 
 type Sent = { url: string; headers: Headers; body: Record<string, unknown> };
 
@@ -44,6 +45,18 @@ describe("Claude jobs", () => {
     expect(req.headers.get("authorization")).toBe("Bearer sk-ant-test");
     expect((req.body.output_config as { format: { type: string } }).format.type).toBe("json_schema");
     expect((req.body.output_config as { effort: string }).effort).toBe("medium");
+  });
+
+  it("counts each answer's calls and cost toward this month", async () => {
+    setPrefs({ claudeKey: "sk-ant-test", model: "claude-opus-5-5" });
+    const before = getState().usage.reduce((n, x) => n + x.calls, 0);
+    const usdBefore = getState().usage.reduce((n, x) => n + x.usd, 0);
+    fake({ title_tr: "Yes", sentences: [{ tokens: [tok("Tak", "tak", "yes"), tok(".")], tr: "Yes." }] });
+    await annotate("pl", ["Tak."]);
+    const usage = getState().usage;
+    expect(usage.reduce((n, x) => n + x.calls, 0)).toBe(before + 1);
+    expect(usage.reduce((n, x) => n + x.usd, 0) - usdBefore).toBeCloseTo((10 * 4 + 10 * 20) / 1e6, 8); // 10 in, 10 out on Opus 5.5
+    expect(usage[0].id).toMatch(/^u_\d{4}-\d{2}_/);
   });
 
   it("annotates in chunks and keeps Japanese readings", async () => {

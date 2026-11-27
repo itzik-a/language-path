@@ -2,6 +2,7 @@
    - every list: per item, the newer `updatedAt` wins (soft deletes win the same way)
    - cards and grammar drills (gcards): the winner also gets every review either copy has (logs unioned by time),
      so two devices reviewing offline lose no history
+   - usage (Claude calls and cost): per month and device, so only that device ever changes its record
    - settings: the copy with the newer `settings.updatedAt` */
 import type { AppState, Card } from "../types";
 
@@ -34,6 +35,7 @@ export function merge(local: AppState, remote: AppState): AppState {
     days: byId(local.days, remote.days),
     lessons: byId(local.lessons ?? [], remote.lessons ?? []),
     gcards: byId(local.gcards ?? [], remote.gcards ?? [], joinCards),
+    usage: byId(local.usage ?? [], remote.usage ?? []),
     settings: (remote.settings.updatedAt || 0) > (local.settings.updatedAt || 0) ? remote.settings : local.settings,
     updatedAt: Math.max(local.updatedAt || 0, remote.updatedAt || 0),
   };

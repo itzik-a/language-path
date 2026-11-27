@@ -196,6 +196,18 @@ export interface DayLog extends Item {
   turns: number;
 }
 
+/** Claude usage for one month and device (each device writes its own, like day logs): calls and an estimated cost. */
+export interface Usage extends Item {
+  /** YYYY-MM, local time */
+  month: string;
+  device: string;
+  calls: number;
+  /** estimated from the responses' token counts (src/lib/cost.ts) */
+  usd: number;
+  /** the latest call, ms */
+  last: number;
+}
+
 export interface LangSettings {
   /** new words a day */
   newPerDay: number;
@@ -230,6 +242,8 @@ export interface AppState {
   days: DayLog[];
   lessons: Lesson[];
   gcards: GCard[];
+  /** Claude usage per month and device (absent in older copies) */
+  usage: Usage[];
   settings: Settings;
   updatedAt: number;
 }
